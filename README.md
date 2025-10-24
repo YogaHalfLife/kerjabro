@@ -2,48 +2,61 @@
 > Sistem Pelaporan Pekerjaan Divisi/Instalasi IT
 
 [![PHP](https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net/manual/en/index.php)
-[![Javascript](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)](https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/JavaScript_basics?retiredLocale=id)
-[![Html5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
-[![Css](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
+[![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+[![Blade](https://img.shields.io/badge/Blade_Template-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com/docs/blade)
+[![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com)
+[![JavaScript](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
+[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
 
 ---
 
 ## ✨ Fitur Utama
-- [ ] Dashboard & Laporan
-- [ ] Manajemen Master Data (CRUD)
-- [ ] Manajemen Data Pekerjaan (Input pekerjaan & daftar pekerjaan)
-- [ ] Ekspor (Excel/Word)
-- [ ] Auto Create User
+- [x] Dashboard & Laporan
+- [x] Manajemen Master Data (CRUD)
+- [x] Manajemen Data Pekerjaan (Input dan Daftar Pekerjaan)
+- [x] Ekspor Laporan (Excel & Word)
+- [x] Auto Create User (otomatis membuat akun pengguna baru)
 
 ---
 
-## 🧰 Teknologi
-- **Framework**: Laravel 10.x (PHP ^8.1)
-- **Database**: MySQL
-- **Front-end**: Blade (Bootstrap & Soft UI)
-- **Dev Env**: Laragon (Windows)
+## 🧰 Teknologi yang Digunakan
+- **Framework:** Laravel 10.x (PHP ^8.1)
+- **Templating:** Blade (Bootstrap + Soft UI)
+- **Database:** MySQL 8.0+
+- **Lingkungan Dev:** Laragon (Windows)
+- **Frontend:** HTML5, CSS3, JavaScript (Bootstrap UI)
 
 ---
 
 ## ✅ Persyaratan Sistem
-- PHP **8.1+**
-- Composer **2.x**
-- MySQL**8.0+**
+- **PHP** ≥ 8.1  
+- **Composer** ≥ 2.x  
+- **MySQL** ≥ 8.0  
 
-> **Laragon (Windows)** sangat direkomendasikan untuk pengembangan lokal.
+> 💡 **Rekomendasi:** Gunakan **Laragon (Windows)** untuk pengembangan lokal yang stabil dan mudah.
 
 ---
 
-## Tangkapan Layar
-- Dashboard Admin
+## 🖼️ Tangkapan Layar
+
+### Dashboard Admin
 ![Dashboard](public/img/dashboard.png)
 
+### Input Pekerjaan
+![InputPekerjaan](public/img/inputpekerjaan.png)
 
+### Daftar Pekerjaan
+![DaftarPekerjaan](public/img/daftarpekerjaan.png)
+
+### Laporan Kerja
+![LaporanKerja](public/img/laporankerja.png)
+
+---
 
 ## 🚀 Instalasi
 
-
-### 1) Pasang Dependensi
+### 1️⃣ Pasang Dependensi
 ```bash
 composer install
 ```
