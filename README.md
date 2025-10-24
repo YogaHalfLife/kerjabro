@@ -35,7 +35,8 @@
 ---
 
 ## Tangkapan Layar
-- ![Dashboard](public/img/dashboard.png)
+- Dashboard Admin
+![Dashboard](public/img/dashboard.png)
 
 
 
