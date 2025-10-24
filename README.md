@@ -35,7 +35,8 @@
 ---
 
 ## Tangkapan Layar
-- Dashboard Admin
+- ![Dashboard](public/img/dashboard.png)
+
 
 
 ## 🚀 Instalasi
