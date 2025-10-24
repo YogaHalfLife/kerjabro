@@ -186,18 +186,12 @@ you'll use promises for that:
 
 ```php
 $user->getName()->willReturn(null);
-
-// For PHP 5.4
 $user->setName('everzet')->will(function () {
     $this->getName()->willReturn('everzet');
 });
-
-// For PHP 5.3
 $user->setName('everzet')->will(function ($args, $user) {
     $user->getName()->willReturn('everzet');
 });
-
-// Or
 $user->setName('everzet')->will(function ($args) use ($user) {
     $user->getName()->willReturn('everzet');
 });
@@ -268,18 +262,12 @@ So, let's refactor our initial `{set,get}Name()` logic with argument tokens:
 use Prophecy\Argument;
 
 $user->getName()->willReturn(null);
-
-// For PHP 5.4
 $user->setName(Argument::type('string'))->will(function ($args) {
     $this->getName()->willReturn($args[0]);
 });
-
-// For PHP 5.3
 $user->setName(Argument::type('string'))->will(function ($args, $user) {
     $user->getName()->willReturn($args[0]);
 });
-
-// Or
 $user->setName(Argument::type('string'))->will(function ($args) use ($user) {
     $user->getName()->willReturn($args[0]);
 });
@@ -295,18 +283,12 @@ One last bit about arguments now. You might ask, what happens in case of:
 use Prophecy\Argument;
 
 $user->getName()->willReturn(null);
-
-// For PHP 5.4
 $user->setName(Argument::type('string'))->will(function ($args) {
     $this->getName()->willReturn($args[0]);
 });
-
-// For PHP 5.3
 $user->setName(Argument::type('string'))->will(function ($args, $user) {
     $user->getName()->willReturn($args[0]);
 });
-
-// Or
 $user->setName(Argument::type('string'))->will(function ($args) use ($user) {
     $user->getName()->willReturn($args[0]);
 });

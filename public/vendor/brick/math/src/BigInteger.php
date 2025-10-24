@@ -105,12 +105,10 @@ final class BigInteger extends BigNumber
         $number = \ltrim($number, '0');
 
         if ($number === '') {
-            // The result will be the same in any base, avoid further calculation.
             return BigInteger::zero();
         }
 
         if ($number === '1') {
-            // The result will be the same in any base, avoid further calculation.
             return new BigInteger($sign . '1');
         }
 
@@ -121,7 +119,6 @@ final class BigInteger extends BigNumber
         }
 
         if ($base === 10) {
-            // The number is usable as is, avoid further calculation.
             return new BigInteger($sign . $number);
         }
 
@@ -286,8 +283,6 @@ final class BigInteger extends BigNumber
 
         $diff      = $max->minus($min);
         $bitLength = $diff->getBitLength();
-
-        // try until the number is in range (50% to 100% chance of success)
         do {
             $randomNumber = self::randomBits($bitLength, $randomBytesGenerator);
         } while ($randomNumber->isGreaterThan($diff));

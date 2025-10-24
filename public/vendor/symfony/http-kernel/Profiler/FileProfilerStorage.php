@@ -139,7 +139,6 @@ class FileProfilerStorage implements ProfilerStorageInterface
 
         $profileIndexed = is_file($file);
         if (!$profileIndexed) {
-            // Create directory
             $dir = \dirname($file);
             if (!is_dir($dir) && false === @mkdir($dir, 0777, true) && !is_dir($dir)) {
                 throw new \RuntimeException(sprintf('Unable to create the storage directory (%s).', $dir));
@@ -147,14 +146,10 @@ class FileProfilerStorage implements ProfilerStorageInterface
         }
 
         $profileToken = $profile->getToken();
-        // when there are errors in sub-requests, the parent and/or children tokens
-        // may equal the profile token, resulting in infinite loops
         $parentToken = $profile->getParentToken() !== $profileToken ? $profile->getParentToken() : null;
         $childrenToken = array_filter(array_map(function (Profile $p) use ($profileToken) {
             return $profileToken !== $p->getToken() ? $p->getToken() : null;
         }, $profile->getChildren()));
-
-        // Store profile
         $data = [
             'token' => $profileToken,
             'parent' => $parentToken,
@@ -179,7 +174,6 @@ class FileProfilerStorage implements ProfilerStorageInterface
         }
 
         if (!$profileIndexed) {
-            // Add to index
             if (false === $file = fopen($this->getIndexFilename(), 'a')) {
                 return false;
             }
@@ -204,7 +198,6 @@ class FileProfilerStorage implements ProfilerStorageInterface
      */
     protected function getFilename(string $token): string
     {
-        // Uses 4 last characters, because first are mostly the same.
         $folderA = substr($token, -2, 2);
         $folderB = substr($token, -4, 2);
 
@@ -241,7 +234,6 @@ class FileProfilerStorage implements ProfilerStorageInterface
             fseek($file, $position);
 
             if (0 === $chunkSize) {
-                // bof reached
                 break;
             }
 

@@ -1,9 +1,3 @@
-//
-// Badge
-//
-
-
-// General styles
 
 .badge {
 
@@ -12,9 +6,6 @@
         color: $white;
     }
 }
-
-
-// Size variations
 
 .badge-sm{
   padding: $badge-sm-padding;
@@ -30,9 +21,6 @@
     padding: $badge-lg-padding;
 }
 
-
-// Multiple inline badges
-
 .badge-inline {
     margin-right: $badge-inline-margin-right;
 
@@ -46,9 +34,6 @@
     }
 }
 
-
-// Color fixes
-
 .badge-default {
     color: $white;
 }
@@ -57,9 +42,6 @@
     background-color: theme-color("secondary");
     color: color-yiq(theme-color("secondary"));
 }
-
-
-// Badge spacing inside a btn with some text
 
 .btn {
     .badge {
@@ -71,10 +53,6 @@
         }
     }
 }
-
-// Colors
-//
-// Contextual variations (linked badges get darker on :hover).
 
 @each $color, $value in $theme-colors {
   .badge-#{$color} {

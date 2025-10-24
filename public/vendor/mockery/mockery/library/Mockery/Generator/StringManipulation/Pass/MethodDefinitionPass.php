@@ -117,10 +117,6 @@ class MethodDefinitionPass implements Pass
 \$argv = func_get_args();
 
 BODY;
-
-        // Fix up known parameters by reference - used func_get_args() above
-        // in case more parameters are passed in than the function definition
-        // says - eg varargs.
         $class = $method->getDeclaringClass();
         $class_name = strtolower($class->getName());
         $overrides = $config->getParameterOverrides();

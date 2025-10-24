@@ -37,8 +37,6 @@ final class CommonMarkCoreExtension implements ConfigurableExtensionInterface
             'unordered_list_markers' => Expect::listOf('string')->min(1)->default(['*', '+', '-'])->mergeDefaults(false),
         ]));
     }
-
-    // phpcs:disable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma,Squiz.WhiteSpace.SemicolonSpacing.Incorrect
     public function register(EnvironmentBuilderInterface $environment): void
     {
         $environment

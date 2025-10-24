@@ -264,12 +264,10 @@ abstract class AbstractLexer
         $matches = preg_split($this->regex, $input, -1, $flags);
 
         if ($matches === false) {
-            // Work around https://bugs.php.net/78122
             $matches = [[$input, 0]];
         }
 
         foreach ($matches as $match) {
-            // Must remain before 'value' assignment since it can change content
             $type = $this->getType($match[0]);
 
             $this->tokens[] = [

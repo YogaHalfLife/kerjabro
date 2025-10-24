@@ -19,7 +19,6 @@ use Symfony\Component\Console\Input\InputInterface;
  */
 class ConstantEnumerator extends Enumerator
 {
-    // Because `Json` is ugly.
     private static $categoryLabels = [
         'libxml'   => 'libxml',
         'openssl'  => 'OpenSSL',
@@ -51,12 +50,9 @@ class ConstantEnumerator extends Enumerator
      */
     protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null): array
     {
-        // if we have a reflector, ensure that it's a namespace reflector
         if (($target !== null || $reflector !== null) && !$reflector instanceof ReflectionNamespace) {
             return [];
         }
-
-        // only list constants if we are specifically asked
         if (!$input->getOption('constants')) {
             return [];
         }
@@ -154,7 +150,6 @@ class ConstantEnumerator extends Enumerator
      */
     protected function prepareConstants(array $constants): array
     {
-        // My kingdom for a generator.
         $ret = [];
 
         $names = \array_keys($constants);

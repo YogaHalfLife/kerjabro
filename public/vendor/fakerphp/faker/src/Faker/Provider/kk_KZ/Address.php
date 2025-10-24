@@ -13,7 +13,6 @@ class Address extends \Faker\Provider\Address
 
     protected static $buildingNumber = ['%##'];
     protected static $postcode = ['0#####'];
-    // TODO list all country names in the world
     protected static $country = [
         'Қазақстан',
         'Ресей',

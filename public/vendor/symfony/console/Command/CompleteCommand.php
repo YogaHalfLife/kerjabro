@@ -40,7 +40,6 @@ final class CompleteCommand extends Command
      */
     public function __construct(array $completionOutputs = [])
     {
-        // must be set before the parent constructor, as the property value is used in configure()
         $this->completionOutputs = $completionOutputs + ['bash' => BashCompletionOutput::class];
 
         parent::__construct();
@@ -64,16 +63,6 @@ final class CompleteCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         try {
-            // uncomment when a bugfix or BC break has been introduced in the shell completion scripts
-            //$version = $input->getOption('symfony');
-            //if ($version && version_compare($version, 'x.y', '>=')) {
-            //    $message = sprintf('Completion script version is not supported ("%s" given, ">=x.y" required).', $version);
-            //    $this->log($message);
-
-            //    $output->writeln($message.' Install the Symfony completion script again by using the "completion" command.');
-
-            //    return 126;
-            //}
 
             $shell = $input->getOption('shell');
             if (!$shell) {
@@ -107,8 +96,6 @@ final class CompleteCommand extends Command
                 && $command->getName() !== $completionInput->getCompletionValue()
             ) {
                 $this->log('  No command found, completing using the Application class.');
-
-                // expand shortcut names ("cache:cl<TAB>") into their full name ("cache:clear")
                 $suggestions->suggestValue($command->getName());
             } else {
                 $command->mergeApplicationDefinition();

@@ -66,9 +66,6 @@ final class IsEqual extends Constraint
      */
     public function evaluate($other, string $description = '', bool $returnResult = false): ?bool
     {
-        // If $this->value and $other are identical, they are also equal.
-        // This is the most common path and will allow us to skip
-        // initialization of all the comparators.
         if ($this->value === $other) {
             return true;
         }

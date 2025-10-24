@@ -163,7 +163,6 @@ final class Idn
         $labels = self::process((string) $domainName, $options, $info);
 
         foreach ($labels as $i => $label) {
-            // Only convert labels to punycode that contain non-ASCII code points
             if (1 === preg_match('/[^\x00-\x7F]/', $label)) {
                 try {
                     $label = 'xn--'.self::punycodeEncode($label);
@@ -242,15 +241,9 @@ final class Idn
             if (!isset($codePoints[$i - 1])) {
                 return false;
             }
-
-            // If Canonical_Combining_Class(Before(cp)) .eq. Virama Then True;
             if (isset(self::$virama[$codePoints[$i - 1]])) {
                 continue;
             }
-
-            // If RegExpMatch((Joining_Type:{L,D})(Joining_Type:T)*\u200C(Joining_Type:T)*(Joining_Type:{R,D})) Then
-            // True;
-            // Generated RegExp = ([Joining_Type:{L,D}][Joining_Type:T]*\u200C[Joining_Type:T]*)[Joining_Type:{R,D}]
             if (0x200C === $codePoint && 1 === preg_match(Regex::ZWNJ, $label, $matches, \PREG_OFFSET_CAPTURE, $offset)) {
                 $offset += \strlen($matches[1][0]);
 
@@ -284,15 +277,12 @@ final class Idn
                 case 'disallowed':
                     $info->errors |= self::ERROR_DISALLOWED;
 
-                    // no break.
-
                 case 'valid':
                     $str .= mb_chr($codePoint, 'utf-8');
 
                     break;
 
                 case 'ignored':
-                    // Do nothing.
                     break;
 
                 case 'mapped':
@@ -321,8 +311,6 @@ final class Idn
      */
     private static function process($domain, array $options, Info $info)
     {
-        // If VerifyDnsLength is not set, we are doing ToUnicode otherwise we are doing ToASCII and
-        // we need to respect the VerifyDnsLength option.
         $checkForEmptyLabels = !isset($options['VerifyDnsLength']) || $options['VerifyDnsLength'];
 
         if ($checkForEmptyLabels && '' === $domain) {
@@ -330,20 +318,12 @@ final class Idn
 
             return [$domain];
         }
-
-        // Step 1. Map each code point in the domain name string
         $domain = self::mapCodePoints($domain, $options, $info);
-
-        // Step 2. Normalize the domain name string to Unicode Normalization Form C.
         if (!Normalizer::isNormalized($domain, Normalizer::FORM_C)) {
             $domain = Normalizer::normalize($domain, Normalizer::FORM_C);
         }
-
-        // Step 3. Break the string into labels at U+002E (.) FULL STOP.
         $labels = explode('.', $domain);
         $lastLabelIndex = \count($labels) - 1;
-
-        // Step 4. Convert and validate each label in the domain name string.
         foreach ($labels as $i => $label) {
             $validationOptions = $options;
 
@@ -366,11 +346,6 @@ final class Idn
         if ($info->bidiDomain && !$info->validBidiDomain) {
             $info->errors |= self::ERROR_BIDI;
         }
-
-        // Any input domain name string that does not record an error has been successfully
-        // processed according to this specification. Conversely, if an input domain_name string
-        // causes an error, then the processing of the input domain_name string fails. Determining
-        // what to do with error input is up to the caller, and not in the scope of this document.
         return $labels;
     }
 
@@ -383,32 +358,21 @@ final class Idn
     {
         if (1 === preg_match(Regex::RTL_LABEL, $label)) {
             $info->bidiDomain = true;
-
-            // Step 1. The first character must be a character with Bidi property L, R, or AL.
-            // If it has the R or AL property, it is an RTL label
             if (1 !== preg_match(Regex::BIDI_STEP_1_RTL, $label)) {
                 $info->validBidiDomain = false;
 
                 return;
             }
-
-            // Step 2. In an RTL label, only characters with the Bidi properties R, AL, AN, EN, ES,
-            // CS, ET, ON, BN, or NSM are allowed.
             if (1 === preg_match(Regex::BIDI_STEP_2, $label)) {
                 $info->validBidiDomain = false;
 
                 return;
             }
-
-            // Step 3. In an RTL label, the end of the label must be a character with Bidi property
-            // R, AL, EN, or AN, followed by zero or more characters with Bidi property NSM.
             if (1 !== preg_match(Regex::BIDI_STEP_3, $label)) {
                 $info->validBidiDomain = false;
 
                 return;
             }
-
-            // Step 4. In an RTL label, if an EN is present, no AN may be present, and vice versa.
             if (1 === preg_match(Regex::BIDI_STEP_4_AN, $label) && 1 === preg_match(Regex::BIDI_STEP_4_EN, $label)) {
                 $info->validBidiDomain = false;
 
@@ -417,26 +381,16 @@ final class Idn
 
             return;
         }
-
-        // We are a LTR label
-        // Step 1. The first character must be a character with Bidi property L, R, or AL.
-        // If it has the L property, it is an LTR label.
         if (1 !== preg_match(Regex::BIDI_STEP_1_LTR, $label)) {
             $info->validBidiDomain = false;
 
             return;
         }
-
-        // Step 5. In an LTR label, only characters with the Bidi properties L, EN,
-        // ES, CS, ET, ON, BN, or NSM are allowed.
         if (1 === preg_match(Regex::BIDI_STEP_5, $label)) {
             $info->validBidiDomain = false;
 
             return;
         }
-
-        // Step 6.In an LTR label, the end of the label must be a character with Bidi property L or
-        // EN, followed by zero or more characters with Bidi property NSM.
         if (1 !== preg_match(Regex::BIDI_STEP_6, $label)) {
             $info->validBidiDomain = false;
 
@@ -451,14 +405,7 @@ final class Idn
     {
         $maxDomainSize = self::MAX_DOMAIN_SIZE;
         $length = \count($labels);
-
-        // Number of "." delimiters.
         $domainLength = $length - 1;
-
-        // If the last label is empty and it is not the first label, then it is the root label.
-        // Increase the max size by 1, making it 254, to account for the root label's "."
-        // delimiter. This also means we don't need to check the last label's length for being too
-        // long.
         if ($length > 1 && '' === $labels[$length - 1]) {
             ++$maxDomainSize;
             --$length;
@@ -494,8 +441,6 @@ final class Idn
 
             return;
         }
-
-        // Step 1. The label must be in Unicode Normalization Form C.
         if (!Normalizer::isNormalized($label, Normalizer::FORM_C)) {
             $info->errors |= self::ERROR_INVALID_ACE_LABEL;
         }
@@ -503,14 +448,9 @@ final class Idn
         $codePoints = self::utf8Decode($label);
 
         if ($options['CheckHyphens']) {
-            // Step 2. If CheckHyphens, the label must not contain a U+002D HYPHEN-MINUS character
-            // in both the thrid and fourth positions.
             if (isset($codePoints[2], $codePoints[3]) && 0x002D === $codePoints[2] && 0x002D === $codePoints[3]) {
                 $info->errors |= self::ERROR_HYPHEN_3_4;
             }
-
-            // Step 3. If CheckHyphens, the label must neither begin nor end with a U+002D
-            // HYPHEN-MINUS character.
             if ('-' === substr($label, 0, 1)) {
                 $info->errors |= self::ERROR_LEADING_HYPHEN;
             }
@@ -519,19 +459,12 @@ final class Idn
                 $info->errors |= self::ERROR_TRAILING_HYPHEN;
             }
         }
-
-        // Step 4. The label must not contain a U+002E (.) FULL STOP.
         if (false !== strpos($label, '.')) {
             $info->errors |= self::ERROR_LABEL_HAS_DOT;
         }
-
-        // Step 5. The label must not begin with a combining mark, that is: General_Category=Mark.
         if (1 === preg_match(Regex::COMBINING_MARK, $label)) {
             $info->errors |= self::ERROR_LEADING_COMBINING_MARK;
         }
-
-        // Step 6. Each code point in the label must only have certain status values according to
-        // Section 5, IDNA Mapping Table:
         $transitional = $options['Transitional_Processing'];
         $useSTD3ASCIIRules = $options['UseSTD3ASCIIRules'];
 
@@ -547,16 +480,9 @@ final class Idn
 
             break;
         }
-
-        // Step 7. If CheckJoiners, the label must satisify the ContextJ rules from Appendix A, in
-        // The Unicode Code Points and Internationalized Domain Names for Applications (IDNA)
-        // [IDNA2008].
         if ($options['CheckJoiners'] && !self::isValidContextJ($codePoints, $label)) {
             $info->errors |= self::ERROR_CONTEXTJ;
         }
-
-        // Step 8. If CheckBidi, and if the domain name is a  Bidi domain name, then the label must
-        // satisfy all six of the numbered conditions in [IDNA2008] RFC 5893, Section 2.
         if ($options['CheckBidi'] && (!$info->bidiDomain || $info->validBidiDomain)) {
             self::validateBidiLabel($label, $info);
         }
@@ -754,7 +680,6 @@ final class Idn
      */
     private static function adaptBias($delta, $numPoints, $firstTime)
     {
-        // xxx >> 1 is a faster way of doing intdiv(xxx, 2)
         $delta = $firstTime ? intdiv($delta, self::DAMP) : $delta >> 1;
         $delta += intdiv($delta, $numPoints);
         $k = 0;
@@ -861,8 +786,6 @@ final class Idn
             $bytesNeeded = 0;
             $bytesSeen = 0;
         }
-
-        // String unexpectedly ended, so append a U+FFFD code point.
         if (0 !== $bytesNeeded) {
             $codePoints[] = 0xFFFD;
         }

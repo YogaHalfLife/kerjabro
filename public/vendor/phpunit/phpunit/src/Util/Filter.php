@@ -81,8 +81,6 @@ final class Filter
 
         $file              = $frame['file'];
         $fileIsNotPrefixed = $prefix === false || strpos($file, $prefix) !== 0;
-
-        // @see https://github.com/sebastianbergmann/phpunit/issues/4033
         if (isset($GLOBALS['_SERVER']['SCRIPT_NAME'])) {
             $script = realpath($GLOBALS['_SERVER']['SCRIPT_NAME']);
         } else {

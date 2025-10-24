@@ -38,6 +38,5 @@ class DummyClass implements RunnableSolution
 
     public function run(array $parameters = [])
     {
-        //
     }
 }

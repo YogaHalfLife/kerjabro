@@ -104,14 +104,12 @@ final class CallableType extends Type
 
         try {
             $class = new ReflectionClass($className);
-            // @codeCoverageIgnoreStart
         } catch (ReflectionException $e) {
             throw new RuntimeException(
                 $e->getMessage(),
                 (int) $e->getCode(),
                 $e
             );
-            // @codeCoverageIgnoreEnd
         }
 
         if ($class->hasMethod('__invoke')) {
@@ -186,14 +184,12 @@ final class CallableType extends Type
 
                 return $method->isPublic() && $method->isStatic();
             }
-            // @codeCoverageIgnoreStart
         } catch (ReflectionException $e) {
             throw new RuntimeException(
                 $e->getMessage(),
                 (int) $e->getCode(),
                 $e
             );
-            // @codeCoverageIgnoreEnd
         }
 
         return false;

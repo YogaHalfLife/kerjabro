@@ -13,7 +13,6 @@
  * Authors:
  * - Quentí
  */
-// @codeCoverageIgnoreStart
 use Symfony\Component\Translation\PluralizationRules;
 
 if (class_exists('Symfony\\Component\\Translation\\PluralizationRules')) {
@@ -21,7 +20,6 @@ if (class_exists('Symfony\\Component\\Translation\\PluralizationRules')) {
         return $number == 1 ? 0 : 1;
     }, 'oc');
 }
-// @codeCoverageIgnoreEnd
 
 return [
     'year' => ':count an|:count ans',
@@ -86,8 +84,6 @@ return [
     'weekdays_min' => ['dg', 'dl', 'dm', 'dc', 'dj', 'dv', 'ds'],
     'ordinal' => function ($number, string $period = '') {
         $ordinal = [1 => 'èr', 2 => 'nd'][(int) $number] ?? 'en';
-
-        // feminine for year, week, hour, minute, second
         if (preg_match('/^[yYwWhHgGis]$/', $period)) {
             $ordinal .= 'a';
         }

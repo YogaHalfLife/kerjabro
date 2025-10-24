@@ -83,8 +83,6 @@ class FingersCrossedHandler extends Handler implements ProcessableHandlerInterfa
         if (null === $activationStrategy) {
             $activationStrategy = new ErrorLevelActivationStrategy(Logger::WARNING);
         }
-
-        // convert simple int activationStrategy to an object
         if (!$activationStrategy instanceof ActivationStrategyInterface) {
             $activationStrategy = new ErrorLevelActivationStrategy($activationStrategy);
         }

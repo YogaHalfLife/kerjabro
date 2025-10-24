@@ -42,30 +42,17 @@ class DNSCheckValidation implements EmailValidation
 
     public function isValid(string $email, EmailLexer $emailLexer) : bool
     {
-        // use the input to check DNS if we cannot extract something similar to a domain
         $host = $email;
-
-        // Arguable pattern to extract the domain. Not aiming to validate the domain nor the email
         if (false !== $lastAtPos = strrpos($email, '@')) {
             $host = substr($email, $lastAtPos + 1);
         }
-
-        // Get the domain parts
         $hostParts = explode('.', $host);
-
-        // Reserved Top Level DNS Names (https://tools.ietf.org/html/rfc2606#section-2),
-        // mDNS and private DNS Namespaces (https://tools.ietf.org/html/rfc6762#appendix-G)
         $reservedTopLevelDnsNames = [
-            // Reserved Top Level DNS Names
             'test',
             'example',
             'invalid',
             'localhost',
-
-            // mDNS
             'local',
-
-            // Private DNS Namespaces
             'intranet',
             'internal',
             'private',
@@ -76,8 +63,6 @@ class DNSCheckValidation implements EmailValidation
 
         $isLocalDomain = count($hostParts) <= 1;
         $isReservedTopLevel = in_array($hostParts[(count($hostParts) - 1)], $reservedTopLevelDnsNames, true);
-
-        // Exclude reserved top level DNS names
         if ($isLocalDomain || $isReservedTopLevel) {
             $this->error = new InvalidEmail(new LocalOrReservedDomain(), $host);
             return false;
@@ -120,7 +105,6 @@ class DNSCheckValidation implements EmailValidation
      */
     private function validateDnsRecords($host) : bool
     {
-        // A workaround to fix https://bugs.php.net/bug.php?id=73149
         /** @psalm-suppress InvalidArgument */
         set_error_handler(
             static function (int $errorLevel, string $errorMessage): ?bool {
@@ -129,7 +113,6 @@ class DNSCheckValidation implements EmailValidation
         );
 
         try {
-            // Get all MX, A and AAAA DNS records for host
             $dnsRecords = dns_get_record($host, static::DNS_RECORD_TYPES_TO_CHECK);
         } catch (\RuntimeException $exception) {
             $this->error = new InvalidEmail(new UnableToGetDNSRecord(), '');
@@ -138,17 +121,12 @@ class DNSCheckValidation implements EmailValidation
         } finally {
             restore_error_handler();
         }
-
-        // No MX, A or AAAA DNS records
         if ($dnsRecords === [] || $dnsRecords === false) {
             $this->error = new InvalidEmail(new ReasonNoDNSRecord(), '');
             return false;
         }
-
-        // For each DNS record
         foreach ($dnsRecords as $dnsRecord) {
             if (!$this->validateMXRecord($dnsRecord)) {
-                // No MX records (fallback to A or AAAA records)
                 if (empty($this->mxRecords)) {
                     $this->warnings[NoDNSMXRecord::CODE] = new NoDNSMXRecord();
                 }
@@ -170,8 +148,6 @@ class DNSCheckValidation implements EmailValidation
         if ($dnsRecord['type'] !== 'MX') {
             return true;
         }
-
-        // "Null MX" record indicates the domain accepts no mail (https://tools.ietf.org/html/rfc7505)
         if (empty($dnsRecord['target']) || $dnsRecord['target'] === '.') {
             $this->error = new InvalidEmail(new DomainAcceptsNoMail(), "");
             return false;

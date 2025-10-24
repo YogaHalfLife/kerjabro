@@ -47,7 +47,6 @@ class Store implements StoreInterface
      */
     public function cleanup()
     {
-        // unlock everything
         foreach ($this->locks as $lock) {
             flock($lock, \LOCK_UN);
             fclose($lock);
@@ -133,8 +132,6 @@ class Store implements StoreInterface
         if (!$entries = $this->getMetadata($key)) {
             return null;
         }
-
-        // find a cached entry that matches the request.
         $match = null;
         foreach ($entries as $entry) {
             if ($this->requestsMatch(isset($entry[1]['vary'][0]) ? implode(', ', $entry[1]['vary']) : '', $request->headers->all(), $entry[0])) {
@@ -152,10 +149,6 @@ class Store implements StoreInterface
         if (file_exists($path = $this->getPath($headers['x-content-digest'][0]))) {
             return $this->restoreResponse($headers, $path);
         }
-
-        // TODO the metaStore referenced an entity that doesn't exist in
-        // the entityStore. We definitely want to return nil but we should
-        // also purge the entry from the meta-store when this is detected.
         return null;
     }
 
@@ -173,7 +166,6 @@ class Store implements StoreInterface
         $storedEnv = $this->persistRequest($request);
 
         if ($response->headers->has('X-Body-File')) {
-            // Assume the response came from disk, but at least perform some safeguard checks
             if (!$response->headers->has('X-Content-Digest')) {
                 throw new \RuntimeException('A restored response must have the X-Content-Digest header.');
             }
@@ -182,7 +174,6 @@ class Store implements StoreInterface
             if ($this->getPath($digest) !== $response->headers->get('X-Body-File')) {
                 throw new \RuntimeException('X-Body-File and X-Content-Digest do not match.');
             }
-            // Everything seems ok, omit writing content to disk
         } else {
             $digest = $this->generateContentDigest($response);
             $response->headers->set('X-Content-Digest', $digest);
@@ -195,8 +186,6 @@ class Store implements StoreInterface
                 $response->headers->set('Content-Length', \strlen($response->getContent()));
             }
         }
-
-        // read existing cache entries, remove non-varying, and add this one to the list
         $entries = [];
         $vary = $response->headers->get('vary');
         foreach ($this->getMetadata($key) as $entry) {

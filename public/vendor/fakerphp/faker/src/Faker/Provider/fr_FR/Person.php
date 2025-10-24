@@ -77,7 +77,6 @@ class Person extends \Faker\Provider\Person
      */
     public function nir($gender = null, $formatted = false)
     {
-        // Gender
         if ($gender === static::GENDER_MALE) {
             $nir = 1;
         } elseif ($gender === static::GENDER_FEMALE) {
@@ -87,23 +86,15 @@ class Person extends \Faker\Provider\Person
         }
 
         $nir .=
-            // Year of birth (aa)
             $this->numerify('##') .
-            // Mont of birth (mm)
             sprintf('%02d', $this->numberBetween(1, 12));
-
-        // Department
         $department = key(Address::department());
         $nir .= $department;
-
-        // Town number, depends on department length
         if (strlen($department) === 2) {
             $nir .= $this->numerify('###');
         } elseif (strlen($department) === 3) {
             $nir .= $this->numerify('##');
         }
-
-        // Born number (depending of town and month of birth)
         $nir .= $this->numerify('###');
 
         /**
@@ -119,8 +110,6 @@ class Person extends \Faker\Provider\Person
             $nirInteger = $nir;
         }
         $nir .= sprintf('%02d', 97 - $nirInteger % 97);
-
-        // Format is x xx xx xx xxx xxx xx
         if ($formatted) {
             $nir = substr($nir, 0, 1) . ' ' . substr($nir, 1, 2) . ' ' . substr($nir, 3, 2) . ' ' . substr($nir, 5, 2) . ' ' . substr($nir, 7, 3) . ' ' . substr($nir, 10, 3) . ' ' . substr($nir, 13, 2);
         }

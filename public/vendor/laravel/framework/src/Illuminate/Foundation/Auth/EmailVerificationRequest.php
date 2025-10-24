@@ -35,7 +35,6 @@ class EmailVerificationRequest extends FormRequest
     public function rules()
     {
         return [
-            //
         ];
     }
 

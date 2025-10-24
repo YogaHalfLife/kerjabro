@@ -118,8 +118,6 @@ final class TableParser extends AbstractBlockContinueParser implements BlockCont
         foreach ($this->bodyLines as $rowLine) {
             $cells = self::split($rowLine);
             $row   = new TableRow();
-
-            // Body can not have more columns than head
             for ($i = 0; $i < $headerColumns; $i++) {
                 $cell      = $cells[$i] ?? '';
                 $tableCell = $this->parseCell($cell, $i, $inlineParser);
@@ -127,7 +125,6 @@ final class TableParser extends AbstractBlockContinueParser implements BlockCont
             }
 
             if ($body === null) {
-                // It's valid to have a table without body. In that case, don't add an empty TableBody node.
                 $body = new TableSection();
                 $this->block->appendChild($body);
             }
@@ -169,13 +166,9 @@ final class TableParser extends AbstractBlockContinueParser implements BlockCont
             switch ($c = $cursor->getCurrentCharacter()) {
                 case '\\':
                     if ($cursor->peek() === '|') {
-                        // Pipe is special for table parsing. An escaped pipe doesn't result in a new cell, but is
-                        // passed down to inline parsing as an unescaped pipe. Note that that applies even for the `\|`
-                        // in an input like `\\|` - in other words, table parsing doesn't support escaping backslashes.
                         $sb .= '|';
                         $cursor->advanceBy(1);
                     } else {
-                        // Preserve backslash before other characters or at end of line.
                         $sb .= '\\';
                     }
 

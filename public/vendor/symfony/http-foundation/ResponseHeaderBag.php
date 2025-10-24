@@ -125,8 +125,6 @@ class ResponseHeaderBag extends HeaderBag
         $this->headerNames[$uniqueKey] = $key;
 
         parent::set($key, $values, $replace);
-
-        // ensure the cache-control header has sensible defaults
         if (\in_array($uniqueKey, ['cache-control', 'etag', 'last-modified', 'expires'], true) && '' !== $computed = $this->computeCacheControlValue()) {
             $this->headers['cache-control'] = [$computed];
             $this->headerNames['cache-control'] = 'Cache-Control';
@@ -262,8 +260,6 @@ class ResponseHeaderBag extends HeaderBag
             if ($this->has('Last-Modified') || $this->has('Expires')) {
                 return 'private, must-revalidate'; // allows for heuristic expiration (RFC 7234 Section 4.2.2) in the case of "Last-Modified"
             }
-
-            // conservative by default
             return 'no-cache, private';
         }
 
@@ -271,8 +267,6 @@ class ResponseHeaderBag extends HeaderBag
         if (isset($this->cacheControl['public']) || isset($this->cacheControl['private'])) {
             return $header;
         }
-
-        // public if s-maxage is defined, private otherwise
         if (!isset($this->cacheControl['s-maxage'])) {
             return $header.', private';
         }

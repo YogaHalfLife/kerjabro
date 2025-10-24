@@ -73,7 +73,6 @@ final class CompletionInput extends ArgvInput
 
         $relevantToken = $this->getRelevantToken();
         if ('-' === $relevantToken[0]) {
-            // the current token is an input option: complete either option name or option value
             [$optionToken, $optionValue] = explode('=', $relevantToken, 2) + ['', ''];
 
             $option = $this->getOptionFromToken($optionToken);
@@ -95,7 +94,6 @@ final class CompletionInput extends ArgvInput
 
         $previousToken = $this->tokens[$this->currentIndex - 1];
         if ('-' === $previousToken[0] && '' !== trim($previousToken, '-')) {
-            // check if previous option accepted a value
             $previousOption = $this->getOptionFromToken($previousToken);
             if (null !== $previousOption && $previousOption->acceptValue()) {
                 $this->completionType = self::TYPE_OPTION_VALUE;
@@ -105,8 +103,6 @@ final class CompletionInput extends ArgvInput
                 return;
             }
         }
-
-        // complete argument value
         $this->completionType = self::TYPE_ARGUMENT_VALUE;
 
         foreach ($this->definition->getArguments() as $argumentName => $argument) {
@@ -128,7 +124,6 @@ final class CompletionInput extends ArgvInput
                 $this->completionName = $argumentName;
                 $this->completionValue = '';
             } else {
-                // we've reached the end
                 $this->completionType = self::TYPE_NONE;
                 $this->completionName = null;
                 $this->completionValue = '';
@@ -184,7 +179,6 @@ final class CompletionInput extends ArgvInput
         try {
             return parent::parseToken($token, $parseOptions);
         } catch (RuntimeException $e) {
-            // suppress errors, completed input is almost never valid
         }
 
         return $parseOptions;
@@ -198,11 +192,8 @@ final class CompletionInput extends ArgvInput
         }
 
         if ('-' === ($optionToken[1] ?? ' ')) {
-            // long option name
             return $this->definition->hasOption($optionName) ? $this->definition->getOption($optionName) : null;
         }
-
-        // short option name
         return $this->definition->hasShortcut($optionName[0]) ? $this->definition->getOptionForShortcut($optionName[0]) : null;
     }
 

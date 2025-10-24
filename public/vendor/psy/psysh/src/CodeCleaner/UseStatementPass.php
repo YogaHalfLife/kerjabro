@@ -48,8 +48,6 @@ class UseStatementPass extends CodeCleanerPass
     public function enterNode(Node $node)
     {
         if ($node instanceof Namespace_) {
-            // If this is the same namespace as last namespace, let's do ourselves
-            // a favor and reload all the aliases...
             if (\strtolower($node->name ?: '') === \strtolower($this->lastNamespace ?: '')) {
                 $this->aliases = $this->lastAliases;
             }
@@ -66,7 +64,6 @@ class UseStatementPass extends CodeCleanerPass
      */
     public function leaveNode(Node $node)
     {
-        // Store a reference to every "use" statement, because we'll need them in a bit.
         if ($node instanceof Use_) {
             foreach ($node->uses as $use) {
                 $alias = $use->alias ?: \end($use->name->parts);
@@ -75,8 +72,6 @@ class UseStatementPass extends CodeCleanerPass
 
             return NodeTraverser::REMOVE_NODE;
         }
-
-        // Expand every "use" statement in the group into a full, standalone "use" and store 'em with the others.
         if ($node instanceof GroupUse) {
             foreach ($node->uses as $use) {
                 $alias = $use->alias ?: \end($use->name->parts);
@@ -88,8 +83,6 @@ class UseStatementPass extends CodeCleanerPass
 
             return NodeTraverser::REMOVE_NODE;
         }
-
-        // Start fresh, since we're done with this namespace.
         if ($node instanceof Namespace_) {
             $this->lastNamespace = $node->name;
             $this->lastAliases = $this->aliases;
@@ -97,13 +90,9 @@ class UseStatementPass extends CodeCleanerPass
 
             return;
         }
-
-        // Do nothing with UseUse; this an entry in the list of uses in the use statement.
         if ($node instanceof UseUse) {
             return;
         }
-
-        // For everything else, we'll implicitly thunk all aliases into fully-qualified names.
         foreach ($node as $name => $subNode) {
             if ($subNode instanceof Name) {
                 if ($replacement = $this->findAlias($subNode)) {

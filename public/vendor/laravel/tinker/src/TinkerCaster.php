@@ -48,7 +48,6 @@ class TinkerCaster
                     $results[Caster::PREFIX_VIRTUAL.$property] = $val;
                 }
             } catch (Exception $e) {
-                //
             }
         }
 

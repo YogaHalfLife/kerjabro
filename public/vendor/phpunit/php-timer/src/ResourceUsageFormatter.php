@@ -65,9 +65,6 @@ final class ResourceUsageFormatter
                 return sprintf('%.2f %s', $bytes >= 1024 ? $bytes / $value : $bytes, $unit);
             }
         }
-
-        // @codeCoverageIgnoreStart
         return $bytes . ' byte' . ($bytes !== 1 ? 's' : '');
-        // @codeCoverageIgnoreEnd
     }
 }

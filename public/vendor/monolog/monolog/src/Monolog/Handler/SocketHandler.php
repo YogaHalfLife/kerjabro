@@ -423,7 +423,6 @@ class SocketHandler extends AbstractProcessingHandler
 
     private function writingIsTimedOut(int $sent): bool
     {
-        // convert to ms
         if (0.0 == $this->writingTimeout) {
             return false;
         }

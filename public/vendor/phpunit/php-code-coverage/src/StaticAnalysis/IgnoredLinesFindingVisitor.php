@@ -59,8 +59,6 @@ final class IgnoredLinesFindingVisitor extends NodeVisitorAbstract
         if ($node instanceof Class_ && $node->isAnonymous()) {
             return;
         }
-
-        // Workaround for https://bugs.xdebug.org/view.php?id=1798
         if ($node instanceof Class_ ||
             $node instanceof Trait_ ||
             $node instanceof Interface_) {

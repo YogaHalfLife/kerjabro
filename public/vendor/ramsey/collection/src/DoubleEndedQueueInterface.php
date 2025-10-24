@@ -180,7 +180,6 @@ interface DoubleEndedQueueInterface extends QueueInterface
      *     Implementations should use a more-specific exception that extends
      *     `\RuntimeException`.
      */
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function addFirst($element): bool;
 
     /**
@@ -201,7 +200,6 @@ interface DoubleEndedQueueInterface extends QueueInterface
      *     Implementations should use a more-specific exception that extends
      *     `\RuntimeException`.
      */
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function addLast($element): bool;
 
     /**
@@ -216,7 +214,6 @@ interface DoubleEndedQueueInterface extends QueueInterface
      *
      * @return bool `true` if the element was added to this queue, else `false`.
      */
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function offerFirst($element): bool;
 
     /**
@@ -231,7 +228,6 @@ interface DoubleEndedQueueInterface extends QueueInterface
      *
      * @return bool `true` if the element was added to this queue, else `false`.
      */
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function offerLast($element): bool;
 
     /**

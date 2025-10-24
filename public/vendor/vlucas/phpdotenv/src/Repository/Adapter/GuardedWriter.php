@@ -44,12 +44,9 @@ final class GuardedWriter implements WriterInterface
      */
     public function write(string $name, string $value)
     {
-        // Don't set non-allowed variables
         if (!$this->isAllowed($name)) {
             return false;
         }
-
-        // Set the value on the inner writer
         return $this->writer->write($name, $value);
     }
 
@@ -62,12 +59,9 @@ final class GuardedWriter implements WriterInterface
      */
     public function delete(string $name)
     {
-        // Don't clear non-allowed variables
         if (!$this->isAllowed($name)) {
             return false;
         }
-
-        // Set the value on the inner writer
         return $this->writer->delete($name);
     }
 

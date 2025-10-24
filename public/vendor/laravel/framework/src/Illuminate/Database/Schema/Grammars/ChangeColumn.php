@@ -78,10 +78,6 @@ class ChangeColumn
 
         foreach ($blueprint->getChangedColumns() as $fluent) {
             $column = static::getDoctrineColumn($table, $fluent);
-
-            // Here we will spin through each fluent column definition and map it to the proper
-            // Doctrine column definitions - which is necessary because Laravel and Doctrine
-            // use some different terminology for various column attributes on the tables.
             foreach ($fluent->getAttributes() as $key => $value) {
                 if (! is_null($option = static::mapFluentOptionToDoctrine($key))) {
                     if (method_exists($column, $method = 'set'.ucfirst($option))) {

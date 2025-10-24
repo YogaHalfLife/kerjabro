@@ -30,8 +30,6 @@ use App\Http\Controllers\MasterPegawaiController;
 use App\Http\Controllers\TransPekerjaanController;
 use App\Http\Controllers\LaporanPekerjaanController;
 
-// use App\Http\Controllers\ProfileController;
-
 
 Route::get('/', function () {
 	return redirect('/dashboard');

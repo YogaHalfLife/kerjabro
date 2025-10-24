@@ -87,21 +87,14 @@ abstract class AbstractHeader implements HeaderInterface
      */
     protected function createPhrase(HeaderInterface $header, string $string, string $charset, bool $shorten = false): string
     {
-        // Treat token as exactly what was given
         $phraseStr = $string;
-
-        // If it's not valid
         if (!preg_match('/^'.self::PHRASE_PATTERN.'$/D', $phraseStr)) {
-            // .. but it is just ascii text, try escaping some characters
-            // and make it a quoted-string
             if (preg_match('/^[\x00-\x08\x0B\x0C\x0E-\x7F]*$/D', $phraseStr)) {
                 foreach (['\\', '"'] as $char) {
                     $phraseStr = str_replace($char, '\\'.$char, $phraseStr);
                 }
                 $phraseStr = '"'.$phraseStr.'"';
             } else {
-                // ... otherwise it needs encoding
-                // Determine space remaining on line if first line
                 if ($shorten) {
                     $usedLength = \strlen($header->getName().': ');
                 } else {
@@ -122,9 +115,7 @@ abstract class AbstractHeader implements HeaderInterface
         $value = '';
         $tokens = $this->getEncodableWordTokens($input);
         foreach ($tokens as $token) {
-            // See RFC 2822, Sect 2.2 (really 2.2 ??)
             if ($this->tokenNeedsEncoding($token)) {
-                // Don't encode starting WSP
                 $firstChar = substr($token, 0, 1);
                 switch ($firstChar) {
                     case ' ':
@@ -159,7 +150,6 @@ abstract class AbstractHeader implements HeaderInterface
     {
         $tokens = [];
         $encodedToken = '';
-        // Split at all whitespace boundaries
         foreach (preg_split('~(?=[\t ])~', $string) as $token) {
             if ($this->tokenNeedsEncoding($token)) {
                 $encodedToken .= $token;
@@ -184,8 +174,6 @@ abstract class AbstractHeader implements HeaderInterface
     protected function getTokenAsEncodedWord(string $token, int $firstLineOffset = 0): string
     {
         self::$encoder ??= new QpMimeHeaderEncoder();
-
-        // Adjust $firstLineOffset to account for space needed for syntax
         $charsetDecl = $this->charset;
         if (null !== $this->lang) {
             $charsetDecl .= '*'.$this->lang;
@@ -193,7 +181,6 @@ abstract class AbstractHeader implements HeaderInterface
         $encodingWrapperLength = \strlen('=?'.$charsetDecl.'?'.self::$encoder->getName().'??=');
 
         if ($firstLineOffset >= 75) {
-            //Does this logic need to be here?
             $firstLineOffset = 0;
         }
 
@@ -202,7 +189,6 @@ abstract class AbstractHeader implements HeaderInterface
         );
 
         if ('iso-2022-jp' !== strtolower($this->charset)) {
-            // special encoding for iso-2022-jp using mb_encode_mimeheader
             foreach ($encodedTextLines as $lineNum => $line) {
                 $encodedTextLines[$lineNum] = '=?'.$charsetDecl.'?'.self::$encoder->getName().'?'.$line.'?=';
             }
@@ -231,7 +217,6 @@ abstract class AbstractHeader implements HeaderInterface
         }
 
         $tokens = [];
-        // Generate atoms; split at all invisible boundaries followed by WSP
         foreach (preg_split('~(?=[ \t])~', $string) as $token) {
             $newTokens = $this->generateTokenLines($token);
             foreach ($newTokens as $newToken) {
@@ -254,24 +239,17 @@ abstract class AbstractHeader implements HeaderInterface
         $headerLines = [];
         $headerLines[] = $this->name.': ';
         $currentLine = &$headerLines[$lineCount++];
-
-        // Build all tokens back into compliant header
         foreach ($tokens as $i => $token) {
-            // Line longer than specified maximum or token was just a new line
             if (("\r\n" === $token) ||
                 ($i > 0 && \strlen($currentLine.$token) > $this->lineLength)
                 && '' !== $currentLine) {
                 $headerLines[] = '';
                 $currentLine = &$headerLines[$lineCount++];
             }
-
-            // Append token to the line
             if ("\r\n" !== $token) {
                 $currentLine .= $token;
             }
         }
-
-        // Implode with FWS (RFC 2822, 2.2.3)
         return implode("\r\n", $headerLines);
     }
 }

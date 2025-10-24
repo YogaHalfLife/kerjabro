@@ -157,7 +157,6 @@ class ReflectionConstant_ implements \Reflector
     public function getFileName()
     {
         return;
-        // return $this->class->getFileName();
     }
 
     /**

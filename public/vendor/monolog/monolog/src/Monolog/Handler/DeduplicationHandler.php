@@ -94,8 +94,6 @@ class DeduplicationHandler extends BufferHandler
                 }
             }
         }
-
-        // default of null is valid as well as if no record matches duplicationLevel we just pass through
         if ($passthru === true || $passthru === null) {
             $this->handler->handleBatch($this->buffer);
         }

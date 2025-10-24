@@ -17,10 +17,7 @@ class TransPekerjaan extends Model
         'pegawai_id',
         'id_divisi',
         'bulan',
-        // JANGAN masukkan kolom foto_xxx di sini karena foto disimpan di tabel foto terpisah
     ];
-
-    // --- Relasi ---
     public function pegawai()
     {
         return $this->belongsTo(MasterPegawai::class, 'pegawai_id');
@@ -30,8 +27,6 @@ class TransPekerjaan extends Model
     {
         return $this->belongsTo(MasterDivisi::class, 'id_divisi', 'id_divisi');
     }
-
-    // GALERI FOTO
     public function fotos()
     {
         return $this->hasMany(TransPekerjaanFoto::class, 'pekerjaan_id')

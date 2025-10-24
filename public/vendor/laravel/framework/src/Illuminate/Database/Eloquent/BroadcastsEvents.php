@@ -172,7 +172,6 @@ trait BroadcastsEvents
      */
     public function broadcastConnection()
     {
-        //
     }
 
     /**
@@ -182,7 +181,6 @@ trait BroadcastsEvents
      */
     public function broadcastQueue()
     {
-        //
     }
 
     /**

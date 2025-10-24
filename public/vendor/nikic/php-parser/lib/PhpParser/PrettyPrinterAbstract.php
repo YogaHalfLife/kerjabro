@@ -23,8 +23,6 @@ abstract class PrettyPrinterAbstract
     const FIXUP_ENCAPSED        = 6; // Encapsed string part
 
     protected $precedenceMap = [
-        // [precedence, associativity]
-        // where for precedence -1 is %left, 0 is %nonassoc and 1 is %right
         BinaryOp\Pow::class            => [  0,  1],
         Expr\BitwiseNot::class         => [ 10,  1],
         Expr\PreInc::class             => [ 10,  1],
@@ -67,7 +65,6 @@ abstract class PrettyPrinterAbstract
         BinaryOp\BooleanOr::class      => [130, -1],
         BinaryOp\Coalesce::class       => [140,  1],
         Expr\Ternary::class            => [150,  0],
-        // parser uses %left for assignments, but they really behave as %right
         Expr\Assign::class             => [160,  1],
         Expr\AssignRef::class          => [160,  1],
         AssignOp\Plus::class           => [160,  1],
@@ -260,7 +257,6 @@ abstract class PrettyPrinterAbstract
      * @return string
      */
     protected function handleMagicTokens(string $str) : string {
-        // Replace doc-string-end tokens with nothing or a newline
         $str = str_replace($this->docStringEndToken . ";\n", ";\n", $str);
         $str = str_replace($this->docStringEndToken, "\n", $str);
 
@@ -493,8 +489,6 @@ abstract class PrettyPrinterAbstract
         if (null !== $result) {
             $result .= $this->origTokens->getTokenCode($pos, count($origTokens), 0);
         } else {
-            // Fallback
-            // TODO Add <?php properly
             $result = "<?php\n" . $this->pStmts($stmts, false);
         }
 
@@ -516,7 +510,6 @@ abstract class PrettyPrinterAbstract
      * @return string Pretty printed node
      */
     protected function p(Node $node, $parentFormatPreserved = false) : string {
-        // No orig tokens means this is a normal pretty print without preservation of formatting
         if (!$this->origTokens) {
             return $this->{'p' . $node->getType()}($node);
         }
@@ -536,14 +529,9 @@ abstract class PrettyPrinterAbstract
 
         $fallbackNode = $node;
         if ($node instanceof Expr\New_ && $node->class instanceof Stmt\Class_) {
-            // Normalize node structure of anonymous classes
             $node = PrintableNewAnonClassNode::fromNewNode($node);
             $origNode = PrintableNewAnonClassNode::fromNewNode($origNode);
         }
-
-        // InlineHTML node does not contain closing and opening PHP tags. If the parent formatting
-        // is not preserved, then we need to use the fallback code to make sure the tags are
-        // printed.
         if ($node instanceof Stmt\InlineHTML && !$parentFormatPreserved) {
             return $this->pFallback($fallbackNode);
         }
@@ -563,12 +551,10 @@ abstract class PrettyPrinterAbstract
                 || (!$origSubNode instanceof Node && $origSubNode !== null)
             ) {
                 if ($subNode === $origSubNode) {
-                    // Unchanged, can reuse old code
                     continue;
                 }
 
                 if (is_array($subNode) && is_array($origSubNode)) {
-                    // Array subnode changed, we might be able to reconstruct it
                     $listResult = $this->pArray(
                         $subNode, $origSubNode, $pos, $indentAdjustment, $type, $subNodeName,
                         $fixupInfo[$subNodeName] ?? null
@@ -582,7 +568,6 @@ abstract class PrettyPrinterAbstract
                 }
 
                 if (is_int($subNode) && is_int($origSubNode)) {
-                    // Check if this is a modifier change
                     $key = $type . '->' . $subNodeName;
                     if (!isset($this->modifierChangeMap[$key])) {
                         return $this->pFallback($fallbackNode);
@@ -593,10 +578,6 @@ abstract class PrettyPrinterAbstract
                     $pos = $this->origTokens->findRight($pos, $findToken);
                     continue;
                 }
-
-                // If a non-node, non-array subnode changed, we don't be able to do a partial
-                // reconstructions, as we don't have enough offset information. Pretty print the
-                // whole node instead.
                 return $this->pFallback($fallbackNode);
             }
 
@@ -608,11 +589,8 @@ abstract class PrettyPrinterAbstract
                 \assert($subStartPos >= 0 && $subEndPos >= 0);
             } else {
                 if ($subNode === null) {
-                    // Both null, nothing to do
                     continue;
                 }
-
-                // A node has been inserted, check if we have insertion information for it
                 $key = $type . '->' . $subNodeName;
                 if (!isset($this->insertionMap[$key])) {
                     return $this->pFallback($fallbackNode);
@@ -627,20 +605,16 @@ abstract class PrettyPrinterAbstract
                 }
 
                 if (null === $extraLeft && null !== $extraRight) {
-                    // If inserting on the right only, skipping whitespace looks better
                     $subStartPos = $this->origTokens->skipRightWhitespace($subStartPos);
                 }
                 $subEndPos = $subStartPos - 1;
             }
 
             if (null === $subNode) {
-                // A node has been removed, check if we have removal information for it
                 $key = $type . '->' . $subNodeName;
                 if (!isset($this->removalMap[$key])) {
                     return $this->pFallback($fallbackNode);
                 }
-
-                // Adjust positions to account for additional tokens that must be skipped
                 $removalInfo = $this->removalMap[$key];
                 if (isset($removalInfo['left'])) {
                     $subStartPos = $this->origTokens->skipLeft($subStartPos - 1, $removalInfo['left']) + 1;
@@ -657,10 +631,6 @@ abstract class PrettyPrinterAbstract
 
                 $origIndentLevel = $this->indentLevel;
                 $this->setIndentLevel($this->origTokens->getIndentationBefore($subStartPos) + $indentAdjustment);
-
-                // If it's the same node that was previously in this position, it certainly doesn't
-                // need fixup. It's important to check this here, because our fixup checks are more
-                // conservative than strictly necessary.
                 if (isset($fixupInfo[$subNodeName])
                     && $subNode->getAttribute('origNode') !== $origSubNode
                 ) {
@@ -722,10 +692,6 @@ abstract class PrettyPrinterAbstract
             $endPos = $origNodes[0]->getEndTokenPos();
             \assert($startPos >= 0 && $endPos >= 0);
             if (!$this->origTokens->haveBraces($startPos, $endPos)) {
-                // This was a single statement without braces, but either additional statements
-                // have been added, or the single statement has been removed. This requires the
-                // addition of braces. For now fall back.
-                // TODO: Try to preserve formatting
                 return null;
             }
         }
@@ -742,7 +708,6 @@ abstract class PrettyPrinterAbstract
                 $beforeFirstKeepOrReplace = false;
 
                 if ($origArrItem === null || $arrItem === null) {
-                    // We can only handle the case where both are null
                     if ($origArrItem === $arrItem) {
                         continue;
                     }
@@ -750,7 +715,6 @@ abstract class PrettyPrinterAbstract
                 }
 
                 if (!$arrItem instanceof Node || !$origArrItem instanceof Node) {
-                    // We can only deal with nodes. This can occur for Names, which use string arrays.
                     return null;
                 }
 
@@ -768,15 +732,11 @@ abstract class PrettyPrinterAbstract
                 \assert($commentStartPos >= 0);
 
                 if ($commentStartPos < $pos) {
-                    // Comments may be assigned to multiple nodes if they start at the same position.
-                    // Make sure we don't try to print them multiple times.
                     $commentStartPos = $itemStartPos;
                 }
 
                 if ($skipRemovedNode) {
                     if ($isStmtList && $this->origTokens->haveBracesInRange($pos, $itemStartPos)) {
-                        // We'd remove the brace of a code block.
-                        // TODO: Preserve formatting.
                         $this->setIndentLevel($origIndentLevel);
                         return null;
                     }
@@ -815,17 +775,11 @@ abstract class PrettyPrinterAbstract
                     $result .= $this->origTokens->getTokenCode(
                         $commentStartPos, $itemStartPos, $indentAdjustment);
                 }
-
-                // If we had to remove anything, we have done so now.
                 $skipRemovedNode = false;
             } elseif ($diffType === DiffElem::TYPE_ADD) {
                 if (null === $insertStr) {
-                    // We don't have insertion information for this list type
                     return null;
                 }
-
-                // We go multiline if the original code was multiline,
-                // or if it's an array item with a comment above it.
                 if ($insertStr === ', ' &&
                     ($this->isMultiline($origNodes) || $arrItem->getComments())
                 ) {
@@ -834,7 +788,6 @@ abstract class PrettyPrinterAbstract
                 }
 
                 if ($beforeFirstKeepOrReplace) {
-                    // Will be inserted at the next "replace" or "keep" element
                     $delayedAdd[] = $arrItem;
                     continue;
                 }
@@ -856,30 +809,23 @@ abstract class PrettyPrinterAbstract
                 }
             } elseif ($diffType === DiffElem::TYPE_REMOVE) {
                 if (!$origArrItem instanceof Node) {
-                    // We only support removal for nodes
                     return null;
                 }
 
                 $itemStartPos = $origArrItem->getStartTokenPos();
                 $itemEndPos = $origArrItem->getEndTokenPos();
                 \assert($itemStartPos >= 0 && $itemEndPos >= 0);
-
-                // Consider comments part of the node.
                 $origComments = $origArrItem->getComments();
                 if ($origComments) {
                     $itemStartPos = $origComments[0]->getStartTokenPos();
                 }
 
                 if ($i === 0) {
-                    // If we're removing from the start, keep the tokens before the node and drop those after it,
-                    // instead of the other way around.
                     $result .= $this->origTokens->getTokenCode(
                         $pos, $itemStartPos, $indentAdjustment);
                     $skipRemovedNode = true;
                 } else {
                     if ($isStmtList && $this->origTokens->haveBracesInRange($pos, $itemStartPos)) {
-                        // We'd remove the brace of a code block.
-                        // TODO: Preserve formatting.
                         return null;
                     }
                 }
@@ -902,7 +848,6 @@ abstract class PrettyPrinterAbstract
         }
 
         if ($skipRemovedNode) {
-            // TODO: Support removing single node.
             return null;
         }
 
@@ -991,8 +936,6 @@ abstract class PrettyPrinterAbstract
             default:
                 throw new \Exception('Cannot happen');
         }
-
-        // Nothing special to do
         return $this->p($subNode);
     }
 
@@ -1104,9 +1047,6 @@ abstract class PrettyPrinterAbstract
             if ($pos >= 0) {
                 $text = $this->origTokens->getTokenCode($pos, $endPos, 0);
                 if (false === strpos($text, "\n")) {
-                    // We require that a newline is present between *every* item. If the formatting
-                    // is inconsistent, with only some items having newlines, we don't consider it
-                    // as multiline
                     return false;
                 }
             }
@@ -1126,8 +1066,6 @@ abstract class PrettyPrinterAbstract
 
         $this->labelCharMap = [];
         for ($i = 0; $i < 256; $i++) {
-            // Since PHP 7.1 The lower range is 0x80. However, we also want to support code for
-            // older versions.
             $chr = chr($i);
             $this->labelCharMap[$chr] = $i >= 0x7f || ctype_alnum($chr);
         }
@@ -1145,7 +1083,6 @@ abstract class PrettyPrinterAbstract
             if ($a instanceof Node && $b instanceof Node) {
                 return $a === $b->getAttribute('origNode');
             }
-            // Can happen for array destructuring
             return $a === null && $b === null;
         });
     }
@@ -1289,18 +1226,11 @@ abstract class PrettyPrinterAbstract
             'Stmt_StaticVar->default' => $stripEquals,
             'Stmt_TraitUseAdaptation_Alias->newName' => $stripLeft,
             'Stmt_TryCatch->finally' => $stripLeft,
-            // 'Stmt_Case->cond': Replace with "default"
-            // 'Stmt_Class->name': Unclear what to do
-            // 'Stmt_Declare->stmts': Not a plain node
-            // 'Stmt_TraitUseAdaptation_Alias->newModifier': Not a plain node
         ];
     }
 
     protected function initializeInsertionMap() {
         if ($this->insertionMap) return;
-
-        // TODO: "yield" where both key and value are inserted doesn't work
-        // [$find, $beforeToken, $extraLeft, $extraRight]
         $this->insertionMap = [
             'Expr_ArrayDimFetch->dim' => ['[', false, null, null],
             'Expr_ArrayItem->key' => [null, false, null, ' => '],
@@ -1327,14 +1257,7 @@ abstract class PrettyPrinterAbstract
             'Stmt_PropertyProperty->default' => [null, false, ' = ', null],
             'Stmt_Return->expr' => [\T_RETURN, false, ' ', null],
             'Stmt_StaticVar->default' => [null, false, ' = ', null],
-            //'Stmt_TraitUseAdaptation_Alias->newName' => [T_AS, false, ' ', null], // TODO
             'Stmt_TryCatch->finally' => [null, false, ' ', null],
-
-            // 'Expr_Exit->expr': Complicated due to optional ()
-            // 'Stmt_Case->cond': Conversion from default to case
-            // 'Stmt_Class->name': Unclear
-            // 'Stmt_Declare->stmts': Not a proper node
-            // 'Stmt_TraitUseAdaptation_Alias->newModifier': Not a proper node
         ];
     }
 
@@ -1342,16 +1265,11 @@ abstract class PrettyPrinterAbstract
         if ($this->listInsertionMap) return;
 
         $this->listInsertionMap = [
-            // special
-            //'Expr_ShellExec->parts' => '', // TODO These need to be treated more carefully
-            //'Scalar_Encapsed->parts' => '',
             'Stmt_Catch->types' => '|',
             'UnionType->types' => '|',
             'IntersectionType->types' => '&',
             'Stmt_If->elseifs' => ' ',
             'Stmt_TryCatch->catches' => ' ',
-
-            // comma-separated lists
             'Expr_Array->items' => ', ',
             'Expr_ArrowFunction->params' => ', ',
             'Expr_Closure->params' => ', ',
@@ -1388,8 +1306,6 @@ abstract class PrettyPrinterAbstract
             'Stmt_Use->uses' => ', ',
             'MatchArm->conds' => ', ',
             'AttributeGroup->attrs' => ', ',
-
-            // statement lists
             'Expr_Closure->stmts' => "\n",
             'Stmt_Case->stmts' => "\n",
             'Stmt_Catch->stmts' => "\n",
@@ -1426,18 +1342,12 @@ abstract class PrettyPrinterAbstract
             'Stmt_TraitUse->adaptations' => "\n",
             'Stmt_TryCatch->stmts' => "\n",
             'Stmt_While->stmts' => "\n",
-
-            // dummy for top-level context
             'File->stmts' => "\n",
         ];
     }
 
     protected function initializeEmptyListInsertionMap() {
         if ($this->emptyListInsertionMap) return;
-
-        // TODO Insertion into empty statement lists.
-
-        // [$find, $extraLeft, $extraRight]
         $this->emptyListInsertionMap = [
             'Expr_ArrowFunction->params' => ['(', '', ''],
             'Expr_Closure->uses' => [')', ' use(', ')'],
@@ -1494,13 +1404,6 @@ abstract class PrettyPrinterAbstract
             'Stmt_Class->flags' => \T_CLASS,
             'Stmt_Property->flags' => \T_VARIABLE,
             'Param->flags' => \T_VARIABLE,
-            //'Stmt_TraitUseAdaptation_Alias->newModifier' => 0, // TODO
         ];
-
-        // List of integer subnodes that are not modifiers:
-        // Expr_Include->type
-        // Stmt_GroupUse->type
-        // Stmt_Use->type
-        // Stmt_UseUse->type
     }
 }

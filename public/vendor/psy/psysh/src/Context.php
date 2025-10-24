@@ -20,9 +20,6 @@ namespace Psy;
 class Context
 {
     private static $specialNames = ['_', '_e', '__out', '__psysh__', 'this'];
-
-    // Include a very limited number of command-scope magic variable names.
-    // This might be a bad idea, but future me can sort it out.
     private static $commandScopeNames = [
         '__function', '__method', '__class', '__namespace', '__file', '__line', '__dir',
     ];
@@ -274,7 +271,6 @@ class Context
     {
         $vars = [];
         foreach ($commandScopeVariables as $key => $value) {
-            // kind of type check
             if (\is_scalar($value) && \in_array($key, self::$commandScopeNames)) {
                 $vars[$key] = $value;
             }

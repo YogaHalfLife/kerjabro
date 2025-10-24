@@ -109,9 +109,6 @@ class StartSession
      */
     protected function handleStatefulRequest(Request $request, $session, Closure $next)
     {
-        // If a session driver has been configured, we will need to start the session here
-        // so that the data is ready for an application. Note that the Laravel sessions
-        // do not make use of PHP "native" sessions in any way since they are crappy.
         $request->setLaravelSession(
             $this->startSession($request, $session)
         );
@@ -123,10 +120,6 @@ class StartSession
         $this->storeCurrentUrl($request, $session);
 
         $this->addCookieToResponse($response, $session);
-
-        // Again, if the session has been configured we will need to close out the session
-        // so that the attributes may be persisted to some storage medium. We will also
-        // add the session identifier cookie to the application response headers now.
         $this->saveSession($request);
 
         return $response;
@@ -170,10 +163,6 @@ class StartSession
     protected function collectGarbage(Session $session)
     {
         $config = $this->manager->getSessionConfig();
-
-        // Here we will see if this request hits the garbage collection lottery by hitting
-        // the odds needed to perform garbage collection on any given request. If we do
-        // hit it, we'll call this handler to let it delete all the expired sessions.
         if ($this->configHitsLottery($config)) {
             $session->getHandler()->gc($this->getSessionLifetimeInSeconds());
         }

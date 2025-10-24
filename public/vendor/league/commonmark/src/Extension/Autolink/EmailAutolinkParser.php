@@ -30,12 +30,9 @@ final class EmailAutolinkParser implements InlineParserInterface
     public function parse(InlineParserContext $inlineContext): bool
     {
         $email = $inlineContext->getFullMatch();
-        // The last character cannot be - or _
         if (\in_array(\substr($email, -1), ['-', '_'], true)) {
             return false;
         }
-
-        // Does the URL end with punctuation that should be stripped?
         if (\substr($email, -1) === '.') {
             $email = \substr($email, 0, -1);
         }

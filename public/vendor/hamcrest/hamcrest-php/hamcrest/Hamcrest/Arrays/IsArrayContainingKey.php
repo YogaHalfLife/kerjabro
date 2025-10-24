@@ -37,7 +37,6 @@ class IsArrayContainingKey extends TypeSafeMatcher
 
     protected function describeMismatchSafely($array, Description $mismatchDescription)
     {
-        //Not using appendValueList() so that keys can be shown
         $mismatchDescription->appendText('array was ')
                                                 ->appendText('[')
                                                 ;

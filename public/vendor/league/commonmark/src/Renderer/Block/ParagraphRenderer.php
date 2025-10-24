@@ -61,7 +61,6 @@ final class ParagraphRenderer implements NodeRendererInterface, XmlNodeRendererI
 
     private function inTightList(Paragraph $node): bool
     {
-        // Only check up to two (2) levels above this for tightness
         $i = 2;
         while (($node = $node->parent()) && $i--) {
             if ($node instanceof TightBlockInterface) {

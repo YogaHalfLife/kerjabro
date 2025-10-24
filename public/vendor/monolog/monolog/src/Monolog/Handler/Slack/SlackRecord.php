@@ -175,7 +175,6 @@ class SlackRecord
                             $record[$key]
                         );
                     } else {
-                        // Add all extra fields as individual fields in attachment
                         $attachment['fields'] = array_merge(
                             $attachment['fields'],
                             $this->generateAttachmentFields($record[$key])

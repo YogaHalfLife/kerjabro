@@ -39,8 +39,6 @@ You may serialize a closure this way:
 use Laravel\SerializableClosure\SerializableClosure;
 
 $closure = fn () => 'james';
-
-// Recommended
 SerializableClosure::setSecretKey('secret');
 
 $serialized = serialize(new SerializableClosure($closure));

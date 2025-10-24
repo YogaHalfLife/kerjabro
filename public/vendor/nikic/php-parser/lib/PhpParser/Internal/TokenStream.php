@@ -112,7 +112,6 @@ class TokenStream
         }
 
         if ($tokens[$pos][0] !== $skipTokenType) {
-            // Shouldn't happen. The skip token MUST be there
             throw new \Exception('Encountered unexpected token');
         }
         $pos--;
@@ -129,7 +128,6 @@ class TokenStream
         }
 
         if ($tokens[$pos][0] !== $skipTokenType) {
-            // Shouldn't happen. The skip token MUST be there
             throw new \Exception('Encountered unexpected token');
         }
         $pos++;
@@ -237,7 +235,6 @@ class TokenStream
                 if ($type === \T_CONSTANT_ENCAPSED_STRING || $type === \T_ENCAPSED_AND_WHITESPACE) {
                     $result .= $content;
                 } else {
-                    // TODO Handle non-space indentation
                     if ($indent < 0) {
                         $result .= str_replace("\n" . str_repeat(" ", -$indent), "\n", $content);
                     } elseif ($indent > 0) {
@@ -272,8 +269,6 @@ class TokenStream
                 }
             }
         }
-
-        // Add a sentinel for one past end of the file
         $indentMap[] = $indent;
 
         return $indentMap;

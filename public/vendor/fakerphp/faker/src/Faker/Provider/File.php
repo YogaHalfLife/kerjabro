@@ -586,8 +586,6 @@ class File extends Base
         if ($sourceDirectory == $targetDirectory) {
             throw new \InvalidArgumentException('Source and target directories must differ.');
         }
-
-        // Drop . and .. and reset array keys
         $files = array_filter(array_values(array_diff(scandir($sourceDirectory), ['.', '..'])), static function ($file) use ($sourceDirectory) {
             return is_file($sourceDirectory . DIRECTORY_SEPARATOR . $file) && is_readable($sourceDirectory . DIRECTORY_SEPARATOR . $file);
         });

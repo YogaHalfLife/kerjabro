@@ -73,25 +73,18 @@ final class CharacterStream
             $this->map = ['p' => [], 'i' => []];
         } else {
             switch ($charset) {
-                // 16 bits
                 case 'ucs2':
                 case 'ucs-2':
                 case 'utf16':
                 case 'utf-16':
                     $this->fixedWidth = 2;
                     break;
-
-                // 32 bits
                 case 'ucs4':
                 case 'ucs-4':
                 case 'utf32':
                 case 'utf-32':
                     $this->fixedWidth = 4;
                 break;
-
-                // 7-8 bit charsets: (us-)?ascii, (iso|iec)-?8859-?[0-9]+, windows-?125[0-9], cp-?[0-9]+, ansi, macintosh,
-                //                   koi-?7, koi-?8-?.+, mik, (cork|t1), v?iscii
-                // and fallback
                 default:
                     $this->fixedWidth = 1;
             }
@@ -200,7 +193,6 @@ final class CharacterStream
             for ($j = 1; $j < $size; ++$j) {
                 $char = $string[$i + $j];
                 if ($char > "\x7F" && $char < "\xC0") {
-                    // Valid - continue parsing
                 } else {
                     /* char is invalid, we must wait for a resync */
                     $invalid = true;

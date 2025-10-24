@@ -100,7 +100,6 @@ class HtmlExtension extends AbstractExtension
             .')'
             .' and ancestor::fieldset[@disabled]'
         );
-        // todo: in the second half, add "and is not a descendant of that fieldset element's first legend element child, if any."
     }
 
     public function translateEnabled(XPathExpr $xpath): XPathExpr

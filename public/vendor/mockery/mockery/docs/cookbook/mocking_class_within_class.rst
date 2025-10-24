@@ -10,8 +10,6 @@ Imagine a case where you need to create an instance of a class and use it
 within the same method:
 
 .. code-block:: php
-
-    // Point.php
     <?php
     namespace App;
 
@@ -20,8 +18,6 @@ within the same method:
             echo "Point (" . $x . ", " . $y . ")" . PHP_EOL;
         }
     }
-
-    // Rectangle.php
     <?php
     namespace App;
     use App\Point;
@@ -60,7 +56,6 @@ You set the mocks for ``App\Point`` and ``App\Rectangle``:
     class MyTest extends PHPUnit\Framework\TestCase {
         public function testCreate() {
             $point = Mockery::mock("App\Point");
-            // check if our mock is called
             $point->shouldReceive("setPoint")->andThrow(Exception::class);
 
             $rect = Mockery::mock("App\Rectangle")->makePartial();
@@ -125,14 +120,10 @@ so that it returns our mock:
     class MyTest extends PHPUnit\Framework\TestCase {
         public function testCreate() {
             $point = Mockery::mock("App\Point");
-            // check if our mock is called
             $point->shouldReceive("setPoint")->andThrow(Exception::class);
 
             $rect = Mockery::mock("App\Rectangle")->makePartial();
             $rect->shouldReceive("draw");
-
-            // pass the App\Point mock into App\Rectangle as an alternative
-            // to using new App\Point() in-place.
             $rect->shouldReceive("newPoint")->andReturn($point);
 
             $this->expectException(Exception::class);

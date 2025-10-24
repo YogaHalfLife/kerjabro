@@ -93,9 +93,6 @@ class Count extends Constraint
 
             $key   = $iterator->key();
             $count = iterator_count($iterator);
-
-            // Manually rewind $iterator to previous key, since iterator_count
-            // moves pointer.
             if ($key !== null) {
                 $iterator->rewind();
 

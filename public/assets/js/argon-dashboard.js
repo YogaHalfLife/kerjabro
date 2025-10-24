@@ -52,8 +52,6 @@ module.exports = function xhrAdapter(config) {
     }
 
     var request = new XMLHttpRequest();
-
-    // HTTP basic authentication
     if (config.auth) {
       var username = config.auth.username || '';
       var password = config.auth.password ? unescape(encodeURIComponent(config.auth.password)) : '';
@@ -62,15 +60,12 @@ module.exports = function xhrAdapter(config) {
 
     var fullPath = buildFullPath(config.baseURL, config.url);
     request.open(config.method.toUpperCase(), buildURL(fullPath, config.params, config.paramsSerializer), true);
-
-    // Set the request timeout in MS
     request.timeout = config.timeout;
 
     function onloadend() {
       if (!request) {
         return;
       }
-      // Prepare the response
       var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
       var responseData = !responseType || responseType === 'text' ||  responseType === 'json' ?
         request.responseText : request.response;
@@ -90,57 +85,34 @@ module.exports = function xhrAdapter(config) {
         reject(err);
         done();
       }, response);
-
-      // Clean up request
       request = null;
     }
 
     if ('onloadend' in request) {
-      // Use onloadend if available
       request.onloadend = onloadend;
     } else {
-      // Listen for ready state to emulate onloadend
       request.onreadystatechange = function handleLoad() {
         if (!request || request.readyState !== 4) {
           return;
         }
-
-        // The request errored out and we didn't get a response, this will be
-        // handled by onerror instead
-        // With one exception: request that using file: protocol, most browsers
-        // will return status as 0 even though it's a successful request
         if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
           return;
         }
-        // readystate handler is calling before onerror or ontimeout handlers,
-        // so we should call onloadend on the next 'tick'
         setTimeout(onloadend);
       };
     }
-
-    // Handle browser request cancellation (as opposed to a manual cancellation)
     request.onabort = function handleAbort() {
       if (!request) {
         return;
       }
 
       reject(createError('Request aborted', config, 'ECONNABORTED', request));
-
-      // Clean up request
       request = null;
     };
-
-    // Handle low level network errors
     request.onerror = function handleError() {
-      // Real errors are hidden from us by the browser
-      // onerror should only fire if it's a network error
       reject(createError('Network Error', config, null, request));
-
-      // Clean up request
       request = null;
     };
-
-    // Handle timeout
     request.ontimeout = function handleTimeout() {
       var timeoutErrorMessage = config.timeout ? 'timeout of ' + config.timeout + 'ms exceeded' : 'timeout exceeded';
       var transitional = config.transitional || defaults.transitional;
@@ -152,16 +124,9 @@ module.exports = function xhrAdapter(config) {
         config,
         transitional.clarifyTimeoutError ? 'ETIMEDOUT' : 'ECONNABORTED',
         request));
-
-      // Clean up request
       request = null;
     };
-
-    // Add xsrf header
-    // This is only done if running in a standard browser environment.
-    // Specifically not if we're in a web worker, or react-native.
     if (utils.isStandardBrowserEnv()) {
-      // Add xsrf header
       var xsrfValue = (config.withCredentials || isURLSameOrigin(fullPath)) && config.xsrfCookieName ?
         cookies.read(config.xsrfCookieName) :
         undefined;
@@ -170,43 +135,29 @@ module.exports = function xhrAdapter(config) {
         requestHeaders[config.xsrfHeaderName] = xsrfValue;
       }
     }
-
-    // Add headers to the request
     if ('setRequestHeader' in request) {
       utils.forEach(requestHeaders, function setRequestHeader(val, key) {
         if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
-          // Remove Content-Type if data is undefined
           delete requestHeaders[key];
         } else {
-          // Otherwise add header to the request
           request.setRequestHeader(key, val);
         }
       });
     }
-
-    // Add withCredentials to request if needed
     if (!utils.isUndefined(config.withCredentials)) {
       request.withCredentials = !!config.withCredentials;
     }
-
-    // Add responseType to request if needed
     if (responseType && responseType !== 'json') {
       request.responseType = config.responseType;
     }
-
-    // Handle progress if needed
     if (typeof config.onDownloadProgress === 'function') {
       request.addEventListener('progress', config.onDownloadProgress);
     }
-
-    // Not all browsers support upload events
     if (typeof config.onUploadProgress === 'function' && request.upload) {
       request.upload.addEventListener('progress', config.onUploadProgress);
     }
 
     if (config.cancelToken || config.signal) {
-      // Handle cancellation
-      // eslint-disable-next-line func-names
       onCanceled = function(cancel) {
         if (!request) {
           return;
@@ -225,8 +176,6 @@ module.exports = function xhrAdapter(config) {
     if (!requestData) {
       requestData = null;
     }
-
-    // Send the request
     request.send(requestData);
   });
 };
@@ -258,45 +207,27 @@ var defaults = __webpack_require__(/*! ./defaults */ "./node_modules/axios/lib/d
 function createInstance(defaultConfig) {
   var context = new Axios(defaultConfig);
   var instance = bind(Axios.prototype.request, context);
-
-  // Copy axios.prototype to instance
   utils.extend(instance, Axios.prototype, context);
-
-  // Copy context to instance
   utils.extend(instance, context);
-
-  // Factory for creating new instances
   instance.create = function create(instanceConfig) {
     return createInstance(mergeConfig(defaultConfig, instanceConfig));
   };
 
   return instance;
 }
-
-// Create the default instance to be exported
 var axios = createInstance(defaults);
-
-// Expose Axios class to allow class inheritance
 axios.Axios = Axios;
-
-// Expose Cancel & CancelToken
 axios.Cancel = __webpack_require__(/*! ./cancel/Cancel */ "./node_modules/axios/lib/cancel/Cancel.js");
 axios.CancelToken = __webpack_require__(/*! ./cancel/CancelToken */ "./node_modules/axios/lib/cancel/CancelToken.js");
 axios.isCancel = __webpack_require__(/*! ./cancel/isCancel */ "./node_modules/axios/lib/cancel/isCancel.js");
 axios.VERSION = (__webpack_require__(/*! ./env/data */ "./node_modules/axios/lib/env/data.js").version);
-
-// Expose all/spread
 axios.all = function all(promises) {
   return Promise.all(promises);
 };
 axios.spread = __webpack_require__(/*! ./helpers/spread */ "./node_modules/axios/lib/helpers/spread.js");
-
-// Expose isAxiosError
 axios.isAxiosError = __webpack_require__(/*! ./helpers/isAxiosError */ "./node_modules/axios/lib/helpers/isAxiosError.js");
 
 module.exports = axios;
-
-// Allow use of default import syntax in TypeScript
 module.exports["default"] = axios;
 
 
@@ -361,8 +292,6 @@ function CancelToken(executor) {
   });
 
   var token = this;
-
-  // eslint-disable-next-line func-names
   this.promise.then(function(cancel) {
     if (!token._listeners) return;
 
@@ -374,11 +303,8 @@ function CancelToken(executor) {
     }
     token._listeners = null;
   });
-
-  // eslint-disable-next-line func-names
   this.promise.then = function(onfulfilled) {
     var _resolve;
-    // eslint-disable-next-line func-names
     var promise = new Promise(function(resolve) {
       token.subscribe(resolve);
       _resolve = resolve;
@@ -393,7 +319,6 @@ function CancelToken(executor) {
 
   executor(function cancel(message) {
     if (token.reason) {
-      // Cancellation has already been requested
       return;
     }
 
@@ -515,7 +440,6 @@ function Axios(instanceConfig) {
  */
 Axios.prototype.request = function request(configOrUrl, config) {
   /*eslint no-param-reassign:0*/
-  // Allow for axios('example/url'[, config]) a la fetch API
   if (typeof configOrUrl === 'string') {
     config = config || {};
     config.url = configOrUrl;
@@ -528,8 +452,6 @@ Axios.prototype.request = function request(configOrUrl, config) {
   }
 
   config = mergeConfig(this.defaults, config);
-
-  // Set config.method
   if (config.method) {
     config.method = config.method.toLowerCase();
   } else if (this.defaults.method) {
@@ -547,8 +469,6 @@ Axios.prototype.request = function request(configOrUrl, config) {
       clarifyTimeoutError: validators.transitional(validators.boolean)
     }, false);
   }
-
-  // filter out skipped interceptors
   var requestInterceptorChain = [];
   var synchronousRequestInterceptors = true;
   this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
@@ -615,8 +535,6 @@ Axios.prototype.getUri = function getUri(config) {
   config = mergeConfig(this.defaults, config);
   return buildURL(config.url, config.params, config.paramsSerializer).replace(/^\?/, '');
 };
-
-// Provide aliases for supported request methods
 utils.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData(method) {
   /*eslint func-names:0*/
   Axios.prototype[method] = function(url, config) {
@@ -805,19 +723,13 @@ function throwIfCancellationRequested(config) {
  */
 module.exports = function dispatchRequest(config) {
   throwIfCancellationRequested(config);
-
-  // Ensure headers exist
   config.headers = config.headers || {};
-
-  // Transform request data
   config.data = transformData.call(
     config,
     config.data,
     config.headers,
     config.transformRequest
   );
-
-  // Flatten headers
   config.headers = utils.merge(
     config.headers.common || {},
     config.headers[config.method] || {},
@@ -835,8 +747,6 @@ module.exports = function dispatchRequest(config) {
 
   return adapter(config).then(function onAdapterResolution(response) {
     throwIfCancellationRequested(config);
-
-    // Transform response data
     response.data = transformData.call(
       config,
       response.data,
@@ -848,8 +758,6 @@ module.exports = function dispatchRequest(config) {
   }, function onAdapterRejection(reason) {
     if (!isCancel(reason)) {
       throwIfCancellationRequested(config);
-
-      // Transform response data
       if (reason && reason.response) {
         reason.response.data = transformData.call(
           config,
@@ -898,18 +806,14 @@ module.exports = function enhanceError(error, config, code, request, response) {
 
   error.toJSON = function toJSON() {
     return {
-      // Standard
       message: this.message,
       name: this.name,
-      // Microsoft
       description: this.description,
       number: this.number,
-      // Mozilla
       fileName: this.fileName,
       lineNumber: this.lineNumber,
       columnNumber: this.columnNumber,
       stack: this.stack,
-      // Axios
       config: this.config,
       code: this.code,
       status: this.response && this.response.status ? this.response.status : null
@@ -941,7 +845,6 @@ var utils = __webpack_require__(/*! ../utils */ "./node_modules/axios/lib/utils.
  * @returns {Object} New object resulting from merging config2 to config1
  */
 module.exports = function mergeConfig(config1, config2) {
-  // eslint-disable-next-line no-param-reassign
   config2 = config2 || {};
   var config = {};
 
@@ -955,8 +858,6 @@ module.exports = function mergeConfig(config1, config2) {
     }
     return source;
   }
-
-  // eslint-disable-next-line consistent-return
   function mergeDeepProperties(prop) {
     if (!utils.isUndefined(config2[prop])) {
       return getMergedValue(config1[prop], config2[prop]);
@@ -964,15 +865,11 @@ module.exports = function mergeConfig(config1, config2) {
       return getMergedValue(undefined, config1[prop]);
     }
   }
-
-  // eslint-disable-next-line consistent-return
   function valueFromConfig2(prop) {
     if (!utils.isUndefined(config2[prop])) {
       return getMergedValue(undefined, config2[prop]);
     }
   }
-
-  // eslint-disable-next-line consistent-return
   function defaultToConfig2(prop) {
     if (!utils.isUndefined(config2[prop])) {
       return getMergedValue(undefined, config2[prop]);
@@ -980,8 +877,6 @@ module.exports = function mergeConfig(config1, config2) {
       return getMergedValue(undefined, config1[prop]);
     }
   }
-
-  // eslint-disable-next-line consistent-return
   function mergeDirectKeys(prop) {
     if (prop in config2) {
       return getMergedValue(config1[prop], config2[prop]);
@@ -1127,10 +1022,8 @@ function setContentTypeIfUnset(headers, value) {
 function getDefaultAdapter() {
   var adapter;
   if (typeof XMLHttpRequest !== 'undefined') {
-    // For browsers use XHR adapter
     adapter = __webpack_require__(/*! ./adapters/xhr */ "./node_modules/axios/lib/adapters/xhr.js");
   } else if (typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]') {
-    // For node use HTTP adapter
     adapter = __webpack_require__(/*! ./adapters/http */ "./node_modules/axios/lib/adapters/xhr.js");
   }
   return adapter;
@@ -1399,8 +1292,6 @@ var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/util
 
 module.exports = (
   utils.isStandardBrowserEnv() ?
-
-  // Standard browser envs support document.cookie
     (function standardBrowserEnv() {
       return {
         write: function write(name, value, expires, path, domain, secure) {
@@ -1436,8 +1327,6 @@ module.exports = (
         }
       };
     })() :
-
-  // Non standard browser env (web workers, react-native) lack needed support.
     (function nonStandardBrowserEnv() {
       return {
         write: function write() {},
@@ -1466,9 +1355,6 @@ module.exports = (
  * @returns {boolean} True if the specified URL is absolute, otherwise false
  */
 module.exports = function isAbsoluteURL(url) {
-  // A URL is considered absolute if it begins with "<scheme>://" or "//" (protocol-relative URL).
-  // RFC 3986 defines scheme name as a sequence of characters beginning with a letter and followed
-  // by any combination of letters, digits, plus, period, or hyphen.
   return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);
 };
 
@@ -1512,9 +1398,6 @@ var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/util
 
 module.exports = (
   utils.isStandardBrowserEnv() ?
-
-  // Standard browser envs have full support of the APIs needed to test
-  // whether the request URL is of the same origin as current location.
     (function standardBrowserEnv() {
       var msie = /(msie|trident)/i.test(navigator.userAgent);
       var urlParsingNode = document.createElement('a');
@@ -1530,14 +1413,11 @@ module.exports = (
         var href = url;
 
         if (msie) {
-        // IE needs attribute set twice to normalize properties
           urlParsingNode.setAttribute('href', href);
           href = urlParsingNode.href;
         }
 
         urlParsingNode.setAttribute('href', href);
-
-        // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
         return {
           href: urlParsingNode.href,
           protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
@@ -1566,8 +1446,6 @@ module.exports = (
             parsed.host === originURL.host);
       };
     })() :
-
-  // Non standard browser envs (web workers, react-native) lack needed support.
     (function nonStandardBrowserEnv() {
       return function isURLSameOrigin() {
         return true;
@@ -1611,9 +1489,6 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
 
 
 var utils = __webpack_require__(/*! ./../utils */ "./node_modules/axios/lib/utils.js");
-
-// Headers whose duplicates are ignored by node
-// c.f. https://nodejs.org/api/http.html#http_message_headers
 var ignoreDuplicateOf = [
   'age', 'authorization', 'content-length', 'content-type', 'etag',
   'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
@@ -1715,8 +1590,6 @@ module.exports = function spread(callback) {
 var VERSION = (__webpack_require__(/*! ../env/data */ "./node_modules/axios/lib/env/data.js").version);
 
 var validators = {};
-
-// eslint-disable-next-line func-names
 ['object', 'boolean', 'number', 'function', 'string', 'symbol'].forEach(function(type, i) {
   validators[type] = function validator(thing) {
     return typeof thing === type || 'a' + (i < 1 ? 'n ' : ' ') + type;
@@ -1736,8 +1609,6 @@ validators.transitional = function transitional(validator, version, message) {
   function formatMessage(opt, desc) {
     return '[Axios v' + VERSION + '] Transitional option \'' + opt + '\'' + desc + (message ? '. ' + message : '');
   }
-
-  // eslint-disable-next-line func-names
   return function(value, opt, opts) {
     if (validator === false) {
       throw new Error(formatMessage(opt, ' has been removed' + (version ? ' in ' + version : '')));
@@ -1745,7 +1616,6 @@ validators.transitional = function transitional(validator, version, message) {
 
     if (version && !deprecatedWarnings[opt]) {
       deprecatedWarnings[opt] = true;
-      // eslint-disable-next-line no-console
       console.warn(
         formatMessage(
           opt,
@@ -1806,8 +1676,6 @@ module.exports = {
 
 
 var bind = __webpack_require__(/*! ./helpers/bind */ "./node_modules/axios/lib/helpers/bind.js");
-
-// utils is a library of generic helper functions non-specific to axios
 
 var toString = Object.prototype.toString;
 
@@ -2033,24 +1901,19 @@ function isStandardBrowserEnv() {
  * @param {Function} fn The callback to invoke for each item
  */
 function forEach(obj, fn) {
-  // Don't bother if no value provided
   if (obj === null || typeof obj === 'undefined') {
     return;
   }
-
-  // Force an array if not already something iterable
   if (typeof obj !== 'object') {
     /*eslint no-param-reassign:0*/
     obj = [obj];
   }
 
   if (isArray(obj)) {
-    // Iterate over array values
     for (var i = 0, l = obj.length; i < l; i++) {
       fn.call(null, obj[i], i, obj);
     }
   } else {
-    // Iterate over object keys
     for (var key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
         fn.call(null, obj[key], key, obj);
@@ -2194,14 +2057,6 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
  * for events that are broadcast by Laravel. Echo and event broadcasting
  * allows your team to easily build robust real-time web applications.
  */
-// import Echo from 'laravel-echo';
-// window.Pusher = require('pusher-js');
-// window.Echo = new Echo({
-//     broadcaster: 'pusher',
-//     key: process.env.MIX_PUSHER_APP_KEY,
-//     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
-//     forceTLS: true
-// });
 
 /***/ }),
 
@@ -2218,7 +2073,6 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
   var isWindows = navigator.platform.indexOf('Win') > -1 ? true : false;
 
   if (isWindows) {
-    // if we are on windows OS we activate the perfectScrollbar function
     if (document.getElementsByClassName('main-content')[0]) {
       var mainpanel = document.querySelector('.main-content');
       var ps = new PerfectScrollbar(mainpanel);
@@ -2592,10 +2446,6 @@ function navbarBlurOnScroll(id) {
     toggleNavLinksColor('transparent');
   }
 } // Debounce Function
-// Returns a function, that, as long as it continues to be invoked, will not
-// be triggered. The function will be called after it stops being called for
-// N milliseconds. If `immediate` is passed, trigger the function on the
-// leading edge, instead of the trailing.
 
 
 function debounce(func, wait, immediate) {
@@ -2794,7 +2644,6 @@ function getEventTarget(e) {
   e = e || window.event;
   return e.target || e.srcElement;
 } // End tabs navigation
-// Light Mode / Dark Mode
 
 
 window.darkMode = function (el) {
@@ -3370,7 +3219,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
 
   /** Used to map Latin Unicode letters to basic Latin letters. */
   var deburredLetters = {
-    // Latin-1 Supplement block.
     '\xc0': 'A',  '\xc1': 'A', '\xc2': 'A', '\xc3': 'A', '\xc4': 'A', '\xc5': 'A',
     '\xe0': 'a',  '\xe1': 'a', '\xe2': 'a', '\xe3': 'a', '\xe4': 'a', '\xe5': 'a',
     '\xc7': 'C',  '\xe7': 'c',
@@ -3388,7 +3236,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
     '\xc6': 'Ae', '\xe6': 'ae',
     '\xde': 'Th', '\xfe': 'th',
     '\xdf': 'ss',
-    // Latin Extended-A block.
     '\u0100': 'A',  '\u0102': 'A', '\u0104': 'A',
     '\u0101': 'a',  '\u0103': 'a', '\u0105': 'a',
     '\u0106': 'C',  '\u0108': 'C', '\u010a': 'C', '\u010c': 'C',
@@ -3482,14 +3329,11 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
   /** Used to access faster Node.js helpers. */
   var nodeUtil = (function() {
     try {
-      // Use `util.types` for Node.js 10+.
       var types = freeModule && freeModule.require && freeModule.require('util').types;
 
       if (types) {
         return types;
       }
-
-      // Legacy `process.binding('util')` for Node.js < 10.
       return freeProcess && freeProcess.binding && freeProcess.binding('util');
     } catch (e) {}
   }());
@@ -4761,7 +4605,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
      * @private
      */
     function baseLodash() {
-      // No operation performed.
     }
 
     /**
@@ -4839,8 +4682,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
         '_': lodash
       }
     };
-
-    // Ensure wrappers are instances of `baseLodash`.
     lodash.prototype = baseLodash.prototype;
     lodash.prototype.constructor = lodash;
 
@@ -4961,8 +4802,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
       }
       return result;
     }
-
-    // Ensure `LazyWrapper` is an instance of `baseLodash`.
     LazyWrapper.prototype = baseCreate(baseLodash.prototype);
     LazyWrapper.prototype.constructor = LazyWrapper;
 
@@ -5062,8 +4901,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
       data[key] = (nativeCreate && value === undefined) ? HASH_UNDEFINED : value;
       return this;
     }
-
-    // Add methods to `Hash`.
     Hash.prototype.clear = hashClear;
     Hash.prototype['delete'] = hashDelete;
     Hash.prototype.get = hashGet;
@@ -5179,8 +5016,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
       }
       return this;
     }
-
-    // Add methods to `ListCache`.
     ListCache.prototype.clear = listCacheClear;
     ListCache.prototype['delete'] = listCacheDelete;
     ListCache.prototype.get = listCacheGet;
@@ -5282,8 +5117,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
       this.size += data.size == size ? 0 : 1;
       return this;
     }
-
-    // Add methods to `MapCache`.
     MapCache.prototype.clear = mapCacheClear;
     MapCache.prototype['delete'] = mapCacheDelete;
     MapCache.prototype.get = mapCacheGet;
@@ -5337,8 +5170,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
     function setCacheHas(value) {
       return this.__data__.has(value);
     }
-
-    // Add methods to `SetCache`.
     SetCache.prototype.add = SetCache.prototype.push = setCacheAdd;
     SetCache.prototype.has = setCacheHas;
 
@@ -5436,8 +5267,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
       this.size = data.size;
       return this;
     }
-
-    // Add methods to `Stack`.
     Stack.prototype.clear = stackClear;
     Stack.prototype['delete'] = stackDelete;
     Stack.prototype.get = stackGet;
@@ -5466,13 +5295,9 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
       for (var key in value) {
         if ((inherited || hasOwnProperty.call(value, key)) &&
             !(skipIndexes && (
-               // Safari 9 has enumerable `arguments.length` in strict mode.
                key == 'length' ||
-               // Node.js 0.10 has enumerable non-index properties on buffers.
                (isBuff && (key == 'offset' || key == 'parent')) ||
-               // PhantomJS 2 has enumerable non-index properties on typed arrays.
                (isType && (key == 'buffer' || key == 'byteLength' || key == 'byteOffset')) ||
-               // Skip index properties.
                isIndex(key, length)
             ))) {
           result.push(key);
@@ -5733,7 +5558,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
           result = initCloneByTag(value, tag, isDeep);
         }
       }
-      // Check for circular references and return its corresponding clone.
       stack || (stack = new Stack);
       var stacked = stack.get(value);
       if (stacked) {
@@ -5761,7 +5585,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
           key = subValue;
           subValue = value[key];
         }
-        // Recursively populate clone (susceptible to call stack limits).
         assignValue(result, key, baseClone(subValue, bitmask, customizer, key, value, stack));
       });
       return result;
@@ -6015,7 +5838,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
         var value = array[index];
         if (depth > 0 && predicate(value)) {
           if (depth > 1) {
-            // Recursively flatten arrays (susceptible to call stack limits).
             baseFlatten(value, depth - 1, predicate, isStrict, result);
           } else {
             arrayPush(result, value);
@@ -6530,8 +6352,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
      * @returns {Function} Returns the iteratee.
      */
     function baseIteratee(value) {
-      // Don't store the `typeof` result in a variable to avoid a JIT bug in Safari 9.
-      // See https://bugs.webkit.org/show_bug.cgi?id=156034 for more details.
       if (typeof value == 'function') {
         return value;
       }
@@ -6758,7 +6578,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
         }
       }
       if (isCommon) {
-        // Recursively merge objects and arrays (susceptible to call stack limits).
         stack.set(srcValue, newValue);
         mergeFunc(newValue, srcValue, srcIndex, customizer, stack);
         stack['delete'](srcValue);
@@ -6988,8 +6807,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
       if (!string || n < 1 || n > MAX_SAFE_INTEGER) {
         return result;
       }
-      // Leverage the exponentiation by squaring algorithm for a faster repeat.
-      // See https://en.wikipedia.org/wiki/Exponentiation_by_squaring for more details.
       do {
         if (n % 2) {
           result += string;
@@ -7316,12 +7133,10 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
      * @returns {string} Returns the string.
      */
     function baseToString(value) {
-      // Exit early for strings to avoid a performance hit in some environments.
       if (typeof value == 'string') {
         return value;
       }
       if (isArray(value)) {
-        // Recursively convert values (susceptible to call stack limits).
         return arrayMap(value, baseToString) + '';
       }
       if (isSymbol(value)) {
@@ -7740,13 +7555,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
           return result * (order == 'desc' ? -1 : 1);
         }
       }
-      // Fixes an `Array#sort` bug in the JS engine embedded in Adobe applications
-      // that causes it, under certain circumstances, to provide the same value for
-      // `object` and `other`. See https://github.com/jashkenas/underscore/pull/1247
-      // for more details.
-      //
-      // This also ensures a stable sort in V8 and other engines.
-      // See https://bugs.chromium.org/p/v8/issues/detail?id=90 for more details.
       return object.index - other.index;
     }
 
@@ -8075,9 +7883,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
      */
     function createCtor(Ctor) {
       return function() {
-        // Use a `switch` statement to work with class constructors. See
-        // http://ecma-international.org/ecma-262/7.0/#sec-ecmascript-function-objects-call-thisargument-argumentslist
-        // for more details.
         var args = arguments;
         switch (args.length) {
           case 0: return new Ctor;
@@ -8091,9 +7896,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
         }
         var thisBinding = baseCreate(Ctor.prototype),
             result = Ctor.apply(thisBinding, args);
-
-        // Mimic the constructor's `return` behavior.
-        // See https://es5.github.io/#x13.2.2 for more details.
         return isObject(result) ? result : thisBinding;
       };
     }
@@ -8425,7 +8227,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
         if (step && typeof step != 'number' && isIterateeCall(start, end, step)) {
           end = step = undefined;
         }
-        // Ensure the sign of `-0` is preserved.
         start = toFinite(start);
         if (end === undefined) {
           end = start;
@@ -8511,8 +8312,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
         number = toNumber(number);
         precision = precision == null ? 0 : nativeMin(toInteger(precision), 292);
         if (precision && nativeIsFinite(number)) {
-          // Shift with exponential notation to avoid floating-point issues.
-          // See [MDN](https://mdn.io/round#Examples) for more details.
           var pair = (toString(number) + 'e').split('e'),
               value = func(pair[0] + 'e' + (+pair[1] + precision));
 
@@ -8670,7 +8469,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
      */
     function customDefaultsMerge(objValue, srcValue, key, object, source, stack) {
       if (isObject(objValue) && isObject(srcValue)) {
-        // Recursively merge objects and arrays (susceptible to call stack limits).
         stack.set(srcValue, objValue);
         baseMerge(objValue, srcValue, undefined, customDefaultsMerge, stack);
         stack['delete'](srcValue);
@@ -8712,7 +8510,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
       if (arrLength != othLength && !(isPartial && othLength > arrLength)) {
         return false;
       }
-      // Check that cyclic values are equal.
       var arrStacked = stack.get(array);
       var othStacked = stack.get(other);
       if (arrStacked && othStacked) {
@@ -8724,8 +8521,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
 
       stack.set(array, other);
       stack.set(other, array);
-
-      // Ignore non-index properties.
       while (++index < arrLength) {
         var arrValue = array[index],
             othValue = other[index];
@@ -8742,7 +8537,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
           result = false;
           break;
         }
-        // Recursively compare arrays (susceptible to call stack limits).
         if (seen) {
           if (!arraySome(other, function(othValue, othIndex) {
                 if (!cacheHas(seen, othIndex) &&
@@ -8803,8 +8597,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
         case boolTag:
         case dateTag:
         case numberTag:
-          // Coerce booleans to `1` or `0` and dates to milliseconds.
-          // Invalid dates are coerced to `NaN`.
           return eq(+object, +other);
 
         case errorTag:
@@ -8812,9 +8604,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
 
         case regexpTag:
         case stringTag:
-          // Coerce regexes to strings and treat strings, primitives and objects,
-          // as equal. See http://www.ecma-international.org/ecma-262/7.0/#sec-regexp.prototype.tostring
-          // for more details.
           return object == (other + '');
 
         case mapTag:
@@ -8827,14 +8616,11 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
           if (object.size != other.size && !isPartial) {
             return false;
           }
-          // Assume cyclic values are equal.
           var stacked = stack.get(object);
           if (stacked) {
             return stacked == other;
           }
           bitmask |= COMPARE_UNORDERED_FLAG;
-
-          // Recursively compare objects (susceptible to call stack limits).
           stack.set(object, other);
           var result = equalArrays(convert(object), convert(other), bitmask, customizer, equalFunc, stack);
           stack['delete'](object);
@@ -8878,7 +8664,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
           return false;
         }
       }
-      // Check that cyclic values are equal.
       var objStacked = stack.get(object);
       var othStacked = stack.get(other);
       if (objStacked && othStacked) {
@@ -8899,7 +8684,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
             ? customizer(othValue, objValue, key, other, object, stack)
             : customizer(objValue, othValue, key, object, other, stack);
         }
-        // Recursively compare objects (susceptible to call stack limits).
         if (!(compared === undefined
               ? (objValue === othValue || equalFunc(objValue, othValue, bitmask, customizer, stack))
               : compared
@@ -8912,8 +8696,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
       if (result && !skipCtor) {
         var objCtor = object.constructor,
             othCtor = other.constructor;
-
-        // Non `Object` object instances with different constructors are not equal.
         if (objCtor != othCtor &&
             ('constructor' in object && 'constructor' in other) &&
             !(typeof objCtor == 'function' && objCtor instanceof objCtor &&
@@ -9138,8 +8920,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
      * @returns {string} Returns the `toStringTag`.
      */
     var getTag = baseGetTag;
-
-    // Fallback for data views, maps, sets, and weak maps in IE 11 and promises in Node.js < 6.
     if ((DataView && getTag(new DataView(new ArrayBuffer(1))) != dataViewTag) ||
         (Map && getTag(new Map) != mapTag) ||
         (Promise && getTag(Promise.resolve()) != promiseTag) ||
@@ -9244,8 +9024,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
     function initCloneArray(array) {
       var length = array.length,
           result = new array.constructor(length);
-
-      // Add properties assigned by `RegExp#exec`.
       if (length && typeof array[0] == 'string' && hasOwnProperty.call(array, 'index')) {
         result.index = array.index;
         result.input = array.input;
@@ -9555,45 +9333,35 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
         ((srcBitmask == WRAP_ARY_FLAG) && (bitmask == WRAP_CURRY_FLAG)) ||
         ((srcBitmask == WRAP_ARY_FLAG) && (bitmask == WRAP_REARG_FLAG) && (data[7].length <= source[8])) ||
         ((srcBitmask == (WRAP_ARY_FLAG | WRAP_REARG_FLAG)) && (source[7].length <= source[8]) && (bitmask == WRAP_CURRY_FLAG));
-
-      // Exit early if metadata can't be merged.
       if (!(isCommon || isCombo)) {
         return data;
       }
-      // Use source `thisArg` if available.
       if (srcBitmask & WRAP_BIND_FLAG) {
         data[2] = source[2];
-        // Set when currying a bound function.
         newBitmask |= bitmask & WRAP_BIND_FLAG ? 0 : WRAP_CURRY_BOUND_FLAG;
       }
-      // Compose partial arguments.
       var value = source[3];
       if (value) {
         var partials = data[3];
         data[3] = partials ? composeArgs(partials, value, source[4]) : value;
         data[4] = partials ? replaceHolders(data[3], PLACEHOLDER) : source[4];
       }
-      // Compose partial right arguments.
       value = source[5];
       if (value) {
         partials = data[5];
         data[5] = partials ? composeArgsRight(partials, value, source[6]) : value;
         data[6] = partials ? replaceHolders(data[5], PLACEHOLDER) : source[6];
       }
-      // Use source `argPos` if available.
       value = source[7];
       if (value) {
         data[7] = value;
       }
-      // Use source `ary` if it's smaller.
       if (srcBitmask & WRAP_ARY_FLAG) {
         data[8] = data[8] == null ? source[8] : nativeMin(data[8], source[8]);
       }
-      // Use source `arity` if one is not provided.
       if (data[9] == null) {
         data[9] = source[9];
       }
-      // Use source `func` and merge bitmasks.
       data[0] = source[0];
       data[1] = newBitmask;
 
@@ -13435,11 +13203,8 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
       }
 
       function leadingEdge(time) {
-        // Reset any `maxWait` timer.
         lastInvokeTime = time;
-        // Start the timer for the trailing edge.
         timerId = setTimeout(timerExpired, wait);
-        // Invoke the leading edge.
         return leading ? invokeFunc(time) : result;
       }
 
@@ -13456,10 +13221,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
       function shouldInvoke(time) {
         var timeSinceLastCall = time - lastCallTime,
             timeSinceLastInvoke = time - lastInvokeTime;
-
-        // Either this is the first call, activity has stopped and we're at the
-        // trailing edge, the system time has gone backwards and we're treating
-        // it as the trailing edge, or we've hit the `maxWait` limit.
         return (lastCallTime === undefined || (timeSinceLastCall >= wait) ||
           (timeSinceLastCall < 0) || (maxing && timeSinceLastInvoke >= maxWait));
       }
@@ -13469,15 +13230,11 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
         if (shouldInvoke(time)) {
           return trailingEdge(time);
         }
-        // Restart the timer.
         timerId = setTimeout(timerExpired, remainingWait(time));
       }
 
       function trailingEdge(time) {
         timerId = undefined;
-
-        // Only invoke if we have `lastArgs` which means `func` has been
-        // debounced at least once.
         if (trailing && lastArgs) {
           return invokeFunc(time);
         }
@@ -13510,7 +13267,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
             return leadingEdge(lastCallTime);
           }
           if (maxing) {
-            // Handle invocations in a tight loop.
             clearTimeout(timerId);
             timerId = setTimeout(timerExpired, wait);
             return invokeFunc(lastCallTime);
@@ -13656,8 +13412,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
       memoized.cache = new (memoize.Cache || MapCache);
       return memoized;
     }
-
-    // Expose `MapCache`.
     memoize.Cache = MapCache;
 
     /**
@@ -14748,8 +14502,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
       if (!isObject(value)) {
         return false;
       }
-      // The use of `Object#toString` avoids issues with the `typeof` operator
-      // in Safari 9 which returns 'object' for typed arrays and other constructors.
       var tag = baseGetTag(value);
       return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
     }
@@ -14990,9 +14742,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
      * // => false
      */
     function isNaN(value) {
-      // An `NaN` primitive is the only value that is not equal to itself.
-      // Perform the `toStringTag` check first to avoid errors with some
-      // ActiveX objects in IE.
       return isNumber(value) && value != +value;
     }
 
@@ -16725,8 +16474,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
 
       var index = -1,
           length = path.length;
-
-      // Ensure the loop is entered when path is empty.
       if (!length) {
         length = 1;
         object = undefined;
@@ -17868,9 +17615,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
      * ');
      */
     function template(string, options, guard) {
-      // Based on John Resig's `tmpl` implementation
-      // (http://ejohn.org/blog/javascript-micro-templating/)
-      // and Laura Doktorova's doT.js (https://github.com/olado/doT).
       var settings = lodash.templateSettings;
 
       if (guard && isIterateeCall(string, options, guard)) {
@@ -17888,19 +17632,12 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
           index = 0,
           interpolate = options.interpolate || reNoMatch,
           source = "__p += '";
-
-      // Compile the regexp to match each delimiter.
       var reDelimiters = RegExp(
         (options.escape || reNoMatch).source + '|' +
         interpolate.source + '|' +
         (interpolate === reInterpolate ? reEsTemplate : reNoMatch).source + '|' +
         (options.evaluate || reNoMatch).source + '|$'
       , 'g');
-
-      // Use a sourceURL for easier debugging.
-      // The sourceURL gets injected into the source that's eval-ed, so be careful
-      // to normalize all kinds of whitespace, so e.g. newlines (and unicode versions of it) can't sneak in
-      // and escape the comment, thus injecting code that gets evaled.
       var sourceURL = '//# sourceURL=' +
         (hasOwnProperty.call(options, 'sourceURL')
           ? (options.sourceURL + '').replace(/\s/g, ' ')
@@ -17909,11 +17646,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
 
       string.replace(reDelimiters, function(match, escapeValue, interpolateValue, esTemplateValue, evaluateValue, offset) {
         interpolateValue || (interpolateValue = esTemplateValue);
-
-        // Escape characters that can't be included in string literals.
         source += string.slice(index, offset).replace(reUnescapedString, escapeStringChar);
-
-        // Replace delimiters with snippets.
         if (escapeValue) {
           isEscaping = true;
           source += "' +\n__e(" + escapeValue + ") +\n'";
@@ -17926,32 +17659,20 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
           source += "' +\n((__t = (" + interpolateValue + ")) == null ? '' : __t) +\n'";
         }
         index = offset + match.length;
-
-        // The JS engine embedded in Adobe products needs `match` returned in
-        // order to produce the correct `offset` value.
         return match;
       });
 
       source += "';\n";
-
-      // If `variable` is not specified wrap a with-statement around the generated
-      // code to add the data object to the top of the scope chain.
       var variable = hasOwnProperty.call(options, 'variable') && options.variable;
       if (!variable) {
         source = 'with (obj) {\n' + source + '\n}\n';
       }
-      // Throw an error if a forbidden character was found in `variable`, to prevent
-      // potential command injection attacks.
       else if (reForbiddenIdentifierChars.test(variable)) {
         throw new Error(INVALID_TEMPL_VAR_ERROR_TEXT);
       }
-
-      // Cleanup code by stripping empty strings.
       source = (isEvaluating ? source.replace(reEmptyStringLeading, '') : source)
         .replace(reEmptyStringMiddle, '$1')
         .replace(reEmptyStringTrailing, '$1;');
-
-      // Frame code as the function body.
       source = 'function(' + (variable || 'obj') + ') {\n' +
         (variable
           ? ''
@@ -17974,9 +17695,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
         return Function(importsKeys, sourceURL + 'return ' + source)
           .apply(undefined, importsValues);
       });
-
-      // Provide the compiled function's source by its `toString` method or
-      // the `source` property as a convenience for inlining compiled templates.
       result.source = source;
       if (isError(result)) {
         throw result;
@@ -18876,7 +18594,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
      * // => [undefined, undefined]
      */
     function noop() {
-      // No operation performed.
     }
 
     /**
@@ -19649,8 +19366,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
     }
 
     /*------------------------------------------------------------------------*/
-
-    // Add methods that return wrapped values in chain sequences.
     lodash.after = after;
     lodash.ary = ary;
     lodash.assign = assign;
@@ -19800,19 +19515,13 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
     lodash.zipObject = zipObject;
     lodash.zipObjectDeep = zipObjectDeep;
     lodash.zipWith = zipWith;
-
-    // Add aliases.
     lodash.entries = toPairs;
     lodash.entriesIn = toPairsIn;
     lodash.extend = assignIn;
     lodash.extendWith = assignInWith;
-
-    // Add methods to `lodash.prototype`.
     mixin(lodash, lodash);
 
     /*------------------------------------------------------------------------*/
-
-    // Add methods that return unwrapped values in chain sequences.
     lodash.add = add;
     lodash.attempt = attempt;
     lodash.camelCase = camelCase;
@@ -19962,8 +19671,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
     lodash.uniqueId = uniqueId;
     lodash.upperCase = upperCase;
     lodash.upperFirst = upperFirst;
-
-    // Add aliases.
     lodash.each = forEach;
     lodash.eachRight = forEachRight;
     lodash.first = head;
@@ -19988,13 +19695,9 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
      * @type {string}
      */
     lodash.VERSION = VERSION;
-
-    // Assign default placeholders.
     arrayEach(['bind', 'bindKey', 'curry', 'curryRight', 'partial', 'partialRight'], function(methodName) {
       lodash[methodName].placeholder = lodash;
     });
-
-    // Add `LazyWrapper` methods for `_.drop` and `_.take` variants.
     arrayEach(['drop', 'take'], function(methodName, index) {
       LazyWrapper.prototype[methodName] = function(n) {
         n = n === undefined ? 1 : nativeMax(toInteger(n), 0);
@@ -20018,8 +19721,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
         return this.reverse()[methodName](n).reverse();
       };
     });
-
-    // Add `LazyWrapper` methods that accept an `iteratee` value.
     arrayEach(['filter', 'map', 'takeWhile'], function(methodName, index) {
       var type = index + 1,
           isFilter = type == LAZY_FILTER_FLAG || type == LAZY_WHILE_FLAG;
@@ -20034,8 +19735,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
         return result;
       };
     });
-
-    // Add `LazyWrapper` methods for `_.head` and `_.last`.
     arrayEach(['head', 'last'], function(methodName, index) {
       var takeName = 'take' + (index ? 'Right' : '');
 
@@ -20043,8 +19742,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
         return this[takeName](1).value()[0];
       };
     });
-
-    // Add `LazyWrapper` methods for `_.initial` and `_.tail`.
     arrayEach(['initial', 'tail'], function(methodName, index) {
       var dropName = 'drop' + (index ? '' : 'Right');
 
@@ -20104,8 +19801,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
     LazyWrapper.prototype.toArray = function() {
       return this.take(MAX_ARRAY_LENGTH);
     };
-
-    // Add `LazyWrapper` methods to `lodash.prototype`.
     baseForOwn(LazyWrapper.prototype, function(func, methodName) {
       var checkIteratee = /^(?:filter|find|map|reject)|While$/.test(methodName),
           isTaker = /^(?:head|last)$/.test(methodName),
@@ -20128,7 +19823,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
         };
 
         if (useLazy && checkIteratee && typeof iteratee == 'function' && iteratee.length != 1) {
-          // Avoid lazy use if the iteratee has a "length" value other than `1`.
           isLazy = useLazy = false;
         }
         var chainAll = this.__chain__,
@@ -20149,8 +19843,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
         return isUnwrapped ? (isTaker ? result.value()[0] : result.value()) : result;
       };
     });
-
-    // Add `Array` methods to `lodash.prototype`.
     arrayEach(['pop', 'push', 'shift', 'sort', 'splice', 'unshift'], function(methodName) {
       var func = arrayProto[methodName],
           chainName = /^(?:push|sort|unshift)$/.test(methodName) ? 'tap' : 'thru',
@@ -20167,8 +19859,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
         });
       };
     });
-
-    // Map minified method names to their real names.
     baseForOwn(LazyWrapper.prototype, function(func, methodName) {
       var lodashFunc = lodash[methodName];
       if (lodashFunc) {
@@ -20184,13 +19874,9 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
       'name': 'wrapper',
       'func': undefined
     }];
-
-    // Add methods to `LazyWrapper`.
     LazyWrapper.prototype.clone = lazyClone;
     LazyWrapper.prototype.reverse = lazyReverse;
     LazyWrapper.prototype.value = lazyValue;
-
-    // Add chain sequence methods to the `lodash` wrapper.
     lodash.prototype.at = wrapperAt;
     lodash.prototype.chain = wrapperChain;
     lodash.prototype.commit = wrapperCommit;
@@ -20198,8 +19884,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
     lodash.prototype.plant = wrapperPlant;
     lodash.prototype.reverse = wrapperReverse;
     lodash.prototype.toJSON = lodash.prototype.valueOf = lodash.prototype.value = wrapperValue;
-
-    // Add lazy aliases.
     lodash.prototype.first = lodash.prototype.head;
 
     if (symIterator) {
@@ -20209,26 +19893,14 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
   });
 
   /*--------------------------------------------------------------------------*/
-
-  // Export lodash.
   var _ = runInContext();
-
-  // Some AMD build optimizers, like r.js, check for condition patterns like:
   if (true) {
-    // Expose Lodash on the global object to prevent errors when Lodash is
-    // loaded by a script tag in the presence of an AMD loader.
-    // See http://requirejs.org/docs/errors.html#mismatch for more details.
-    // Use `_.noConflict` to remove Lodash from the global object.
     root._ = _;
-
-    // Define as an anonymous module so, through path mapping, it can be
-    // referenced as the "underscore" module.
     !(__WEBPACK_AMD_DEFINE_RESULT__ = (function() {
       return _;
     }).call(exports, __webpack_require__, exports, module),
 		__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
   }
-  // Check for `exports` after `define` in case a build optimizer adds it.
   else {}
 }.call(this));
 
@@ -20243,7 +19915,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-// extracted by mini-css-extract-plugin
 
 
 /***/ }),
@@ -20425,7 +20096,6 @@ EventManager.prototype.unbind = function unbind (element, eventName, handler) {
   ee.unbind(eventName, handler);
 
   if (ee.isEmpty) {
-    // remove
     this.eventElements.splice(this.eventElements.indexOf(ee), 1);
   }
 };
@@ -20505,16 +20175,10 @@ function processScrollDiff$1(
   if ( forceFireReachEvent === void 0 ) forceFireReachEvent = false;
 
   var element = i.element;
-
-  // reset reach
   i.reach[y] = null;
-
-  // 1 for subpixel rounding
   if (element[scrollTop] < 1) {
     i.reach[y] = 'start';
   }
-
-  // 1 for subpixel rounding
   if (element[scrollTop] > i[contentHeight] - i[containerHeight] - 1) {
     i.reach[y] = 'end';
   }
@@ -20591,13 +20255,11 @@ function updateGeometry(i) {
   i.contentHeight = element.scrollHeight;
 
   if (!element.contains(i.scrollbarXRail)) {
-    // clean up and append
     queryChildren(element, cls.element.rail('x')).forEach(function (el) { return remove(el); }
     );
     element.appendChild(i.scrollbarXRail);
   }
   if (!element.contains(i.scrollbarYRail)) {
-    // clean up and append
     queryChildren(element, cls.element.rail('y')).forEach(function (el) { return remove(el); }
     );
     element.appendChild(i.scrollbarYRail);
@@ -20916,7 +20578,6 @@ function keyboard(i) {
       if (activeElement.tagName === 'IFRAME') {
         activeElement = activeElement.contentDocument.activeElement;
       } else {
-        // go deeper if element is a webcomponent
         while (activeElement.shadowRoot) {
           activeElement = activeElement.shadowRoot.activeElement;
         }
@@ -21019,8 +20680,6 @@ function wheel(i) {
       element.scrollLeft + element.offsetWidth === element.scrollWidth;
 
     var hitsBound;
-
-    // pick axis with primary direction
     if (Math.abs(deltaY) > Math.abs(deltaX)) {
       hitsBound = isTop || isBottom;
     } else {
@@ -21035,32 +20694,27 @@ function wheel(i) {
     var deltaY = -1 * e.deltaY;
 
     if (typeof deltaX === 'undefined' || typeof deltaY === 'undefined') {
-      // OS X Safari
       deltaX = (-1 * e.wheelDeltaX) / 6;
       deltaY = e.wheelDeltaY / 6;
     }
 
     if (e.deltaMode && e.deltaMode === 1) {
-      // Firefox in deltaMode 1: Line scrolling
       deltaX *= 10;
       deltaY *= 10;
     }
 
     if (deltaX !== deltaX && deltaY !== deltaY /* NaN checks */) {
-      // IE in some mouse drivers
       deltaX = 0;
       deltaY = e.wheelDelta;
     }
 
     if (e.shiftKey) {
-      // reverse axis with shift key
       return [-deltaY, -deltaX];
     }
     return [deltaX, deltaY];
   }
 
   function shouldBeConsumedByChild(target, deltaX, deltaY) {
-    // FIXME: this is a workaround for <select> issue in FF and IE #571
     if (!env.isWebKit && element.querySelector('select:focus')) {
       return true;
     }
@@ -21077,8 +20731,6 @@ function wheel(i) {
       }
 
       var style = get(cursor);
-
-      // if deltaY && vertical scrollable
       if (deltaY && style.overflowY.match(/(scroll|auto)/)) {
         var maxScrollTop = cursor.scrollHeight - cursor.clientHeight;
         if (maxScrollTop > 0) {
@@ -21090,7 +20742,6 @@ function wheel(i) {
           }
         }
       }
-      // if deltaX && horizontal scrollable
       if (deltaX && style.overflowX.match(/(scroll|auto)/)) {
         var maxScrollLeft = cursor.scrollWidth - cursor.clientWidth;
         if (maxScrollLeft > 0) {
@@ -21120,13 +20771,9 @@ function wheel(i) {
 
     var shouldPrevent = false;
     if (!i.settings.useBothWheelAxes) {
-      // deltaX will only be used for horizontal scrolling and deltaY will
-      // only be used for vertical scrolling - this is the default
       element.scrollTop -= deltaY * i.settings.wheelSpeed;
       element.scrollLeft += deltaX * i.settings.wheelSpeed;
     } else if (i.scrollbarYActive && !i.scrollbarXActive) {
-      // only vertical scrollbar is active and useBothWheelAxes option is
-      // active, so let's scroll vertical bar using both mouse wheel axes
       if (deltaY) {
         element.scrollTop -= deltaY * i.settings.wheelSpeed;
       } else {
@@ -21134,8 +20781,6 @@ function wheel(i) {
       }
       shouldPrevent = true;
     } else if (i.scrollbarXActive && !i.scrollbarYActive) {
-      // useBothWheelAxes and only horizontal bar is active, so use both
-      // wheel axes for horizontal bar
       if (deltaX) {
         element.scrollLeft += deltaX * i.settings.wheelSpeed;
       } else {
@@ -21174,17 +20819,14 @@ function touch(i) {
     var magnitudeY = Math.abs(deltaY);
 
     if (magnitudeY > magnitudeX) {
-      // user is perhaps trying to swipe up/down the page
 
       if (
         (deltaY < 0 && scrollTop === i.contentHeight - i.containerHeight) ||
         (deltaY > 0 && scrollTop === 0)
       ) {
-        // set prevent for mobile Chrome refresh
         return window.scrollY === 0 && deltaY > 0 && env.isChrome;
       }
     } else if (magnitudeX > magnitudeY) {
-      // user is perhaps trying to swipe left/right across the page
 
       if (
         (deltaX < 0 && scrollLeft === i.contentWidth - i.containerWidth) ||
@@ -21213,7 +20855,6 @@ function touch(i) {
     if (e.targetTouches) {
       return e.targetTouches[0];
     } else {
-      // Maybe IE pointer
       return e;
     }
   }
@@ -21265,8 +20906,6 @@ function touch(i) {
       }
 
       var style = get(cursor);
-
-      // if deltaY && vertical scrollable
       if (deltaY && style.overflowY.match(/(scroll|auto)/)) {
         var maxScrollTop = cursor.scrollHeight - cursor.clientHeight;
         if (maxScrollTop > 0) {
@@ -21278,7 +20917,6 @@ function touch(i) {
           }
         }
       }
-      // if deltaX && horizontal scrollable
       if (deltaX && style.overflowX.match(/(scroll|auto)/)) {
         var maxScrollLeft = cursor.scrollWidth - cursor.clientWidth;
         if (maxScrollLeft > 0) {
@@ -21466,7 +21104,6 @@ var PerfectScrollbar = function PerfectScrollbar(element, userSettings) {
   }
   this.railBorderXWidth =
     toInt(railXStyle.borderLeftWidth) + toInt(railXStyle.borderRightWidth);
-  // Set rail to display:block to calculate margins
   set(this.scrollbarXRail, { display: 'block' });
   this.railXMarginWidth =
     toInt(railXStyle.marginLeft) + toInt(railXStyle.marginRight);
@@ -21531,13 +21168,9 @@ PerfectScrollbar.prototype.update = function update () {
   if (!this.isAlive) {
     return;
   }
-
-  // Recalcuate negative scrollLeft adjustment
   this.negativeScrollAdjustment = this.isNegativeScroll
     ? this.element.scrollWidth - this.element.clientWidth
     : 0;
-
-  // Recalculate rail margins
   set(this.scrollbarXRail, { display: 'block' });
   set(this.scrollbarYRail, { display: 'block' });
   this.railXMarginWidth =
@@ -21546,8 +21179,6 @@ PerfectScrollbar.prototype.update = function update () {
   this.railYMarginHeight =
     toInt(get(this.scrollbarYRail).marginTop) +
     toInt(get(this.scrollbarYRail).marginBottom);
-
-  // Hide scrollbars not to affect scrollWidth and scrollHeight
   set(this.scrollbarXRail, { display: 'none' });
   set(this.scrollbarYRail, { display: 'none' });
 
@@ -21588,8 +21219,6 @@ PerfectScrollbar.prototype.destroy = function destroy () {
   remove(this.scrollbarXRail);
   remove(this.scrollbarYRail);
   this.removePsClasses();
-
-  // unset elements
   this.element = null;
   this.scrollbarX = null;
   this.scrollbarY = null;
@@ -21607,7 +21236,6 @@ PerfectScrollbar.prototype.removePsClasses = function removePsClasses () {
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (PerfectScrollbar);
-//# sourceMappingURL=perfect-scrollbar.esm.js.map
 
 
 /***/ }),
@@ -21617,14 +21245,7 @@ PerfectScrollbar.prototype.removePsClasses = function removePsClasses () {
   !*** ./node_modules/process/browser.js ***!
   \*****************************************/
 /***/ ((module) => {
-
-// shim for using process in browser
 var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
 
 var cachedSetTimeout;
 var cachedClearTimeout;
@@ -21657,23 +21278,18 @@ function defaultClearTimeout () {
 } ())
 function runTimeout(fun) {
     if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
         return setTimeout(fun, 0);
     }
-    // if setTimeout wasn't available but was latter defined
     if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
         cachedSetTimeout = setTimeout;
         return setTimeout(fun, 0);
     }
     try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
         return cachedSetTimeout(fun, 0);
     } catch(e){
         try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
             return cachedSetTimeout.call(null, fun, 0);
         } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
             return cachedSetTimeout.call(this, fun, 0);
         }
     }
@@ -21682,24 +21298,18 @@ function runTimeout(fun) {
 }
 function runClearTimeout(marker) {
     if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
         return clearTimeout(marker);
     }
-    // if clearTimeout wasn't available but was latter defined
     if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
         cachedClearTimeout = clearTimeout;
         return clearTimeout(marker);
     }
     try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
         return cachedClearTimeout(marker);
     } catch (e){
         try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
             return cachedClearTimeout.call(null, marker);
         } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
             return cachedClearTimeout.call(this, marker);
         }
     }
@@ -21763,8 +21373,6 @@ process.nextTick = function (fun) {
         runTimeout(drainQueue);
     }
 };
-
-// v8 likes predictible objects
 function Item(fun, array) {
     this.fun = fun;
     this.array = array;

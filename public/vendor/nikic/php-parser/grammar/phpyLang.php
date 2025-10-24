@@ -1,9 +1,5 @@
 <?php
 
-///////////////////////////////
-/// Utility regex constants ///
-///////////////////////////////
-
 const LIB = '(?(DEFINE)
     (?<singleQuotedString>\'[^\\\\\']*+(?:\\\\.[^\\\\\']*+)*+\')
     (?<doubleQuotedString>"[^\\\\"]*+(?:\\\\.[^\\\\"]*+)*+")
@@ -14,10 +10,6 @@ const LIB = '(?(DEFINE)
 
 const PARAMS = '\[(?<params>[^[\]]*+(?:\[(?&params)\][^[\]]*+)*+)\]';
 const ARGS   = '\((?<args>[^()]*+(?:\((?&args)\)[^()]*+)*+)\)';
-
-///////////////////////////////
-/// Preprocessing functions ///
-///////////////////////////////
 
 function preprocessGrammar($code) {
     $code = resolveNodes($code);
@@ -31,7 +23,6 @@ function resolveNodes($code) {
     return preg_replace_callback(
         '~\b(?<name>[A-Z][a-zA-Z_\\\\]++)\s*' . PARAMS . '~',
         function($matches) {
-            // recurse
             $matches['params'] = resolveNodes($matches['params']);
 
             $params = magicSplit(
@@ -54,7 +45,6 @@ function resolveMacros($code) {
     return preg_replace_callback(
         '~\b(?<!::|->)(?!array\()(?<name>[a-z][A-Za-z]++)' . ARGS . '~',
         function($matches) {
-            // recurse
             $matches['args'] = resolveMacros($matches['args']);
 
             $name = $matches['name'];
@@ -168,10 +158,6 @@ function removeTrailingWhitespace($code) {
     $lines = array_map('rtrim', $lines);
     return implode("\n", $lines);
 }
-
-//////////////////////////////
-/// Regex helper functions ///
-//////////////////////////////
 
 function regex($regex) {
     return '~' . LIB . '(?:' . str_replace('~', '\~', $regex) . ')~';

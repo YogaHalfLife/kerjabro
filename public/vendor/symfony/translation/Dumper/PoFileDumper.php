@@ -70,7 +70,6 @@ class PoFileDumper extends FileDumper
 
     private function getStandardRules(string $id)
     {
-        // Partly copied from TranslatorTrait::trans.
         $parts = [];
         if (preg_match('/^\|++$/', $id)) {
             $parts = explode('|', $id);
@@ -101,7 +100,6 @@ EOF;
             $part = trim(str_replace('||', '|', $part));
 
             if (preg_match($intervalRegexp, $part)) {
-                // Explicit rule is not a standard rule.
                 return [];
             } else {
                 $standardRules[] = $part;

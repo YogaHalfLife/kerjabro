@@ -27,8 +27,6 @@ class PhoneNumber extends \Faker\Provider\PhoneNumber
         '{{internationalCodePrefix}} 6### ####',
         '6### ####',
     ];
-
-    // http://en.wikipedia.org/wiki/Telephone_numbers_in_Singapore#Numbering_plan
     protected static $formats = [
         '{{mobileNumber}}',
         '{{fixedLineNumber}}',

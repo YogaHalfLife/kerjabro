@@ -45,7 +45,6 @@ abstract class TypeNodeAbstract
     protected function getRealType(string $type): string
     {
         switch ($type) {
-            // type aliases
             case 'double':
             case 'real':
                 return 'float';
@@ -53,8 +52,6 @@ abstract class TypeNodeAbstract
                 return 'bool';
             case 'integer':
                 return 'int';
-
-            //  built in types
             case 'self':
             case 'static':
             case 'array':

@@ -128,16 +128,12 @@ final class DocBlockFactory implements DocBlockFactoryInterface
         $comment = preg_replace('#[ \t]*(?:\/\*\*|\*\/|\*)?[ \t]?(.*)?#u', '$1', $comment);
         Assert::string($comment);
         $comment = trim($comment);
-
-        // reg ex above is not able to remove */ from a single line docblock
         if (substr($comment, -2) === '*/') {
             $comment = trim(substr($comment, 0, -2));
         }
 
         return str_replace(["\r\n", "\r"], "\n", $comment);
     }
-
-    // phpcs:disable
     /**
      * Splits the DocBlock into a template marker, summary, description and block of tags.
      *
@@ -151,15 +147,9 @@ final class DocBlockFactory implements DocBlockFactoryInterface
      */
     private function splitDocBlock(string $comment) : array
     {
-        // phpcs:enable
-        // Performance improvement cheat: if the first character is an @ then only tags are in this DocBlock. This
-        // method does not split tags so we return this verbatim as the fourth result (tags). This saves us the
-        // performance impact of running a regular expression
         if (strpos($comment, '@') === 0) {
             return ['', '', '', $comment];
         }
-
-        // clears all extra horizontal whitespace from the line endings to prevent parsing issues
         $comment = preg_replace('/\h*$/Sum', '', $comment);
         Assert::string($comment);
         /*
@@ -273,13 +263,8 @@ final class DocBlockFactory implements DocBlockFactoryInterface
         }
 
         if ($tags[0] !== '@') {
-            // @codeCoverageIgnoreStart
-            // Can't simulate this; this only happens if there is an error with the parsing of the DocBlock that
-            // we didn't foresee.
 
             throw new LogicException('A tag block started with text instead of an at-sign(@): ' . $tags);
-
-            // @codeCoverageIgnoreEnd
         }
 
         return $tags;

@@ -72,21 +72,7 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        // n.b. As far as I can tell, InputInterface doesn't want to tell me
-        // whether an option with an optional value was actually passed. If you
-        // call `$input->getOption('ex')`, it will return the default, both when
-        // `--ex` is specified with no value, and when `--ex` isn't specified at
-        // all.
-        //
-        // So we're doing something sneaky here. If we call `getOptions`, it'll
-        // return the default value when `--ex` is not present, and `null` if
-        // `--ex` is passed with no value. /shrug
         $opts = $input->getOptions();
-
-        // Strict comparison to `1` (the default value) here, because `--ex 1`
-        // will come in as `"1"`. Now we can tell the difference between
-        // "no --ex present", because it's the integer 1, "--ex with no value",
-        // because it's `null`, and "--ex 1", because it's the string "1".
         if ($opts['ex'] !== 1) {
             if ($input->getArgument('target')) {
                 throw new \InvalidArgumentException('Too many arguments (supply either "target" or "--ex")');
@@ -111,7 +97,6 @@ HELP
         try {
             list($target, $reflector) = $this->getTargetAndReflector($input->getArgument('target'));
         } catch (UnexpectedTargetException $e) {
-            // If we didn't get a target and Reflector, maybe we got a filename?
             $target = $e->getTarget();
             if (\is_string($target) && \is_file($target) && $code = @\file_get_contents($target)) {
                 $file = \realpath($target);
@@ -129,8 +114,6 @@ HELP
                 throw $e;
             }
         }
-
-        // Set some magic local variables
         $this->setCommandScopeVariables($reflector);
 
         try {
@@ -255,7 +238,6 @@ HELP
                     $vars['__namespace'] = $namespace;
                 }
             } catch (\Throwable $e) {
-                // oh well
             }
         } elseif (isset($context['function'])) {
             $vars['__function'] = $context['function'];
@@ -266,7 +248,6 @@ HELP
                     $vars['__namespace'] = $namespace;
                 }
             } catch (\Throwable $e) {
-                // oh well
             }
         }
 

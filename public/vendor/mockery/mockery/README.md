@@ -201,7 +201,6 @@ test double `shouldIgnoreMissing`, or we can create the double using the `Mocker
 shortcut.
 
 ``` php
-// $double = Mockery::mock()->shouldIgnoreMissing();
 $double = Mockery::spy();
 
 $double->foo(); // null

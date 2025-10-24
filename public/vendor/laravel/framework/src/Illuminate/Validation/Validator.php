@@ -397,10 +397,6 @@ class Validator implements ValidatorContract
         $this->messages = new MessageBag;
 
         [$this->distinctValues, $this->failedRules] = [[], []];
-
-        // We'll spin through each rule, validating the attributes attached to that
-        // rule. Any error messages will be added to the containers with each of
-        // the other error messages, returning true if we don't have messages.
         foreach ($this->rules as $attribute => $rules) {
             if ($this->shouldBeExcluded($attribute)) {
                 $this->removeAttribute($attribute);
@@ -426,10 +422,6 @@ class Validator implements ValidatorContract
                 }
             }
         }
-
-        // Here we will spin through all of the "after" hooks on this validator and
-        // fire them off. This gives the callbacks a chance to perform all kinds
-        // of other validation that needs to get wrapped up in this operation.
         foreach ($this->after as $after) {
             $after();
         }
@@ -571,10 +563,6 @@ class Validator implements ValidatorContract
         if ($rule === '') {
             return;
         }
-
-        // First we will get the correct keys for the given attribute in case the field is nested in
-        // an array. Then we determine if the given rule accepts other field names as parameters.
-        // If so, we will replace any asterisks found in the parameters with the correct keys.
         if ($this->dependsOnOtherFields($rule)) {
             $parameters = $this->replaceDotInParameters($parameters);
 
@@ -584,19 +572,11 @@ class Validator implements ValidatorContract
         }
 
         $value = $this->getValue($attribute);
-
-        // If the attribute is a file, we will verify that the file upload was actually successful
-        // and if it wasn't we will add a failure for the attribute. Files may not successfully
-        // upload if they are too large based on PHP's settings so we will bail in this case.
         if ($value instanceof UploadedFile && ! $value->isValid() &&
             $this->hasRule($attribute, array_merge($this->fileRules, $this->implicitRules))
         ) {
             return $this->addFailure($attribute, 'uploaded', []);
         }
-
-        // If we have made it this far we will make sure the attribute is validatable and if it is
-        // we will call the validation method with the attribute. If a method returns false the
-        // attribute is invalid and we will add a failure message for this failing attribute.
         $validatable = $this->isValidatable($rule, $attribute, $value);
 
         if ($rule instanceof RuleContract) {
@@ -843,10 +823,6 @@ class Validator implements ValidatorContract
             array_key_exists('uploaded', $this->failedRules[$cleanedAttribute])) {
             return true;
         }
-
-        // In case the attribute has any rule that indicates that the field is required
-        // and that rule already failed then we should stop validation at this point
-        // as now there is no point in calling other rules with this field empty.
         return $this->hasRule($attribute, $this->implicitRules) &&
                isset($this->failedRules[$cleanedAttribute]) &&
                array_intersect(array_keys($this->failedRules[$cleanedAttribute]), $this->implicitRules);
@@ -1115,9 +1091,6 @@ class Validator implements ValidatorContract
      */
     public function addRules($rules)
     {
-        // The primary purpose of this parser is to expand any "*" rules to the all
-        // of the explicit rules needed for the given data. For example the rule
-        // names.* would get expanded to names.0, names.1, etc. for this data.
         $response = (new ValidationRuleParser($this->data))
                             ->explode(ValidationRuleParser::filterConditionalRules($rules, $this->data));
 

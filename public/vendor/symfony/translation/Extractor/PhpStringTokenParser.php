@@ -123,10 +123,7 @@ class PhpStringTokenParser
      */
     public static function parseDocString(string $startToken, string $str): string
     {
-        // strip last newline (thanks tokenizer for sticking it into the string!)
         $str = preg_replace('~(\r\n|\n|\r)$~', '', $str);
-
-        // nowdoc string
         if (str_contains($startToken, '\'')) {
             return $str;
         }

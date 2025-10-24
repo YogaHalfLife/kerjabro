@@ -57,13 +57,9 @@ final class Decimal implements NumberInterface
                 . 'digits 0-9 and, optionally, a decimal point or sign (+ or -)'
             );
         }
-
-        // Remove the leading +-symbol.
         if (strpos($value, '+') === 0) {
             $value = substr($value, 1);
         }
-
-        // For cases like `-0` or `-0.0000`, convert the value to `0`.
         if (abs((float) $value) === 0.0) {
             $value = '0';
         }
@@ -126,11 +122,9 @@ final class Decimal implements NumberInterface
      */
     public function __unserialize(array $data): void
     {
-        // @codeCoverageIgnoreStart
         if (!isset($data['string'])) {
             throw new ValueError(sprintf('%s(): Argument #1 ($data) is invalid', __METHOD__));
         }
-        // @codeCoverageIgnoreEnd
 
         $this->unserialize($data['string']);
     }

@@ -184,9 +184,6 @@ abstract class Job
         }
 
         try {
-            // If the job has failed, we will delete it, call the "failed" method and then call
-            // an event indicating the job has failed so it can be logged if needed. This is
-            // to allow every developer to better keep monitor of their failed queue jobs.
             $this->delete();
 
             $this->failed($e);

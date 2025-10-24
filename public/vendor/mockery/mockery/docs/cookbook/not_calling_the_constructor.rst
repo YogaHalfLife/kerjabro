@@ -22,11 +22,8 @@ call the original constructor.
         public function __construct()
         {
             echo "Original constructor called." . PHP_EOL;
-            // Other side-effects can happen...
         }
     }
-
-    // This will print "Original constructor called."
     $mock = \Mockery::mock('MyClass[foo]');
 
 A better approach is to use runtime partial doubles:
@@ -38,11 +35,8 @@ A better approach is to use runtime partial doubles:
         public function __construct()
         {
             echo "Original constructor called." . PHP_EOL;
-            // Other side-effects can happen...
         }
     }
-
-    // This will not print anything
     $mock = \Mockery::mock('MyClass')->makePartial();
     $mock->shouldReceive('foo');
 

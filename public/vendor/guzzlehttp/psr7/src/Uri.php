@@ -104,7 +104,6 @@ class Uri implements UriInterface
      */
     private static function parse(string $url)
     {
-        // If IPv6
         $prefix = '';
         if (preg_match('%^(.*://\[[0-9:a-f]+\])(.*?)$%', $url, $matches)) {
             /** @var array{0:string, 1:string, 2:string} $matches */
@@ -166,8 +165,6 @@ class Uri implements UriInterface
     public static function composeComponents(?string $scheme, ?string $authority, string $path, ?string $query, ?string $fragment): string
     {
         $uri = '';
-
-        // weak type checks to also accept null until we can add scalar type hints
         if ($scheme != '') {
             $uri .= $scheme . ':';
         }
@@ -649,9 +646,6 @@ class Uri implements UriInterface
 
     private static function generateQueryString(string $key, ?string $value): string
     {
-        // Query string separators ("=", "&") within the key or value need to be encoded
-        // (while preventing double-encoding) before setting the query string. All other
-        // chars that need percent-encoding will be encoded by withQuery().
         $queryString = strtr($key, self::QUERY_SEPARATORS_REPLACEMENT);
 
         if ($value !== null) {

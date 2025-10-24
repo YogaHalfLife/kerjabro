@@ -167,7 +167,6 @@ abstract class AbstractOperation implements OperationInterface
      */
     public function moveMessagesToIntlDomainsIfPossible(string $batch = self::ALL_BATCH): void
     {
-        // If MessageFormatter class does not exists, intl domains are not supported.
         if (!class_exists(\MessageFormatter::class)) {
             return;
         }

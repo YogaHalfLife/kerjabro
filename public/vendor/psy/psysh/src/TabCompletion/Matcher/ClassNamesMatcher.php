@@ -33,10 +33,8 @@ class ClassNamesMatcher extends AbstractMatcher
 
         return \array_map(
             function ($className) use ($class) {
-                // get the number of namespace separators
                 $nsPos = \substr_count($class, '\\');
                 $pieces = \explode('\\', $className);
-                // $methods = Mirror::get($class);
                 return \implode('\\', \array_slice($pieces, $nsPos, \count($pieces)));
             },
             \array_filter(

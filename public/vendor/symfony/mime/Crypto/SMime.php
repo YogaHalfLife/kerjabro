@@ -46,8 +46,6 @@ abstract class SMime
         while (!feof($stream)) {
             $buffer = fread($stream, 78);
             $headers .= $buffer;
-
-            // Detect ending of header list
             if (preg_match('/(\r\n\r\n|\n\n)/', $headers, $match)) {
                 $headersPosEnd = strpos($headers, $headerBodySeparator = $match[0]);
 
@@ -74,15 +72,10 @@ abstract class SMime
         $headers = [];
         $headerLines = explode("\r\n", str_replace("\n", "\r\n", str_replace("\r\n", "\n", $headerData)));
         $currentHeaderName = '';
-
-        // Transform header lines into an associative array
         foreach ($headerLines as $headerLine) {
-            // Empty lines between headers indicate a new mime-entity
             if ('' === $headerLine) {
                 break;
             }
-
-            // Handle headers that span multiple lines
             if (!str_contains($headerLine, ':')) {
                 $headers[$currentHeaderName] .= ' '.trim($headerLine);
                 continue;

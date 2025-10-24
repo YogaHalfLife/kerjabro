@@ -66,8 +66,6 @@ final class IsIdentical extends Constraint
 
         if (!$success) {
             $f = null;
-
-            // if both values are strings, make sure a diff is generated
             if (is_string($this->value) && is_string($other)) {
                 $f = new ComparisonFailure(
                     $this->value,
@@ -76,8 +74,6 @@ final class IsIdentical extends Constraint
                     sprintf("'%s'", $other)
                 );
             }
-
-            // if both values are array, make sure a diff is generated
             if (is_array($this->value) && is_array($other)) {
                 $f = new ComparisonFailure(
                     $this->value,

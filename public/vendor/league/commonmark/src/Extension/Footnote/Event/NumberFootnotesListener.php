@@ -46,15 +46,11 @@ final class NumberFootnotesListener
                 $label              .= '__' . ++$usedLabels[$label];
                 $canIncrementCounter = false;
             }
-
-            // rewrite reference title to use a numeric link
             $newReference = new Reference(
                 $label,
                 $existingReference->getDestination(),
                 (string) $counter
             );
-
-            // Override reference with numeric link
             $node->setReference($newReference);
             $document->getReferenceMap()->add($newReference);
 

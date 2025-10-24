@@ -342,8 +342,6 @@ class Inflector
             $string = strtr($string, self::ACCENTED_CHARACTERS);
         } else {
             $characters = [];
-
-            // Assume ISO-8859-1 if not UTF-8
             $characters['in'] =
                   chr(128)
                 . chr(131)
@@ -447,7 +445,6 @@ class Inflector
      */
     public function urlize(string $string): string
     {
-        // Remove all non url friendly characters with the unaccent function
         $unaccented = $this->unaccent($string);
 
         if (function_exists('mb_strtolower')) {

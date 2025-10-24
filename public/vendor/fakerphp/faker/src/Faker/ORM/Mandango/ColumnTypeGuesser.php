@@ -50,7 +50,6 @@ class ColumnTypeGuesser
                 };
 
             default:
-                // no smart way to guess what the user expects here
                 return null;
         }
     }

@@ -29,8 +29,6 @@ final class ConsecutiveDescriptionListMerger
             if (! ($prev = $node->previous()) instanceof DescriptionList) {
                 continue;
             }
-
-            // There's another description list behind this one; merge the current one into that
             foreach ($node->children() as $child) {
                 $prev->appendChild($child);
             }

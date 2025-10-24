@@ -98,8 +98,6 @@ abstract class ReflectingCommand extends Command implements ContextAware
     protected function resolveName(string $name, bool $includeFunctions = false): string
     {
         $shell = $this->getApplication();
-
-        // While not *technically* 100% accurate, let's treat `self` and `static` as equivalent.
         if (\in_array(\strtolower($name), ['self', 'static'])) {
             if ($boundClass = $shell->getBoundClass()) {
                 return $boundClass;
@@ -116,13 +114,10 @@ abstract class ReflectingCommand extends Command implements ContextAware
         if (\substr($name, 0, 1) === '\\') {
             return $name;
         }
-
-        // Check $name against the current namespace and use statements.
         if (self::couldBeClassName($name)) {
             try {
                 $name = $this->resolveCode($name.'::class');
             } catch (RuntimeException $e) {
-                // /shrug
             }
         }
 
@@ -142,7 +137,6 @@ abstract class ReflectingCommand extends Command implements ContextAware
      */
     protected function couldBeClassName(string $name): bool
     {
-        // Regex based on https://www.php.net/manual/en/language.oop5.basic.php#language.oop5.basic.class
         return \preg_match('/^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*(\\\\[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)*$/', $name) === 1;
     }
 
@@ -174,7 +168,6 @@ abstract class ReflectingCommand extends Command implements ContextAware
         try {
             $value = $this->getApplication()->execute($code, true);
         } catch (\Throwable $e) {
-            // Swallow all exceptions?
         }
 
         if (!isset($value) || $value instanceof NoReturnValue) {
@@ -297,7 +290,6 @@ abstract class ReflectingCommand extends Command implements ContextAware
                 if ($classReflector->inNamespace()) {
                     $vars['__namespace'] = $classReflector->getNamespaceName();
                 }
-                // no line for these, but this'll do
                 if ($fileName = $reflector->getDeclaringClass()->getFileName()) {
                     $vars['__file'] = $fileName;
                     $vars['__dir'] = \dirname($fileName);

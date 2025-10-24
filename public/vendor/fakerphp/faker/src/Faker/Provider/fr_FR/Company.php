@@ -159,7 +159,6 @@ class Company extends \Faker\Provider\Company
     protected static function isCatchPhraseValid($catchPhrase)
     {
         foreach (static::$wordsWhichShouldNotAppearTwice as $word) {
-            // Fastest way to check if a piece of word does not appear twice.
             $beginPos = strpos($catchPhrase, $word);
             $endPos = strrpos($catchPhrase, $word);
 

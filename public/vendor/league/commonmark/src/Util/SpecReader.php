@@ -27,7 +27,6 @@ final class SpecReader
      */
     public static function read(string $data): iterable
     {
-        // Normalize newlines for platform independence
         $data = \preg_replace('/\r\n?/', "\n", $data);
         \assert($data !== null);
         $data = \preg_replace('/<!-- END TESTS -->.*$/', '', $data);

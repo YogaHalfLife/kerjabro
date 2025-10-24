@@ -204,10 +204,6 @@ class BelongsToMany extends Relation
     protected function performJoin($query = null)
     {
         $query = $query ?: $this->query;
-
-        // We need to join to the intermediate table on the related model's primary
-        // key column with the intermediate table's foreign key for the related
-        // model instance. Then we can set the "where" for the parent models.
         $query->join(
             $this->table,
             $this->getQualifiedRelatedKeyName(),
@@ -275,10 +271,6 @@ class BelongsToMany extends Relation
     public function match(array $models, Collection $results, $relation)
     {
         $dictionary = $this->buildDictionary($results);
-
-        // Once we have an array dictionary of child objects we can easily match the
-        // children back to their parent using the dictionary and the keys on the
-        // parent models. Then we should return these hydrated models back out.
         foreach ($models as $model) {
             $key = $this->getDictionaryKey($model->{$this->parentKey});
 
@@ -300,9 +292,6 @@ class BelongsToMany extends Relation
      */
     protected function buildDictionary(Collection $results)
     {
-        // First we'll build a dictionary of child models keyed by the foreign key
-        // of the relation so that we will easily and quickly match them to the
-        // parents without having a possibly slow inner loop for every model.
         $dictionary = [];
 
         foreach ($results as $result) {
@@ -797,9 +786,6 @@ class BelongsToMany extends Relation
      */
     public function get($columns = ['*'])
     {
-        // First we'll add the proper select columns onto the query so it is run with
-        // the proper columns. Then, we will get the results and hydrate our pivot
-        // models with the result of those columns as a separate model relation.
         $builder = $this->query->applyScopes();
 
         $columns = $builder->getQuery()->columns ? [] : $columns;
@@ -809,10 +795,6 @@ class BelongsToMany extends Relation
         )->getModels();
 
         $this->hydratePivotRelation($models);
-
-        // If we actually found models we will also eager load any relationships that
-        // have been specified as needing to be eager loaded. This will solve the
-        // n + 1 query problem for the developer and also increase performance.
         if (count($models) > 0) {
             $models = $builder->eagerLoadRelations($models);
         }
@@ -1035,9 +1017,6 @@ class BelongsToMany extends Relation
      */
     protected function hydratePivotRelation(array $models)
     {
-        // To hydrate the pivot relationship, we will just gather the pivot attributes
-        // and create a new Pivot model, which is basically a dynamic model that we
-        // will set the attributes, table, and connections on it so it will work.
         foreach ($models as $model) {
             $model->setRelation($this->accessor, $this->newExistingPivot(
                 $this->migratePivotAttributes($model)
@@ -1056,9 +1035,6 @@ class BelongsToMany extends Relation
         $values = [];
 
         foreach ($model->getAttributes() as $key => $value) {
-            // To get the pivots attributes we will just take any of the attributes which
-            // begin with "pivot_" and add those to this arrays, as well as unsetting
-            // them from the parent's models since they exist in a different table.
             if (str_starts_with($key, 'pivot_')) {
                 $values[substr($key, 6)] = $value;
 
@@ -1119,10 +1095,6 @@ class BelongsToMany extends Relation
         $columns = [
             $this->related->getUpdatedAtColumn() => $this->related->freshTimestampString(),
         ];
-
-        // If we actually have IDs for the relation, we will run the query to update all
-        // the related model's timestamps, to make sure these all reflect the changes
-        // to the parent models. This will help us keep any caching synced up here.
         if (count($ids = $this->allRelatedIds()) > 0) {
             $this->getRelated()->newQueryWithoutRelationships()->whereIn($key, $ids)->update($columns);
         }
@@ -1199,10 +1171,6 @@ class BelongsToMany extends Relation
     public function create(array $attributes = [], array $joining = [], $touch = true)
     {
         $instance = $this->related->newInstance($attributes);
-
-        // Once we save the related model, we need to attach it to the base model via
-        // through intermediate table so we'll use the existing "attach" method to
-        // accomplish this which will insert the record and any more attributes.
         $instance->save(['touch' => false]);
 
         $this->attach($instance, $joining, $touch);

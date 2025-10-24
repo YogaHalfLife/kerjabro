@@ -254,10 +254,6 @@ class ValidationRuleParser
     protected static function parseStringRule($rule)
     {
         $parameters = [];
-
-        // The format for specifying validation rules and parameters follows an
-        // easy {rule}:{parameters} formatting convention. For instance the
-        // rule "Max:3" states that the value may only be three letters.
         if (str_contains($rule, ':')) {
             [$rule, $parameter] = explode(':', $rule, 2);
 

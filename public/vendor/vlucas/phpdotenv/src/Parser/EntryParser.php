@@ -30,7 +30,6 @@ final class EntryParser
      */
     private function __construct()
     {
-        //
     }
 
     /**

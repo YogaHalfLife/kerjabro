@@ -97,8 +97,6 @@ class Shell extends Application
         parent::__construct('Psy Shell', self::VERSION);
 
         $this->config->setShell($this);
-
-        // Register the current shell session's config with \Psy\info
         \Psy\info($this->config);
     }
 
@@ -112,11 +110,7 @@ class Shell extends Application
     {
         $isIncluded = isset($trace[0]['function']) &&
           \in_array($trace[0]['function'], ['require', 'include', 'require_once', 'include_once']);
-
-        // Detect Composer PHP bin proxies.
         if ($isIncluded && \array_key_exists('_composer_autoload_path', $GLOBALS) && \preg_match('{[\\\\/]psysh$}', $trace[0]['file'])) {
-            // If we're in a bin proxy, we'll *always* see one include, but we
-            // care if we see a second immediately after that.
             return isset($trace[1]['function']) &&
                 \in_array($trace[1]['function'], ['require', 'include', 'require_once', 'include_once']);
         }
@@ -208,7 +202,6 @@ class Shell extends Application
             new Command\BufferCommand(),
             new Command\ClearCommand(),
             new Command\EditCommand($this->config->getRuntimeDir()),
-            // new Command\PsyVersionCommand(),
             $sudo,
             $hist,
             new Command\ExitCommand(),
@@ -220,8 +213,6 @@ class Shell extends Application
      */
     protected function getDefaultMatchers(): array
     {
-        // Store the Commands Matcher for later. If more commands are added,
-        // we'll update the Commands Matcher too.
         $this->commandsMatcher = new Matcher\CommandsMatcher($this->all());
 
         return [
@@ -314,7 +305,6 @@ class Shell extends Application
      */
     public function run(InputInterface $input = null, OutputInterface $output = null): int
     {
-        // We'll just ignore the input passed in, and set up our own!
         $input = new ArrayInput([]);
 
         if ($output === null) {
@@ -349,7 +339,6 @@ class Shell extends Application
         $this->resetCodeBuffer();
 
         if ($input->isInteractive()) {
-            // @todo should it be possible to have raw output in an interactive run?
             return $this->doInteractiveRun();
         } else {
             return $this->doNonInteractiveRun($this->config->rawOutput());
@@ -384,7 +373,6 @@ class Shell extends Application
         } catch (ThrowUpException $e) {
             throw $e->getPrevious();
         } catch (BreakException $e) {
-            // The ProcessForker throws a BreakException to finish the main thread.
         }
 
         return 0;
@@ -403,8 +391,6 @@ class Shell extends Application
     private function doNonInteractiveRun(bool $rawOutput): int
     {
         $this->nonInteractive = true;
-
-        // If raw output is enabled (or output is piped) we don't want startup messages.
         if (!$rawOutput && !$this->config->outputIsPiped()) {
             $this->output->writeln($this->getHeader());
             $this->writeVersionInfo();
@@ -413,10 +399,6 @@ class Shell extends Application
 
         $this->beforeRun();
         $this->loadIncludes();
-
-        // For non-interactive execution, read only from the input buffer or from piped input.
-        // Otherwise it'll try to readline and hang, waiting for user input with no indication of
-        // what's holding things up.
         if (!empty($this->inputBuffer) || $this->config->inputIsPiped()) {
             $this->getInput(false);
         }
@@ -437,7 +419,6 @@ class Shell extends Application
      */
     protected function configureIO(InputInterface $input, OutputInterface $output)
     {
-        // @todo overrides via environment variables (or should these happen in config? ... probably config)
         $input->setInteractive($this->config->getInputInteractive());
 
         if ($this->config->getOutputDecorated() !== null) {
@@ -452,7 +433,6 @@ class Shell extends Application
      */
     private function loadIncludes()
     {
-        // Load user-defined includes
         $load = function (self $__psysh__) {
             \set_error_handler([$__psysh__, 'handleError']);
             foreach ($__psysh__->getIncludes() as $__psysh_include__) {
@@ -466,11 +446,7 @@ class Shell extends Application
             }
             \restore_error_handler();
             unset($__psysh_include__);
-
-            // Override any new local variables with pre-defined scope variables
             \extract($__psysh__->getScopeVariables(false));
-
-            // ... then add the whole mess of variables back.
             $__psysh__->setScopeVariables(\get_defined_vars());
         };
 
@@ -492,7 +468,6 @@ class Shell extends Application
         $this->codeBufferOpen = false;
 
         do {
-            // reset output verbosity (in case it was altered by a subcommand)
             $this->output->setVerbosity($this->originalVerbosity);
 
             $input = $this->readline();
@@ -517,15 +492,11 @@ class Shell extends Application
                     throw new BreakException('Ctrl+D');
                 }
             }
-
-            // handle empty input
             if (\trim($input) === '' && !$this->codeBufferOpen) {
                 continue;
             }
 
             $input = $this->onInput($input);
-
-            // If the input isn't in an open string or comment, check for commands to run.
             if ($this->hasCommand($input) && !$this->inputInOpenStringOrComment($input)) {
                 $this->addHistory($input);
                 $this->runCommand($input);
@@ -841,7 +812,6 @@ class Shell extends Application
     public function addCode(string $code, bool $silent = false)
     {
         try {
-            // Code lines ending in \ keep the buffer open
             if (\substr(\rtrim($code), -1) === '\\') {
                 $this->codeBufferOpen = true;
                 $code = \substr(\rtrim($code), 0, -1);
@@ -852,7 +822,6 @@ class Shell extends Application
             $this->codeBuffer[] = $silent ? new SilentInput($code) : $code;
             $this->code = $this->cleaner->clean($this->codeBuffer, $this->config->requireSemicolons());
         } catch (\Throwable $e) {
-            // Add failed code blocks to the readline history.
             $this->addCodeBufferToHistory();
 
             throw $e;
@@ -1015,8 +984,6 @@ class Shell extends Application
         if ($line instanceof SilentInput) {
             return;
         }
-
-        // Skip empty lines and lines starting with a space
         if (\trim($line) !== '' && \substr($line, 0, 1) !== ' ') {
             $this->readline->addHistory($line);
         }
@@ -1059,17 +1026,12 @@ class Shell extends Application
     public function writeStdout(string $out, int $phase = \PHP_OUTPUT_HANDLER_END)
     {
         $isCleaning = $phase & \PHP_OUTPUT_HANDLER_CLEAN;
-
-        // Incremental flush
         if ($out !== '' && !$isCleaning) {
             $this->output->write($out, false, OutputInterface::OUTPUT_RAW);
             $this->outputWantsNewline = (\substr($out, -1) !== "\n");
             $this->stdoutBuffer .= $out;
         }
-
-        // Output buffering is done!
         if ($phase & \PHP_OUTPUT_HANDLER_END) {
-            // Write an extra newline if stdout didn't end with one
             if ($this->outputWantsNewline) {
                 if (!$this->config->rawOutput() && !$this->config->outputIsPiped()) {
                     $this->output->writeln(\sprintf('<aside>%s</aside>', $this->config->useUnicode() ? '⏎' : '\\n'));
@@ -1078,8 +1040,6 @@ class Shell extends Application
                 }
                 $this->outputWantsNewline = false;
             }
-
-            // Save the stdout buffer as $__out
             if ($this->stdoutBuffer !== '') {
                 $this->context->setLastStdout($this->stdoutBuffer);
                 $this->stdoutBuffer = '';
@@ -1131,14 +1091,11 @@ class Shell extends Application
      */
     public function writeException(\Exception $e)
     {
-        // No need to write the break exception during a non-interactive run.
         if ($e instanceof BreakException && $this->nonInteractive) {
             $this->resetCodeBuffer();
 
             return;
         }
-
-        // Break exceptions don't count :)
         if (!$e instanceof BreakException) {
             $this->lastExecSuccess = false;
             $this->context->setLastException($e);
@@ -1149,8 +1106,6 @@ class Shell extends Application
             $output = $output->getErrorOutput();
         }
         $output->writeln($this->formatException($e));
-
-        // Include an exception trace (as long as this isn't a BreakException).
         if (!$e instanceof BreakException && $output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE) {
             $trace = TraceFormatter::formatTrace($e);
             if (\count($trace) !== 0) {
@@ -1233,7 +1188,6 @@ class Shell extends Application
                     return 'error';
             }
         } else {
-            // Since this is below the user's reporting threshold, it's always going to be a warning.
             return 'warning';
         }
     }
@@ -1293,19 +1247,10 @@ class Shell extends Application
      */
     public function handleError($errno, $errstr, $errfile, $errline)
     {
-        // This is an error worth throwing.
-        //
-        // n.b. Technically we can't handle all of these in userland code, but
-        // we'll list 'em all for good measure
         if ($errno & (\E_ERROR | \E_PARSE | \E_CORE_ERROR | \E_COMPILE_ERROR | \E_USER_ERROR | \E_RECOVERABLE_ERROR)) {
             ErrorException::throwException($errno, $errstr, $errfile, $errline);
         }
-
-        // When errors are suppressed, the error_reporting value will differ
-        // from when we started executing. In that case, we won't log errors.
         $errorsSuppressed = $this->errorReporting !== null && $this->errorReporting !== \error_reporting();
-
-        // Otherwise log it and continue.
         if ($errno & \error_reporting() || (!$errorsSuppressed && ($errno & $this->config->errorLoggingLevel()))) {
             $this->writeException(new ErrorException($errstr, 0, $errno, $errfile, $errline));
         }
@@ -1480,9 +1425,6 @@ class Shell extends Application
         }
 
         $this->autoCompleter = $this->config->getAutoCompleter();
-
-        // auto completer needs shell to be linked to configuration because of
-        // the context aware matchers
         $this->addMatchersToAutoCompleter($this->getDefaultMatchers());
         $this->addMatchersToAutoCompleter($this->matchers);
 

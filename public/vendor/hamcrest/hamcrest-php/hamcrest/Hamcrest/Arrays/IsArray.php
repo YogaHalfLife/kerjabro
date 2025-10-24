@@ -4,11 +4,6 @@ namespace Hamcrest\Arrays;
 /*
  Copyright (c) 2009 hamcrest.org
  */
-
-// NOTE: This class is not exactly a direct port of Java's since Java handles
-//       arrays quite differently than PHP
-
-// TODO: Allow this to take matchers or values within the array
 use Hamcrest\Description;
 use Hamcrest\TypeSafeMatcher;
 use Hamcrest\Util;
@@ -98,8 +93,6 @@ class IsArray extends TypeSafeMatcher
 
         return new self(Util::createMatcherArray($args));
     }
-
-    // -- Protected Methods
 
     protected function descriptionStart()
     {

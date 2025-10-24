@@ -69,8 +69,6 @@ class CombinableMatcher extends BaseMatcher
         return new self($matcher);
     }
 
-    // -- Private Methods
-
     private function _templatedListWith(Matcher $other)
     {
         return array($this->_matcher, $other);

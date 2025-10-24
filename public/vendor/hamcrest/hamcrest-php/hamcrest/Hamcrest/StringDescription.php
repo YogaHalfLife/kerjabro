@@ -48,8 +48,6 @@ class StringDescription extends BaseDescription
         return self::toString($selfDescribing);
     }
 
-    // -- Protected Methods
-
     protected function append($str)
     {
         $this->_out .= $str;

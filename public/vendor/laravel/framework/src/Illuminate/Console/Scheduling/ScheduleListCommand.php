@@ -77,8 +77,6 @@ class ScheduleListCommand extends Command
             $dots = str_repeat('.', max(
                 $terminalWidth - mb_strlen($expression.$command.$nextDueDateLabel.$nextDueDate.$hasMutex) - 8, 0
             ));
-
-            // Highlight the parameters...
             $command = preg_replace("#(=['\"]?)([^'\"]+)(['\"]?)#", '$1<fg=yellow;options=bold>$2</>$3', $command);
 
             return [sprintf(

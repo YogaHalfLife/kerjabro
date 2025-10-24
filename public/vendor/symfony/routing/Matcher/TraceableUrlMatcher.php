@@ -52,7 +52,6 @@ class TraceableUrlMatcher extends UrlMatcher
 
     protected function matchCollection(string $pathinfo, RouteCollection $routes): array
     {
-        // HEAD and GET are equivalent as per RFC
         if ('HEAD' === $method = $this->context->getMethod()) {
             $method = 'GET';
         }
@@ -63,8 +62,6 @@ class TraceableUrlMatcher extends UrlMatcher
             $compiledRoute = $route->compile();
             $staticPrefix = rtrim($compiledRoute->getStaticPrefix(), '/');
             $requiredMethods = $route->getMethods();
-
-            // check the static prefix of the URL first. Only use the more expensive preg_match when it matches
             if ('' !== $staticPrefix && !str_starts_with($trimmedPathinfo, $staticPrefix)) {
                 $this->addTrace(sprintf('Path "%s" does not match', $route->getPath()), self::ROUTE_DOES_NOT_MATCH, $name, $route);
                 continue;
@@ -76,7 +73,6 @@ class TraceableUrlMatcher extends UrlMatcher
             $regex = substr_replace($regex, '/?$', $pos - $hasTrailingSlash, 1 + $hasTrailingSlash);
 
             if (!preg_match($regex, $pathinfo, $matches)) {
-                // does it match without any requirements?
                 $r = new Route($route->getPath(), $route->getDefaults(), [], $route->getOptions());
                 $cr = $r->compile();
                 if (!preg_match($cr->getRegex(), $pathinfo)) {

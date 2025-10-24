@@ -16,7 +16,6 @@ class FormRequestServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
     }
 
     /**

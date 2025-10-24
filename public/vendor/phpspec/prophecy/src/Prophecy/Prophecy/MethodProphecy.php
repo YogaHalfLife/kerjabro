@@ -99,16 +99,12 @@ class MethodProphecy
             usort(
                 $types,
                 static function(string $type1, string $type2) {
-
-                    // null is lowest priority
                     if ($type2 == 'null') {
                         return -1;
                     }
                     elseif ($type1 == 'null') {
                         return 1;
                     }
-
-                    // objects are higher priority than scalars
                     $isObject = static function($type) {
                         return class_exists($type) || interface_exists($type);
                     };
@@ -120,8 +116,6 @@ class MethodProphecy
                     {
                         return 1;
                     }
-
-                    // don't sort both-scalars or both-objects
                     return 0;
                 }
             );

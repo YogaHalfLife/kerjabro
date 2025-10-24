@@ -77,36 +77,23 @@ final class TableOfContentsGenerator implements TableOfContentsGeneratorInterfac
 
         foreach ($this->getHeadingLinks($document) as $headingLink) {
             $heading = $headingLink->parent();
-            // Make sure this is actually tied to a heading
             if (! $heading instanceof Heading) {
                 continue;
             }
-
-            // Skip any headings outside the configured min/max levels
             if ($heading->getLevel() < $this->minHeadingLevel || $heading->getLevel() > $this->maxHeadingLevel) {
                 continue;
             }
-
-            // Keep track of the first heading we see - we might need this later
             $firstHeading ??= $heading;
-
-            // Keep track of the start and end lines
             $toc->setStartLine($firstHeading->getStartLine());
             $toc->setEndLine($heading->getEndLine());
-
-            // Create the new link
             $link = new Link('#' . $this->fragmentPrefix . $headingLink->getSlug(), StringContainerHelper::getChildText($heading, [RawMarkupContainerInterface::class]));
 
             $listItem = new ListItem($toc->getListData());
             $listItem->setStartLine($heading->getStartLine());
             $listItem->setEndLine($heading->getEndLine());
             $listItem->appendChild($link);
-
-            // Add it to the correct place
             $normalizer->addItem($heading->getLevel(), $listItem);
         }
-
-        // Don't add the TOC if no headings were present
         if (! $toc->hasChildren() || $firstHeading === null) {
             return null;
         }

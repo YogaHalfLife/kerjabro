@@ -99,33 +99,21 @@ abstract class Text extends Base
     {
         $result = [];
         $resultLength = 0;
-        // take a random starting point
         $next = static::randomKey($words);
 
         while ($resultLength < $maxNbChars && isset($words[$next])) {
-            // fetch a random word to append
             $word = static::randomElement($words[$next]);
-
-            // calculate next index
             $currentWords = static::explode($next);
             $currentWords[] = $word;
             array_shift($currentWords);
             $next = static::implode($currentWords);
-
-            // ensure text starts with an uppercase letter
             if ($resultLength == 0 && !static::validStart($word)) {
                 continue;
             }
-
-            // append the element
             $result[] = $word;
             $resultLength += static::strlen($word) + static::$separatorLen;
         }
-
-        // remove the element that caused the text to overflow
         array_pop($result);
-
-        // build result
         $result = static::implode($result);
 
         return static::appendEnd($result);
@@ -153,7 +141,6 @@ abstract class Text extends Base
                 array_shift($index);
                 $index[] = $word;
             }
-            // cache look up words for performance
             $this->consecutiveWords[$indexSize] = $words;
         }
 

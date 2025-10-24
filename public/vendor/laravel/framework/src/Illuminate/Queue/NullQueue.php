@@ -27,7 +27,6 @@ class NullQueue extends Queue implements QueueContract
      */
     public function push($job, $data = '', $queue = null)
     {
-        //
     }
 
     /**
@@ -40,7 +39,6 @@ class NullQueue extends Queue implements QueueContract
      */
     public function pushRaw($payload, $queue = null, array $options = [])
     {
-        //
     }
 
     /**
@@ -54,7 +52,6 @@ class NullQueue extends Queue implements QueueContract
      */
     public function later($delay, $job, $data = '', $queue = null)
     {
-        //
     }
 
     /**
@@ -65,6 +62,5 @@ class NullQueue extends Queue implements QueueContract
      */
     public function pop($queue = null)
     {
-        //
     }
 }

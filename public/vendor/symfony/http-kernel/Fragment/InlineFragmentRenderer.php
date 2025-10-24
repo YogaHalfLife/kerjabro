@@ -48,15 +48,8 @@ class InlineFragmentRenderer extends RoutableFragmentRenderer
         $reference = null;
         if ($uri instanceof ControllerReference) {
             $reference = $uri;
-
-            // Remove attributes from the generated URI because if not, the Symfony
-            // routing system will use them to populate the Request attributes. We don't
-            // want that as we want to preserve objects (so we manually set Request attributes
-            // below instead)
             $attributes = $reference->attributes;
             $reference->attributes = [];
-
-            // The request format and locale might have been overridden by the user
             foreach (['_format', '_locale'] as $key) {
                 if (isset($attributes[$key])) {
                     $reference->attributes[$key] = $attributes[$key];
@@ -69,8 +62,6 @@ class InlineFragmentRenderer extends RoutableFragmentRenderer
         }
 
         $subRequest = $this->createSubRequest($uri, $request);
-
-        // override Request attributes as they can be objects (which are not supported by the generated URI)
         if (null !== $reference) {
             $subRequest->attributes->add($reference->attributes);
         }
@@ -79,15 +70,11 @@ class InlineFragmentRenderer extends RoutableFragmentRenderer
         try {
             return SubRequestHandler::handle($this->kernel, $subRequest, HttpKernelInterface::SUB_REQUEST, false);
         } catch (\Exception $e) {
-            // we dispatch the exception event to trigger the logging
-            // the response that comes back is ignored
             if (isset($options['ignore_errors']) && $options['ignore_errors'] && $this->dispatcher) {
                 $event = new ExceptionEvent($this->kernel, $request, HttpKernelInterface::SUB_REQUEST, $e);
 
                 $this->dispatcher->dispatch($event, KernelEvents::EXCEPTION);
             }
-
-            // let's clean up the output buffers that were created by the sub-request
             Response::closeOutputBuffers($level, false);
 
             if (isset($options['alt'])) {

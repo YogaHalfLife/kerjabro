@@ -63,7 +63,6 @@ class ReturnTypePass extends CodeCleanerPass
             $msg = null;
 
             if ($this->typeName($expectedType) === 'void') {
-                // Void functions
                 if ($expectedType instanceof NullableType) {
                     $msg = self::NULLABLE_VOID_MESSAGE;
                 } elseif ($node->expr instanceof ConstFetch && \strtolower($node->expr->name) === 'null') {
@@ -72,7 +71,6 @@ class ReturnTypePass extends CodeCleanerPass
                     $msg = self::VOID_MESSAGE;
                 }
             } else {
-                // Everything else
                 if ($node->expr === null) {
                     $msg = $expectedType instanceof NullableType ? self::NULLABLE_MESSAGE : self::MESSAGE;
                 }

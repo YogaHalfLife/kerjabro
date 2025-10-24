@@ -150,7 +150,6 @@ class MockArraySessionStorage implements SessionStorageInterface
         if (!$this->started || $this->closed) {
             throw new \RuntimeException('Trying to save a session that was not started yet or was already closed.');
         }
-        // nothing to do since we don't persist the session data
         $this->closed = false;
         $this->started = false;
     }
@@ -160,15 +159,10 @@ class MockArraySessionStorage implements SessionStorageInterface
      */
     public function clear()
     {
-        // clear out the bags
         foreach ($this->bags as $bag) {
             $bag->clear();
         }
-
-        // clear out the session
         $this->data = [];
-
-        // reconnect the bags to the session
         $this->loadSession();
     }
 

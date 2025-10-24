@@ -47,7 +47,6 @@ class TypeComparator extends Comparator
             throw new ComparisonFailure(
                 $expected,
                 $actual,
-                // we don't need a diff
                 '',
                 '',
                 false,

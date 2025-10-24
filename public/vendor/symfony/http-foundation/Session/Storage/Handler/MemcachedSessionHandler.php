@@ -94,7 +94,6 @@ class MemcachedSessionHandler extends AbstractSessionHandler
 
     public function gc(int $maxlifetime): int|false
     {
-        // not required here because memcached will auto expire the records anyhow.
         return 0;
     }
 

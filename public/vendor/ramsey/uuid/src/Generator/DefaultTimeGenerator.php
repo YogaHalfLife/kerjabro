@@ -81,7 +81,6 @@ class DefaultTimeGenerator implements TimeGeneratorInterface
 
         if ($clockSeq === null) {
             try {
-                // This does not use "stable storage"; see RFC 4122, Section 4.2.1.1.
                 $clockSeq = random_int(0, 0x3fff);
             } catch (Throwable $exception) {
                 throw new RandomSourceException(
@@ -132,8 +131,6 @@ class DefaultTimeGenerator implements TimeGeneratorInterface
         if ($node === null) {
             $node = $this->nodeProvider->getNode();
         }
-
-        // Convert the node to hex, if it is still an integer.
         if (is_int($node)) {
             $node = dechex($node);
         }

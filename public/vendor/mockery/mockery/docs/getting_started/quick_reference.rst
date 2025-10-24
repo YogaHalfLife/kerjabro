@@ -154,8 +154,6 @@ Creating a mock object with multiple query calls and a single update call:
             $mock = \Mockery::mock('db');
             $mock->shouldReceive('query')->andReturn(1, 2, 3);
             $mock->shouldReceive('update')->with(5)->andReturn(NULL)->once();
-
-            // ... test code here using the mock
         }
     }
 
@@ -172,8 +170,6 @@ Expecting all queries to be executed before any updates:
             $mock = \Mockery::mock('db');
             $mock->shouldReceive('query')->andReturn(1, 2, 3)->ordered();
             $mock->shouldReceive('update')->andReturn(NULL)->once()->ordered();
-
-            // ... test code here using the mock
         }
     }
 
@@ -194,7 +190,5 @@ and where queries are expected with several different params:
             $db->shouldReceive('query')->with('MSFT')->andReturn(10.0)->once()->ordered('queries');
             $db->shouldReceive('query')->with(\Mockery::pattern("/^....$/"))->andReturn(3.3)->atLeast()->once()->ordered('queries');
             $db->shouldReceive('finish')->once()->ordered();
-
-            // ... test code here using the mock
         }
     }

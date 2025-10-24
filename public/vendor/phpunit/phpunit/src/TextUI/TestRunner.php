@@ -303,8 +303,6 @@ final class TestRunner extends BaseTestRunner
                         if ($reflector->implementsInterface(ResultPrinter::class)) {
                             $this->printer = $this->createPrinter($arguments['printer'], $arguments);
                         }
-
-                        // @codeCoverageIgnoreStart
                     } catch (ReflectionException $e) {
                         throw new Exception(
                             $e->getMessage(),
@@ -312,7 +310,6 @@ final class TestRunner extends BaseTestRunner
                             $e
                         );
                     }
-                    // @codeCoverageIgnoreEnd
                 }
             } else {
                 $this->printer = $this->createPrinter(DefaultResultPrinter::class, $arguments);

@@ -93,16 +93,13 @@ final class Runtime
      */
     public function getBinary(): string
     {
-        // HHVM
         if (self::$binary === null && $this->isHHVM()) {
-            // @codeCoverageIgnoreStart
             if ((self::$binary = getenv('PHP_BINARY')) === false) {
                 self::$binary = PHP_BINARY;
             }
 
             self::$binary = escapeshellarg(self::$binary) . ' --php' .
                 ' -d hhvm.php7.all=1';
-            // @codeCoverageIgnoreEnd
         }
 
         if (self::$binary === null && PHP_BINARY !== '') {
@@ -110,7 +107,6 @@ final class Runtime
         }
 
         if (self::$binary === null) {
-            // @codeCoverageIgnoreStart
             $possibleBinaryLocations = [
                 PHP_BINDIR . '/php',
                 PHP_BINDIR . '/php-cli.exe',
@@ -124,13 +120,10 @@ final class Runtime
                     break;
                 }
             }
-            // @codeCoverageIgnoreEnd
         }
 
         if (self::$binary === null) {
-            // @codeCoverageIgnoreStart
             self::$binary = 'php';
-            // @codeCoverageIgnoreEnd
         }
 
         return self::$binary;
@@ -167,15 +160,11 @@ final class Runtime
     public function getName(): string
     {
         if ($this->isHHVM()) {
-            // @codeCoverageIgnoreStart
             return 'HHVM';
-            // @codeCoverageIgnoreEnd
         }
 
         if ($this->isPHPDBG()) {
-            // @codeCoverageIgnoreStart
             return 'PHPDBG';
-            // @codeCoverageIgnoreEnd
         }
 
         return 'PHP';
@@ -184,9 +173,7 @@ final class Runtime
     public function getVendorUrl(): string
     {
         if ($this->isHHVM()) {
-            // @codeCoverageIgnoreStart
             return 'http://hhvm.com/';
-            // @codeCoverageIgnoreEnd
         }
 
         return 'https://secure.php.net/';
@@ -195,9 +182,7 @@ final class Runtime
     public function getVersion(): string
     {
         if ($this->isHHVM()) {
-            // @codeCoverageIgnoreStart
             return HHVM_VERSION;
-            // @codeCoverageIgnoreEnd
         }
 
         return PHP_VERSION;

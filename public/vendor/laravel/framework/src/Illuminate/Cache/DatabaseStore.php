@@ -92,19 +92,11 @@ class DatabaseStore implements LockProvider, Store
         $prefixed = $this->prefix.$key;
 
         $cache = $this->table()->where('key', '=', $prefixed)->first();
-
-        // If we have a cache record we will check the expiration time against current
-        // time on the system and see if the record has expired. If it has, we will
-        // remove the records from the database table so it isn't returned again.
         if (is_null($cache)) {
             return;
         }
 
         $cache = is_array($cache) ? (object) $cache : $cache;
-
-        // If this cache expiration date is past the current time, we will remove this
-        // item from the cache. Then we will return a null value since the cache is
-        // expired. We will use "Carbon" to make this comparison with the column.
         if ($this->currentTime() >= $cache->expiration) {
             $this->forget($key);
 
@@ -207,10 +199,6 @@ class DatabaseStore implements LockProvider, Store
 
             $cache = $this->table()->where('key', $prefixed)
                         ->lockForUpdate()->first();
-
-            // If there is no value in the cache, we will return false here. Otherwise the
-            // value will be decrypted and we will proceed with this function to either
-            // increment or decrement this value based on the given action callbacks.
             if (is_null($cache)) {
                 return false;
             }
@@ -218,19 +206,11 @@ class DatabaseStore implements LockProvider, Store
             $cache = is_array($cache) ? (object) $cache : $cache;
 
             $current = $this->unserialize($cache->value);
-
-            // Here we'll call this callback function that was given to the function which
-            // is used to either increment or decrement the function. We use a callback
-            // so we do not have to recreate all this logic in each of the functions.
             $new = $callback((int) $current, $value);
 
             if (! is_numeric($current)) {
                 return false;
             }
-
-            // Here we will update the values in the table. We will also encrypt the value
-            // since database cache values are encrypted by default with secure storage
-            // that can't be easily read. We will return the new value after storing.
             $this->table()->where('key', $prefixed)->update([
                 'value' => $this->serialize($new),
             ]);

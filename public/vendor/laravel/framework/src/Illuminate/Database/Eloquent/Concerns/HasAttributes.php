@@ -177,9 +177,6 @@ trait HasAttributes
      */
     public function attributesToArray()
     {
-        // If an attribute is a date, we will cast it to a string after converting it
-        // to a DateTime / Carbon instance. This is so we will get some consistent
-        // formatting while accessing attributes vs. arraying / JSONing a model.
         $attributes = $this->addDateAttributesToArray(
             $attributes = $this->getArrayableAttributes()
         );
@@ -187,17 +184,9 @@ trait HasAttributes
         $attributes = $this->addMutatedAttributesToArray(
             $attributes, $mutatedAttributes = $this->getMutatedAttributes()
         );
-
-        // Next we will handle any casts that have been setup for this model and cast
-        // the values to their appropriate type. If the attribute has a mutator we
-        // will not perform the cast on those attributes to avoid any confusion.
         $attributes = $this->addCastAttributesToArray(
             $attributes, $mutatedAttributes
         );
-
-        // Here we will grab all of the appended, calculated attributes to this model
-        // as these attributes are not really in the attributes array, but are run
-        // when we need to array or JSON the model for convenience to the coder.
         foreach ($this->getArrayableAppends() as $key) {
             $attributes[$key] = $this->mutateAttributeForArray($key, null);
         }
@@ -236,16 +225,9 @@ trait HasAttributes
     protected function addMutatedAttributesToArray(array $attributes, array $mutatedAttributes)
     {
         foreach ($mutatedAttributes as $key) {
-            // We want to spin through all the mutated attributes for this model and call
-            // the mutator for the attribute. We cache off every mutated attributes so
-            // we don't have to constantly check on attributes that actually change.
             if (! array_key_exists($key, $attributes)) {
                 continue;
             }
-
-            // Next, we will call the mutator for this attribute so that we can get these
-            // mutated attribute's actual values. After we finish mutating each of the
-            // attributes we will return this final array of the mutated attributes.
             $attributes[$key] = $this->mutateAttributeForArray(
                 $key, $attributes[$key]
             );
@@ -268,17 +250,9 @@ trait HasAttributes
                 in_array($key, $mutatedAttributes)) {
                 continue;
             }
-
-            // Here we will cast the attribute. Then, if the cast is a date or datetime cast
-            // then we will serialize the date for the array. This will convert the dates
-            // to strings based on the date format specified for these Eloquent models.
             $attributes[$key] = $this->castAttribute(
                 $key, $attributes[$key]
             );
-
-            // If the attribute cast was a date or a datetime, we will serialize the date as
-            // a string. This allows the developers to customize how dates are serialized
-            // into an array without affecting how they are persisted into the storage.
             if ($attributes[$key] && in_array($value, ['date', 'datetime', 'immutable_date', 'immutable_datetime'])) {
                 $attributes[$key] = $this->serializeDate($attributes[$key]);
             }
@@ -345,30 +319,15 @@ trait HasAttributes
         $attributes = [];
 
         foreach ($this->getArrayableRelations() as $key => $value) {
-            // If the values implement the Arrayable interface we can just call this
-            // toArray method on the instances which will convert both models and
-            // collections to their proper array form and we'll set the values.
             if ($value instanceof Arrayable) {
                 $relation = $value->toArray();
             }
-
-            // If the value is null, we'll still go ahead and set it in this list of
-            // attributes, since null is used to represent empty relationships if
-            // it has a has one or belongs to type relationships on the models.
             elseif (is_null($value)) {
                 $relation = $value;
             }
-
-            // If the relationships snake-casing is enabled, we will snake case this
-            // key so that the relation attribute is snake cased in this returned
-            // array to the developers, making this consistent with attributes.
             if (static::$snakeAttributes) {
                 $key = Str::snake($key);
             }
-
-            // If the relation value has been set, we will set it on this attributes
-            // list for returning. If it was not arrayable or null, we'll not set
-            // the value on the array because it is some type of invalid value.
             if (isset($relation) || is_null($value)) {
                 $attributes[$key] = $relation;
             }
@@ -419,10 +378,6 @@ trait HasAttributes
         if (! $key) {
             return;
         }
-
-        // If the attribute exists in the attribute array or has a "get" mutator we will
-        // get the attribute's value. Otherwise, we will proceed as if the developers
-        // are asking for a relationship's value. This covers both types of values.
         if (array_key_exists($key, $this->attributes) ||
             array_key_exists($key, $this->casts) ||
             $this->hasGetMutator($key) ||
@@ -430,10 +385,6 @@ trait HasAttributes
             $this->isClassCastable($key)) {
             return $this->getAttributeValue($key);
         }
-
-        // Here we will determine if the model base class itself contains this given key
-        // since we don't want to treat any of those methods as relationships because
-        // they are all intended as helper methods and none of these are relations.
         if (method_exists(self::class, $key)) {
             return;
         }
@@ -471,9 +422,6 @@ trait HasAttributes
      */
     public function getRelationValue($key)
     {
-        // If the key already exists in the relationships array, it just means the
-        // relationship has already been loaded, so we'll just return it out of
-        // here because there is no need to query within the relations twice.
         if ($this->relationLoaded($key)) {
             return $this->relations[$key];
         }
@@ -485,10 +433,6 @@ trait HasAttributes
         if ($this->preventsLazyLoading) {
             $this->handleLazyLoadingViolation($key);
         }
-
-        // If the "attribute" exists as a method on the model, we will just assume
-        // it is a relationship and will load and return results from the query
-        // and hydrate the relationship's value on the "relationships" array.
         return $this->getRelationshipFromMethod($key);
     }
 
@@ -697,10 +641,6 @@ trait HasAttributes
         if (is_null($value) && in_array($castType, static::$primitiveCastTypes)) {
             return $value;
         }
-
-        // If the key is one of the encrypted castable types, we'll first decrypt
-        // the value and update the cast type so we may leverage the following
-        // logic for casting this value to any additionally specified types.
         if ($this->isEncryptedCastable($key)) {
             $value = $this->fromEncryptedString($value);
 
@@ -900,18 +840,11 @@ trait HasAttributes
      */
     public function setAttribute($key, $value)
     {
-        // First we will check for the presence of a mutator for the set operation
-        // which simply lets the developers tweak the attribute as it is set on
-        // this model, such as "json_encoding" a listing of data for storage.
         if ($this->hasSetMutator($key)) {
             return $this->setMutatedAttributeValue($key, $value);
         } elseif ($this->hasAttributeSetMutator($key)) {
             return $this->setAttributeMarkedMutatedAttributeValue($key, $value);
         }
-
-        // If an attribute is listed as a "date", we'll convert it from a DateTime
-        // instance into a form proper for storage on the database tables using
-        // the connection grammar's date format. We will auto set the values.
         elseif ($value && $this->isDateAttribute($key)) {
             $value = $this->fromDateTime($value);
         }
@@ -931,10 +864,6 @@ trait HasAttributes
         if (! is_null($value) && $this->isJsonCastable($key)) {
             $value = $this->castAttributeAsJson($key, $value);
         }
-
-        // If this attribute contains a JSON ->, we'll set the proper value in the
-        // attribute's underlying array. This takes care of properly nesting an
-        // attribute in the array's value in the case of deeply nested items.
         if (str_contains($key, '->')) {
             return $this->fillJsonAttribute($key, $value);
         }
@@ -1263,41 +1192,22 @@ trait HasAttributes
      */
     protected function asDateTime($value)
     {
-        // If this value is already a Carbon instance, we shall just return it as is.
-        // This prevents us having to re-instantiate a Carbon instance when we know
-        // it already is one, which wouldn't be fulfilled by the DateTime check.
         if ($value instanceof CarbonInterface) {
             return Date::instance($value);
         }
-
-        // If the value is already a DateTime instance, we will just skip the rest of
-        // these checks since they will be a waste of time, and hinder performance
-        // when checking the field. We will just return the DateTime right away.
         if ($value instanceof DateTimeInterface) {
             return Date::parse(
                 $value->format('Y-m-d H:i:s.u'), $value->getTimezone()
             );
         }
-
-        // If this value is an integer, we will assume it is a UNIX timestamp's value
-        // and format a Carbon object from this timestamp. This allows flexibility
-        // when defining your date fields as they might be UNIX timestamps here.
         if (is_numeric($value)) {
             return Date::createFromTimestamp($value);
         }
-
-        // If the value is in simply year, month, day format, we will instantiate the
-        // Carbon instances from that format. Again, this provides for simple date
-        // fields on the database, while still supporting Carbonized conversion.
         if ($this->isStandardDateFormat($value)) {
             return Date::instance(Carbon::createFromFormat('Y-m-d', $value)->startOfDay());
         }
 
         $format = $this->getDateFormat();
-
-        // Finally, we will just assume this date is in the format used by default on
-        // the database connection and use that format to create the Carbon object
-        // that is returned back out to the developers after we convert it here.
         try {
             $date = Date::createFromFormat($format, $value);
         } catch (InvalidArgumentException $e) {
@@ -1869,16 +1779,9 @@ trait HasAttributes
      */
     protected function hasChanges($changes, $attributes = null)
     {
-        // If no specific attributes were provided, we will just see if the dirty array
-        // already contains any attributes. If it does we will just return that this
-        // count is greater than zero. Else, we need to check specific attributes.
         if (empty($attributes)) {
             return count($changes) > 0;
         }
-
-        // Here we will spin through every attribute and see if this is in the array of
-        // dirty attributes. If it is, we will return true and if we make it through
-        // all of the attributes for the entire array we will return false at end.
         foreach (Arr::wrap($attributes) as $attribute) {
             if (array_key_exists($attribute, $changes)) {
                 return true;
@@ -1967,25 +1870,14 @@ trait HasAttributes
      */
     protected function transformModelValue($key, $value)
     {
-        // If the attribute has a get mutator, we will call that then return what
-        // it returns as the value, which is useful for transforming values on
-        // retrieval from the model to a form that is more useful for usage.
         if ($this->hasGetMutator($key)) {
             return $this->mutateAttribute($key, $value);
         } elseif ($this->hasAttributeGetMutator($key)) {
             return $this->mutateAttributeMarkedAttribute($key, $value);
         }
-
-        // If the attribute exists within the cast array, we will convert it to
-        // an appropriate native PHP type dependent upon the associated value
-        // given with the key in the pair. Dayle made this comment line up.
         if ($this->hasCast($key)) {
             return $this->castAttribute($key, $value);
         }
-
-        // If the attribute is listed as a date, we will convert it to a DateTime
-        // instance on retrieval, which makes it quite convenient to work with
-        // date fields without having to create a mutator for each property.
         if ($value !== null
             && \in_array($key, $this->getDates(), false)) {
             return $this->asDateTime($value);

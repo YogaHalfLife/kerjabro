@@ -15,9 +15,7 @@
  * - Atef Ben Ali (atefBB)
  * - Mohamed Sabil (mohamedsabil83)
  */
-// Same for long and short
 $months = [
-    // @TODO add shakl to months
     'يناير',
     'فبراير',
     'مارس',
@@ -51,8 +49,6 @@ return [
     'from_now' => 'مِنَ الْآن :time',
     'after' => 'بَعْدَ :time',
     'before' => 'قَبْلَ :time',
-
-    // @TODO add shakl to translations below
     'diff_now' => 'الآن',
     'diff_today' => 'اليوم',
     'diff_today_regexp' => 'اليوم(?:\\s+عند)?(?:\\s+الساعة)?',

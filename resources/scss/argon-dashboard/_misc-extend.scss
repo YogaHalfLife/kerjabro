@@ -1,4 +1,3 @@
-// Perspective effect
 @include media-breakpoint-up(lg) {
   .change-perspective {
     transform: $transform-perspective;
@@ -33,13 +32,10 @@
     top: -30px;
   }
 }
-// Device Wrapper
 .device-wrapper {
   border-radius: $device-wrapper-radius;
   box-shadow: $device-wrapper-box-shadow;
 }
-
-// sidebar caret RTL
 .rotate-caret {
   .collapse {
     .nav-link:after {
@@ -62,7 +58,6 @@
     background-position: 0 50%;
   }
 }
-// Colored Shadow on Cards images
 .colored-shadow {
   transform: scale($colored-shadow-scale);
   top: $colored-shadow-top;
@@ -104,8 +99,6 @@
     height: $avatar-xxl-height;
   }
 }
-
-// Width in PX
 .width-32-px {
   width: $width-32-px;
 }
@@ -117,8 +110,6 @@
 .width-64-px {
   width: $width-64-px;
 }
-
-// Animated shapes
 .animated-blur {
   filter: blur(40px);
 }
@@ -172,8 +163,6 @@
     transform: scale(1.2);
   }
 }
-
-// Text with border
 .text-border {
   &:after,
   &:before {
@@ -211,8 +200,6 @@ a[data-scroll]{
     color: $h-color;
   }
 }
-
-// Round Slider Styling
 round-slider {
   max-width: $round-slider-m-width;
   transition: $round-slider-transition;
@@ -221,9 +208,6 @@ round-slider {
 round-slider.scaling:hover {
   max-width: $round-slider-scale-m-width;
 }
-
-
-// Smart Home - Room Selectpicker
 .room-select {
   .choices {
     .choices__inner {
@@ -232,8 +216,6 @@ round-slider.scaling:hover {
     }
   }
 }
-
-// Page Sections Breadcrumb
 @include media-breakpoint-down(lg) {
   .page-headers-sections {
     .container {
@@ -256,12 +238,9 @@ round-slider.scaling:hover {
     }
   }
 }
-// Coming Soon Page
 .transform-rotate {
   transform: $coming-rotate-transform;
 }
-
-// Landing Page
 
 .landing {
   > div {

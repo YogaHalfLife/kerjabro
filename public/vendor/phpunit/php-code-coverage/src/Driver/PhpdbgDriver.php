@@ -80,8 +80,6 @@ final class PhpdbgDriver extends Driver
     {
         foreach ($dbgData as $file => $coveredLines) {
             foreach ($coveredLines as $lineNo => $numExecuted) {
-                // phpdbg also reports $lineNo=0 when e.g. exceptions get thrown.
-                // make sure we only mark lines executed which are actually executable.
                 if (isset($sourceLines[$file][$lineNo])) {
                     $sourceLines[$file][$lineNo] = self::LINE_EXECUTED;
                 }

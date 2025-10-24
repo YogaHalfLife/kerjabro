@@ -30,10 +30,8 @@ class RemoveEmptyControllerArgumentLocatorsPass implements CompilerPassInterface
             $argumentLocator = $container->getDefinition((string) $argumentRef->getValues()[0]);
 
             if (!$argumentLocator->getArgument(0)) {
-                // remove empty argument locators
                 $reason = sprintf('Removing service-argument resolver for controller "%s": no corresponding services exist for the referenced types.', $controller);
             } else {
-                // any methods listed for call-at-instantiation cannot be actions
                 $reason = false;
                 [$id, $action] = explode('::', $controller);
 
@@ -49,7 +47,6 @@ class RemoveEmptyControllerArgumentLocatorsPass implements CompilerPassInterface
                     }
                 }
                 if (!$reason) {
-                    // see Symfony\Component\HttpKernel\Controller\ContainerControllerResolver
                     $controllers[$id.':'.$action] = $argumentRef;
 
                     if ('__invoke' === $action) {

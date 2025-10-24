@@ -185,8 +185,6 @@ HELP
     private function getHistorySlice($show, $head, $tail): array
     {
         $history = $this->readline->listHistory();
-
-        // don't show the current `history` invocation
         \array_pop($history);
 
         if ($show) {

@@ -744,7 +744,6 @@ class Html implements \ArrayAccess, \Countable, \IteratorAggregate, HtmlStringab
 		$s = $this->startTag();
 
 		if (!$this->isEmpty) {
-			// add content
 			if ($indent !== null) {
 				$indent++;
 			}
@@ -756,8 +755,6 @@ class Html implements \ArrayAccess, \Countable, \IteratorAggregate, HtmlStringab
 					$s .= $child;
 				}
 			}
-
-			// add end tag
 			$s .= $this->endTag();
 		}
 
@@ -837,7 +834,6 @@ class Html implements \ArrayAccess, \Countable, \IteratorAggregate, HtmlStringab
 					$tmp = null;
 					foreach ($value as $k => $v) {
 						if ($v != null) { // intentionally ==, skip nulls & empty string
-							// composite 'style' vs. 'others'
 							$tmp[] = $v === true
 								? $k
 								: (is_string($k) ? $k . ':' . $v : $v);

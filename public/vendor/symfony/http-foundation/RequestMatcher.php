@@ -177,9 +177,6 @@ class RequestMatcher implements RequestMatcherInterface
         if (IpUtils::checkIp($request->getClientIp() ?? '', $this->ips)) {
             return true;
         }
-
-        // Note to future implementors: add additional checks above the
-        // foreach above or else your check might not be run!
         return 0 === \count($this->ips);
     }
 }

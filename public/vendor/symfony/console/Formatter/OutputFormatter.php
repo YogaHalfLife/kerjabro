@@ -155,12 +155,8 @@ class OutputFormatter implements WrappableOutputFormatterInterface
             if (0 != $pos && '\\' == $message[$pos - 1]) {
                 continue;
             }
-
-            // add the text up to the next tag
             $output .= $this->applyCurrentStyle(substr($message, $offset, $pos - $offset), $output, $width, $currentLineLength);
             $offset = $pos + \strlen($text);
-
-            // opening tag?
             if ($open = '/' != $text[1]) {
                 $tag = $matches[1][$i][0];
             } else {
@@ -168,7 +164,6 @@ class OutputFormatter implements WrappableOutputFormatterInterface
             }
 
             if (!$open && !$tag) {
-                // </>
                 $this->styleStack->pop();
             } elseif (null === $style = $this->createStyleFromString($tag)) {
                 $output .= $this->applyCurrentStyle($text, $output, $width, $currentLineLength);

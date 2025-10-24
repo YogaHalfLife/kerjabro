@@ -235,8 +235,6 @@ work.
 
     $foo->shouldReceive('foo')->andReturn(456);
     $foo->foo(); // int(456)
-
-    // setting an expectation for this has no effect
     $foo->shouldReceive('bar')->andReturn(999);
     $foo->bar(); // int(456)
 

@@ -20,7 +20,6 @@ use Symfony\Component\Console\Input\InputInterface;
  */
 class VariableEnumerator extends Enumerator
 {
-    // n.b. this array is the order in which special variables will be listed
     private static $specialNames = [
         '_', '_e', '__out', '__function', '__method', '__class', '__namespace', '__file', '__line', '__dir',
     ];
@@ -47,12 +46,9 @@ class VariableEnumerator extends Enumerator
      */
     protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null): array
     {
-        // only list variables when no Reflector is present.
         if ($reflector !== null || $target !== null) {
             return [];
         }
-
-        // only list variables if we are specifically asked
         if (!$input->getOption('vars')) {
             return [];
         }
@@ -119,7 +115,6 @@ class VariableEnumerator extends Enumerator
      */
     protected function prepareVariables(array $variables): array
     {
-        // My kingdom for a generator.
         $ret = [];
         foreach ($variables as $name => $val) {
             if ($this->showItem($name)) {

@@ -71,11 +71,8 @@ class XmlResponseHandler extends Handler
 
         foreach ($data as $key => $value) {
             if (is_numeric($key)) {
-                // Convert the key to a valid string
                 $key = "unknownNode_". (string) $key;
             }
-
-            // Delete any char not allowed in XML element names
             $key = preg_replace('/[^a-z0-9\-\_\.\:]/i', '', $key);
 
             if (is_array($value)) {

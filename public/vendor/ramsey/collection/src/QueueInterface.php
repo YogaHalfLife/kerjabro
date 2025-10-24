@@ -128,7 +128,6 @@ interface QueueInterface extends ArrayInterface
      *     Implementations should use a more-specific exception that extends
      *     `\RuntimeException`.
      */
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function add($element): bool;
 
     /**
@@ -159,7 +158,6 @@ interface QueueInterface extends ArrayInterface
      *
      * @return bool `true` if the element was added to this queue, else `false`.
      */
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function offer($element): bool;
 
     /**

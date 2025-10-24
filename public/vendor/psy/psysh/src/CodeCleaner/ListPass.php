@@ -57,8 +57,6 @@ class ListPass extends CodeCleanerPass
             $msg = "syntax error, unexpected '='";
             throw new ParseErrorException($msg, $node->expr->getLine());
         }
-
-        // Polyfill for PHP-Parser 2.x
         $items = isset($node->var->items) ? $node->var->items : $node->var->vars;
 
         if ($items === [] || $items === [null]) {
@@ -72,8 +70,6 @@ class ListPass extends CodeCleanerPass
             }
 
             $itemFound = true;
-
-            // List_->$vars in PHP-Parser 2.x is Variable instead of ArrayItem.
             if (!$this->atLeastPhp71 && $item instanceof ArrayItem && $item->key !== null) {
                 $msg = 'Syntax error, unexpected T_CONSTANT_ENCAPSED_STRING, expecting \',\' or \')\'';
                 throw new ParseErrorException($msg, $item->key->getLine());
@@ -104,9 +100,6 @@ class ListPass extends CodeCleanerPass
         while ($value instanceof ArrayDimFetch || $value instanceof PropertyFetch) {
             $value = $value->var;
         }
-
-        // We just kind of give up if it's a method call. We can't tell if it's
-        // valid via static analysis.
         return $value instanceof Variable || $value instanceof MethodCall || $value instanceof FuncCall;
     }
 }

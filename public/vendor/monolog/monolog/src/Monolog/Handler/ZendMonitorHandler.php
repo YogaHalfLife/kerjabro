@@ -42,7 +42,6 @@ class ZendMonitorHandler extends AbstractProcessingHandler
                 'You must have Zend Server installed with Zend Monitor enabled in order to use this handler'
             );
         }
-        //zend monitor constants are not defined if zend monitor is not enabled.
         $this->levelMap = [
             Logger::DEBUG     => \ZEND_MONITOR_EVENT_SEVERITY_INFO,
             Logger::INFO      => \ZEND_MONITOR_EVENT_SEVERITY_INFO,

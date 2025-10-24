@@ -164,7 +164,6 @@ class UnicodeString extends AbstractUnicodeString
         $string = $this->string;
 
         if (0 > $offset) {
-            // workaround https://bugs.php.net/74264
             if (0 > $offset += grapheme_strlen($needle)) {
                 $string = grapheme_substr($string, 0, $offset);
             }

@@ -789,11 +789,6 @@ span.flatpickr-weekday {
   }
 }
 
-
-
-
-//////////// Creative Tim Changes
-
 .datepicker.flatpickr-input{
   background-color: $white;
 }
@@ -872,5 +867,3 @@ span.flatpickr-weekday {
 .flatpickr-day.startRange.startRange+.endRange:not(:nth-child(7n+1)){
   box-shadow: -10px 0 0 $primary;
 }
-
-////////////

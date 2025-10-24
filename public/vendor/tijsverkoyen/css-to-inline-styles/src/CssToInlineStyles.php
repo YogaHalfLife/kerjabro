@@ -35,8 +35,6 @@ class CssToInlineStyles
     {
         $document = $this->createDomDocumentFromHtml($html);
         $processor = new Processor();
-
-        // get all styles from the style-tags
         $rules = $processor->getRules(
             $processor->getCssFromStyleTags($html)
         );
@@ -127,18 +125,12 @@ class CssToInlineStyles
      */
     protected function getHtmlFromDocument(\DOMDocument $document)
     {
-        // retrieve the document element
-        // we do it this way to preserve the utf-8 encoding
         $htmlElement = $document->documentElement;
         $html = $document->saveHTML($htmlElement);
         $html = trim($html);
-
-        // retrieve the doctype
         $document->removeChild($htmlElement);
         $doctype = $document->saveHTML();
         $doctype = trim($doctype);
-
-        // if it is the html5 doctype convert it to lowercase
         if ($doctype === '<!DOCTYPE html>') {
             $doctype = strtolower($doctype);
         }
@@ -169,7 +161,6 @@ class CssToInlineStyles
                 if (null !== $this->cssConverter) {
                     $expression = $this->cssConverter->toXPath($rule->getSelector());
                 } else {
-                    // Compatibility layer for Symfony 2.7 and older
                     $expression = CssSelector::toXPath($rule->getSelector());
                 }
             } catch (ExceptionInterface $e) {
@@ -214,13 +205,9 @@ class CssToInlineStyles
         foreach ($properties as $property) {
             if (isset($cssProperties[$property->getName()])) {
                 $existingProperty = $cssProperties[$property->getName()];
-
-                //skip check to overrule if existing property is important and current is not
                 if ($existingProperty->isImportant() && !$property->isImportant()) {
                     continue;
                 }
-
-                //overrule if current property is important and existing is not, else check specificity
                 $overrule = !$existingProperty->isImportant() && $property->isImportant();
                 if (!$overrule) {
                     $overrule = $existingProperty->getOriginalSpecificity()->compareTo($property->getOriginalSpecificity()) <= 0;

@@ -198,8 +198,6 @@ final class DocBlock
         $recordedOffsets   = [
             '__FILE' => realpath($this->fileName),
         ];
-
-        // Trim docblock markers, split it into lines and rewind offset to start of docblock
         $lines = preg_replace(['#^/\*{2}#', '#\*/$#'], '', preg_split('/\r\n|\r|\n/', $this->docComment));
         $offset -= count($lines);
 
@@ -406,14 +404,12 @@ final class DocBlock
                 $dataProviderMethod = $dataProviderClass->getMethod(
                     $dataProviderMethodName
                 );
-                // @codeCoverageIgnoreStart
             } catch (ReflectionException $e) {
                 throw new Exception(
                     $e->getMessage(),
                     (int) $e->getCode(),
                     $e
                 );
-                // @codeCoverageIgnoreEnd
             }
 
             if ($dataProviderMethod->isStatic()) {
@@ -499,7 +495,6 @@ final class DocBlock
 
     private function cleanUpMultiLineAnnotation(string $docComment): string
     {
-        //removing initial '   * ' for docComment
         $docComment = str_replace("\r\n", "\n", $docComment);
         $docComment = preg_replace('/' . '\n' . '\s*' . '\*' . '\s?' . '/', "\n", $docComment);
         $docComment = (string) substr($docComment, 0, -1);
@@ -510,7 +505,6 @@ final class DocBlock
     /** @return array<string, array<int, string>> */
     private static function parseDocBlock(string $docBlock): array
     {
-        // Strip away the docblock header and footer to ease parsing of one line annotations
         $docBlock    = (string) substr($docBlock, 3, -2);
         $annotations = [];
 

@@ -97,18 +97,11 @@ class Migrator
      */
     public function run($paths = [], array $options = [])
     {
-        // Once we grab all of the migration files for the path, we will compare them
-        // against the migrations that have already been run for this package then
-        // run each of the outstanding migrations against a database connection.
         $files = $this->getMigrationFiles($paths);
 
         $this->requireFiles($migrations = $this->pendingMigrations(
             $files, $this->repository->getRan()
         ));
-
-        // Once we have all these migrations that are outstanding we are ready to run
-        // we will go ahead and run them "up". This will execute each migration as
-        // an operation against a database. Then we'll return this list of them.
         $this->runPending($migrations, $options);
 
         return $migrations;
@@ -138,9 +131,6 @@ class Migrator
      */
     public function runPending(array $migrations, array $options = [])
     {
-        // First we will just make sure that there are any migrations to run. If there
-        // aren't, we will just make a note of it to the developer so they're aware
-        // that all of the migrations have been run against this database system.
         if (count($migrations) === 0) {
             $this->fireMigrationEvent(new NoPendingMigrations('up'));
 
@@ -148,10 +138,6 @@ class Migrator
 
             return;
         }
-
-        // Next, we will get the next batch number for the migrations so we can insert
-        // correct batch number in the database migrations repository when we store
-        // each migration's execution. We will also extract a few of the options.
         $batch = $this->repository->getNextBatchNumber();
 
         $pretend = $options['pretend'] ?? false;
@@ -159,10 +145,6 @@ class Migrator
         $step = $options['step'] ?? false;
 
         $this->fireMigrationEvent(new MigrationsStarted('up'));
-
-        // Once we have the array of migrations, we will spin through them and run the
-        // migrations "up" so the changes are made to the databases. We'll then log
-        // that the migration was run so we don't repeat it next time we execute.
         foreach ($migrations as $file) {
             $this->runUp($file, $batch, $pretend);
 
@@ -184,9 +166,6 @@ class Migrator
      */
     protected function runUp($file, $batch, $pretend)
     {
-        // First we will resolve a "real" instance of the migration class from this
-        // migration file name. Once we have the instances we can run the actual
-        // command such as "up" or "down", or we can just simulate the action.
         $migration = $this->resolvePath($file);
 
         $name = $this->getMigrationName($file);
@@ -202,10 +181,6 @@ class Migrator
         $this->runMigration($migration, 'up');
 
         $runTime = number_format((microtime(true) - $startTime) * 1000, 2);
-
-        // Once we have run a migrations class, we will log that it was run in this
-        // repository so that we don't try to run it next time we do a migration
-        // in the application. A migration repository keeps the migrate order.
         $this->repository->log($name, $batch);
 
         $this->note("<info>Migrated:</info>  {$name} ({$runTime}ms)");
@@ -220,9 +195,6 @@ class Migrator
      */
     public function rollback($paths = [], array $options = [])
     {
-        // We want to pull in the last batch of migrations that ran on the previous
-        // migration operation. We'll then reverse those migrations and run each
-        // of them "down" to reverse the last migration "operation" which ran.
         $migrations = $this->getMigrationsForRollback($options);
 
         if (count($migrations) === 0) {
@@ -266,10 +238,6 @@ class Migrator
         $this->requireFiles($files = $this->getMigrationFiles($paths));
 
         $this->fireMigrationEvent(new MigrationsStarted('down'));
-
-        // Next we will run through all of the migrations and call the "down" method
-        // which will reverse each migration in order. This getLast method on the
-        // repository already returns these migration's names in reverse order.
         foreach ($migrations as $migration) {
             $migration = (object) $migration;
 
@@ -301,9 +269,6 @@ class Migrator
      */
     public function reset($paths = [], $pretend = false)
     {
-        // Next, we will reverse the migration list so we can run them back in the
-        // correct order for resetting this database. This will allow us to get
-        // the database back into its "empty" state ready for the migrations.
         $migrations = array_reverse($this->repository->getRan());
 
         if (count($migrations) === 0) {
@@ -325,9 +290,6 @@ class Migrator
      */
     protected function resetMigrations(array $migrations, array $paths, $pretend = false)
     {
-        // Since the getRan method that retrieves the migration name just gives us the
-        // migration name, we will format the names into objects with the name as a
-        // property on the objects so that we can pass it to the rollback method.
         $migrations = collect($migrations)->map(function ($m) {
             return (object) ['migration' => $m];
         })->all();
@@ -347,9 +309,6 @@ class Migrator
      */
     protected function runDown($file, $migration, $pretend)
     {
-        // First we will get the file name of the migration so we can resolve out an
-        // instance of the migration. Once we get an instance we can either run a
-        // pretend execution of the migration or we can run the real migration.
         $instance = $this->resolvePath($file);
 
         $name = $this->getMigrationName($file);
@@ -365,10 +324,6 @@ class Migrator
         $this->runMigration($instance, 'down');
 
         $runTime = number_format((microtime(true) - $startTime) * 1000, 2);
-
-        // Once we have successfully run the migration "down" we will remove it from
-        // the migration repository so it will be considered to have not been run
-        // by the application then will be able to fire by any later operation.
         $this->repository->delete($migration);
 
         $this->note("<info>Rolled back:</info>  {$name} ({$runTime}ms)");
@@ -440,9 +395,6 @@ class Migrator
      */
     protected function getQueries($migration, $method)
     {
-        // Now that we have the connections we can resolve it and pretend to run the
-        // queries against the database returning the array of raw SQL statements
-        // that would get fired against the database system for this migration.
         $db = $this->resolveConnection(
             $migration->getConnection()
         );

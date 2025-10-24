@@ -186,8 +186,6 @@ class Application implements ResetInterface
                 $exitCode = 1;
             }
         } finally {
-            // if the exception handler changed, keep it
-            // otherwise, unregister $renderException
             if (!$phpHandler) {
                 if (set_exception_handler($renderException) === $renderException) {
                     restore_exception_handler();
@@ -226,10 +224,8 @@ class Application implements ResetInterface
         }
 
         try {
-            // Makes ArgvInput::getFirstArgument() able to distinguish an option from an argument.
             $input->bind($this->getDefinition());
         } catch (ExceptionInterface $e) {
-            // Errors must be ignored, full binding/validation happens later when the command is known.
         }
 
         $name = $this->getCommandName($input);
@@ -255,7 +251,6 @@ class Application implements ResetInterface
 
         try {
             $this->runningCommand = null;
-            // the command name MUST be the first element of the input
             $command = $this->find($name);
         } catch (\Throwable $e) {
             if (!($e instanceof CommandNotFoundException && !$e instanceof NamespaceNotFoundException) || 1 !== \count($alternatives = $e->getAlternatives()) || !$input->isInteractive()) {
@@ -500,7 +495,6 @@ class Application implements ResetInterface
         }
 
         if (!$command instanceof LazyCommand) {
-            // Will throw if the command is not correctly initialized.
             $command->getDefinition();
         }
 
@@ -531,8 +525,6 @@ class Application implements ResetInterface
         if (!$this->has($name)) {
             throw new CommandNotFoundException(sprintf('The command "%s" does not exist.', $name));
         }
-
-        // When the command has a different name than the one used at the command loader level
         if (!isset($this->commands[$name])) {
             throw new CommandNotFoundException(sprintf('The "%s" command cannot be found because it is registered under multiple names. Make sure you don\'t set a different name via constructor or "setName()".', $name));
         }
@@ -656,18 +648,14 @@ class Application implements ResetInterface
         if (empty($commands)) {
             $commands = preg_grep('{^'.$expr.'}i', $allCommands);
         }
-
-        // if no commands matched or we just matched namespaces
         if (empty($commands) || \count(preg_grep('{^'.$expr.'$}i', $commands)) < 1) {
             if (false !== $pos = strrpos($name, ':')) {
-                // check if a namespace exists and contains commands
                 $this->findNamespace(substr($name, 0, $pos));
             }
 
             $message = sprintf('Command "%s" is not defined.', $name);
 
             if ($alternatives = $this->findAlternatives($name, $allCommands)) {
-                // remove hidden commands
                 $alternatives = array_filter($alternatives, function ($name) {
                     return !$this->get($name)->isHidden();
                 });
@@ -682,8 +670,6 @@ class Application implements ResetInterface
 
             throw new CommandNotFoundException($message, array_values($alternatives));
         }
-
-        // filter out aliases for commands which are already on the list
         if (\count($commands) > 1) {
             $commandList = $this->commandLoader ? array_merge(array_flip($this->commandLoader->getNames()), $this->commands) : $this->commands;
             $commands = array_unique(array_filter($commands, function ($nameOrAlias) use (&$commandList, $commands, &$aliases) {
@@ -830,7 +816,6 @@ class Application implements ResetInterface
             $lines = [];
             foreach ('' !== $message ? preg_split('/\r?\n/', $message) : [] as $line) {
                 foreach ($this->splitStringByWidth($line, $width - 4) as $line) {
-                    // pre-format lines to get the right string length
                     $lineLength = Helper::width($line) + 4;
                     $lines[] = [$line, $lineLength];
 
@@ -856,8 +841,6 @@ class Application implements ResetInterface
 
             if (OutputInterface::VERBOSITY_VERBOSE <= $output->getVerbosity()) {
                 $output->writeln('<comment>Exception trace:</comment>', OutputInterface::VERBOSITY_QUIET);
-
-                // exception related properties
                 $trace = $e->getTrace();
 
                 array_unshift($trace, [
@@ -969,8 +952,6 @@ class Application implements ResetInterface
 
                     $this->signalRegistry->register($signal, function ($signal, $hasNext) use ($event) {
                         $this->dispatcher->dispatch($event, ConsoleEvents::SIGNAL);
-
-                        // No more handlers, we try to simulate PHP default behavior
                         if (!$hasNext) {
                             if (!\in_array($signal, [\SIGUSR1, \SIGUSR2], true)) {
                                 exit(0);
@@ -988,13 +969,10 @@ class Application implements ResetInterface
         if (null === $this->dispatcher) {
             return $command->run($input, $output);
         }
-
-        // bind before the console.command event, so the listeners have access to input options/arguments
         try {
             $command->mergeApplicationDefinition();
             $input->bind($command->getDefinition());
         } catch (ExceptionInterface $e) {
-            // ignore invalid options/arguments for now, to allow the event listeners to customize the InputDefinition
         }
 
         $event = new ConsoleCommandEvent($command, $input, $output);
@@ -1153,7 +1131,6 @@ class Application implements ResetInterface
         $this->defaultCommand = explode('|', ltrim($commandName, '|'))[0];
 
         if ($isSingleCommand) {
-            // Ensure the command exist
             $this->find($commandName);
 
             $this->singleCommand = true;
@@ -1172,9 +1149,6 @@ class Application implements ResetInterface
 
     private function splitStringByWidth(string $string, int $width): array
     {
-        // str_split is not suitable for multi-byte characters, we should use preg_split to get char array properly.
-        // additionally, array_slice() is not enough as some character has doubled width.
-        // we need a function to split string not by character count but by string width
         if (false === $encoding = mb_detect_encoding($string, null, true)) {
             return str_split($string, $width);
         }
@@ -1188,12 +1162,10 @@ class Application implements ResetInterface
             $offset += \strlen($m[0]);
 
             foreach (preg_split('//u', $m[0]) as $char) {
-                // test if $char could be appended to current line
                 if (mb_strwidth($line.$char, 'utf8') <= $width) {
                     $line .= $char;
                     continue;
                 }
-                // if not, push current line to array and make new line
                 $lines[] = str_pad($line, $width);
                 $line = $char;
             }
@@ -1213,7 +1185,6 @@ class Application implements ResetInterface
      */
     private function extractAllNamespaces(string $name): array
     {
-        // -1 as third argument is needed to skip the command short name when exploding
         $parts = explode(':', $name, -1);
         $namespaces = [];
 

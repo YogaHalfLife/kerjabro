@@ -54,8 +54,6 @@ final class Integer implements NumberInterface
     {
         $value = (string) $value;
         $sign = '+';
-
-        // If the value contains a sign, remove it for ctype_digit() check.
         if (strpos($value, '-') === 0 || strpos($value, '+') === 0) {
             $sign = substr($value, 0, 1);
             $value = substr($value, 1);
@@ -67,16 +65,10 @@ final class Integer implements NumberInterface
                 . 'digits 0-9 and, optionally, a sign (+ or -)'
             );
         }
-
-        // Trim any leading zeros.
         $value = ltrim($value, '0');
-
-        // Set to zero if the string is empty after trimming zeros.
         if ($value === '') {
             $value = '0';
         }
-
-        // Add the negative sign back to the value.
         if ($sign === '-' && $value !== '0') {
             $value = $sign . $value;
             $this->isNegative = true;
@@ -142,11 +134,9 @@ final class Integer implements NumberInterface
      */
     public function __unserialize(array $data): void
     {
-        // @codeCoverageIgnoreStart
         if (!isset($data['string'])) {
             throw new ValueError(sprintf('%s(): Argument #1 ($data) is invalid', __METHOD__));
         }
-        // @codeCoverageIgnoreEnd
 
         $this->unserialize($data['string']);
     }

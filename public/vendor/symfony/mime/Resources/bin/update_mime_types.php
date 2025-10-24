@@ -8,8 +8,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-// load new map
 $data = json_decode(file_get_contents('https://cdn.jsdelivr.net/gh/jshttp/mime-db@v1.49.0/db.json'), true);
 $new = [];
 foreach ($data as $mimeType => $mimeTypeInformation) {
@@ -42,8 +40,6 @@ foreach ($xml as $node) {
         $new[$mt] = array_merge($new[$mt] ?? [], $exts);
     }
 }
-
-// load current map
 $data = file_get_contents($output = __DIR__.'/../../MimeTypes.php');
 $current = [];
 $pre = '';
@@ -61,9 +57,6 @@ foreach (explode("\n", $data) as $line) {
 }
 
 $data = $pre;
-
-// reverse map
-// we prefill the extensions with some preferences for content-types
 $exts = [
     'asice' => ['application/vnd.etsi.asic-e+zip'],
     'bz2' => ['application/x-bz2'],
@@ -104,8 +97,6 @@ $exts = [
     'xls' => ['application/vnd.ms-excel'],
     'zip' => ['application/zip'],
 ];
-
-// we merge the 2 maps (we never remove old mime types)
 $map = array_replace_recursive($current, $new);
 
 foreach ($exts as $ext => $types) {

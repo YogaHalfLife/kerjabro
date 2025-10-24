@@ -19,7 +19,6 @@ use PhpOffice\PhpSpreadsheet\Shared\Drawing as SharedDrawing;
 
 class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping, WithDrawings, WithEvents
 {
-    // filter
     protected ?string $q;
     protected ?string $startDate; // "YYYY-MM-DD" (awal bulan)
     protected ?string $endDate;   // "YYYY-MM-DD" (akhir bulan)
@@ -28,17 +27,11 @@ class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping,
 
     /** @var \Illuminate\Support\Collection<\App\Models\TransPekerjaan> */
     protected $rows;
-
-    // konfigurasi thumbnail (px)
     protected int $thumbW = 110;  // lebar thumb
     protected int $thumbH = 110;  // tinggi thumb
     protected int $gapX   = 8;    // jarak antar thumb (horizontal)
     protected int $padCol = 22;   // padding kolom
-
-    // mapping gambar (untuk WithDrawings)
     protected array $photoMap = []; // ['F3' => [['path'=>..., 'offsetX'=>...], ...], ... ]
-
-    // layout
     protected string $colSebelum = 'F';
     protected string $colSesudah = 'G';
     protected int $startRow = 2; // baris data pertama (1 = header)
@@ -78,7 +71,6 @@ class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping,
                         ->orWhereHas('pegawai', fn($p) => $p->where('nama_pegawai', 'like', "%{$q}%"));
                 });
             })
-            // bulan disimpan sebagai DATE (Y-m-d) → filter dengan whereBetween bila start & end ada
             ->when(
                 $this->startDate && $this->endDate,
                 fn($s) =>
@@ -91,8 +83,6 @@ class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping,
                 return mb_strtolower($nama) . '|' . $r->id;
             })
             ->values();
-
-        // siapkan peta gambar per sel (tanpa batas; semua foto ikut)
         $this->photoMap = [];
         foreach ($this->rows as $i => $row) {
             $excelRow = $this->startRow + $i;
@@ -150,7 +140,6 @@ class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping,
             $row->detail_pekerjaan,
             optional($row->pegawai)?->nama_pegawai,
             optional($row->divisi)?->nama_divisi,
-            // tampilkan sebagai "YYYY-MM" agar ringkas
             \Illuminate\Support\Str::of($row->bulan)->substr(0, 7),
             '', // gambar via WithDrawings
             '', // gambar via WithDrawings
@@ -182,8 +171,6 @@ class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping,
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
-
-                // util konversi
                 $pxToWidth = function (int $px) {
                     return method_exists(SharedDrawing::class, 'pixelsToColumnWidth')
                         ? SharedDrawing::pixelsToColumnWidth($px)
@@ -194,13 +181,9 @@ class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping,
                         ? SharedDrawing::pixelsToPoints($px)
                         : $px * 0.75;
                 };
-
-                // === AUTO WIDTH untuk A..E ===
                 foreach (range('A', 'E') as $col) {
                     $sheet->getColumnDimension($col)->setAutoSize(true);
                 }
-
-                // hitung kebutuhan lebar F/G berdasarkan jumlah foto TERBANYAK per sel
                 $maxSeb = 0;
                 $maxSes = 0;
                 foreach ($this->rows as $row) {
@@ -218,16 +201,12 @@ class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping,
                 $sheet->getColumnDimension($this->colSesudah)->setAutoSize(false);
                 $sheet->getColumnDimension($this->colSebelum)->setWidth($pxToWidth($needPx($maxSeb)));
                 $sheet->getColumnDimension($this->colSesudah)->setWidth($pxToWidth($needPx($maxSes)));
-
-                // tinggi baris diset bila ada foto (agar tidak tumpang tindih)
                 foreach ($this->rows as $i => $row) {
                     $excelRow = $this->startRow + $i;
                     $hasFoto  = $row->fotos->count() > 0;
                     $sheet->getRowDimension($excelRow)
                         ->setRowHeight($hasFoto ? (int) round($pxToPoint($this->thumbH + 12)) : -1);
                 }
-
-                // === Outline group by nama pegawai ===
                 $sheet->setShowSummaryBelow(false);
                 $getNama = fn($r) => mb_strtolower(optional($r->pegawai)->nama_pegawai ?? '');
                 $n = count($this->rows);
@@ -249,10 +228,7 @@ class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping,
                         }
                     }
                 }
-
-                // Header tebal
                 $sheet->getStyle('A1:G1')->getFont()->setBold(true);
-                // Wrap text untuk detail supaya tidak kepanjangan 1 baris
                 $sheet->getStyle('B2:B' . ($this->startRow + max(0, count($this->rows))))->getAlignment()->setWrapText(true);
             },
         ];

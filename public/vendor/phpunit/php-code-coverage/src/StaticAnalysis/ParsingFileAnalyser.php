@@ -164,7 +164,6 @@ final class ParsingFileAnalyser implements FileAnalyser
 
             /* @noinspection UnusedFunctionResultInspection */
             $traverser->traverse($nodes);
-            // @codeCoverageIgnoreStart
         } catch (Error $error) {
             throw new ParserException(
                 sprintf(
@@ -176,7 +175,6 @@ final class ParsingFileAnalyser implements FileAnalyser
                 $error
             );
         }
-        // @codeCoverageIgnoreEnd
 
         $this->classes[$filename]         = $codeUnitFindingVisitor->classes();
         $this->traits[$filename]          = $codeUnitFindingVisitor->traits();

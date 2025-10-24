@@ -38,13 +38,9 @@ class ProfileController extends Controller
         ], [
             'current_password.current_password' => 'Password saat ini tidak sesuai.',
         ]);
-
-        // JANGAN Hash::make di sini, cukup assign plain text → mutator akan bcrypt
+        
         $user->password = $request->password;
         $user->save();
-
-        // Optional: kalau sebelumnya login pakai "Remember me", refresh token biar sesi konsisten
-        // $request->session()->regenerate();
 
         return back()->with('success', 'Password berhasil diperbarui.');
     }

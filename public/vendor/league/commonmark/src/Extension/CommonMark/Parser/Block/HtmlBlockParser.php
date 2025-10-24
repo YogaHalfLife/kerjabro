@@ -64,9 +64,6 @@ final class HtmlBlockParser extends AbstractBlockContinueParser
         }
 
         $this->content .= $line;
-
-        // Check for end condition
-        // phpcs:disable SlevomatCodingStandard.ControlStructures.EarlyExit.EarlyExitNotUsed
         if ($this->block->getType() <= HtmlBlock::TYPE_5_CDATA) {
             if (\preg_match(RegexHelper::getHtmlBlockCloseRegex($this->block->getType()), $line) === 1) {
                 $this->finished = true;

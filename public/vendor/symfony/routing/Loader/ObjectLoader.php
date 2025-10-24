@@ -59,8 +59,6 @@ abstract class ObjectLoader extends Loader
 
             throw new \LogicException(sprintf('The "%s::%s()" method must return a RouteCollection: "%s" returned.', get_debug_type($loaderObject), $method, $type));
         }
-
-        // make the object file tracked so that if it changes, the cache rebuilds
         $this->addClassResource(new \ReflectionClass($loaderObject), $routeCollection);
 
         return $routeCollection;

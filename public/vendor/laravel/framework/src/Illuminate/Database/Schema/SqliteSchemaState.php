@@ -18,7 +18,6 @@ class SqliteSchemaState extends SchemaState
         with($process = $this->makeProcess(
             $this->baseCommand().' .schema'
         ))->setTimeout(null)->mustRun(null, array_merge($this->baseVariables($this->connection->getConfig()), [
-            //
         ]));
 
         $migrations = collect(preg_split("/\r\n|\n|\r/", $process->getOutput()))->filter(function ($line) {
@@ -42,7 +41,6 @@ class SqliteSchemaState extends SchemaState
         with($process = $this->makeProcess(
             $this->baseCommand().' ".dump \''.$this->migrationTable.'\'"'
         ))->mustRun(null, array_merge($this->baseVariables($this->connection->getConfig()), [
-            //
         ]));
 
         $migrations = collect(preg_split("/\r\n|\n|\r/", $process->getOutput()))->filter(function ($line) {

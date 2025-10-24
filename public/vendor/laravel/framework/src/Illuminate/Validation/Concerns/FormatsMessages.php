@@ -21,10 +21,6 @@ trait FormatsMessages
     protected function getMessage($attribute, $rule)
     {
         $inlineMessage = $this->getInlineMessage($attribute, $rule);
-
-        // First we will retrieve the custom message for the validation rule if one
-        // exists. If a custom validation message is being used we'll return the
-        // custom message, otherwise we'll keep searching for a valid message.
         if (! is_null($inlineMessage)) {
             return $inlineMessage;
         }
@@ -38,24 +34,12 @@ trait FormatsMessages
                     ? [$customKey.".{$this->getAttributeType($attribute)}", $customKey]
                     : $customKey
         );
-
-        // First we check for a custom defined validation message for the attribute
-        // and rule. This allows the developer to specify specific messages for
-        // only some attributes and rules that need to get specially formed.
         if ($customMessage !== $customKey) {
             return $customMessage;
         }
-
-        // If the rule being validated is a "size" rule, we will need to gather the
-        // specific error message for the type of attribute being validated such
-        // as a number, file or string which all have different message types.
         elseif (in_array($rule, $this->sizeRules)) {
             return $this->getSizeMessage($attribute, $rule);
         }
-
-        // Finally, if no developer specified messages have been set, and no other
-        // special messages apply for this rule, we will just pull the default
-        // messages out of the translator service for this validation rule.
         $key = "validation.{$lowerRule}";
 
         if ($key !== ($value = $this->translator->get($key))) {
@@ -96,10 +80,6 @@ trait FormatsMessages
         $source = $source ?: $this->customMessages;
 
         $keys = ["{$attribute}.{$lowerRule}", $lowerRule];
-
-        // First we will check for a custom message for an attribute specific rule
-        // message for the fields, then we will check for a general custom line
-        // that is not attribute specific. If we find either we'll return it.
         foreach ($keys as $key) {
             foreach (array_keys($source) as $sourceKey) {
                 if (str_contains($sourceKey, '*')) {
@@ -131,10 +111,6 @@ trait FormatsMessages
             if (($message = $this->translator->get($key)) !== $key) {
                 return $message;
             }
-
-            // If an exact match was not found for the key, we will collapse all of these
-            // messages and loop through them and try to find a wildcard match for the
-            // given key. Otherwise, we will simply return the key's value back out.
             $shortKey = preg_replace(
                 '/^validation\.custom\./', '', $key
             );
@@ -180,10 +156,6 @@ trait FormatsMessages
     protected function getSizeMessage($attribute, $rule)
     {
         $lowerRule = Str::snake($rule);
-
-        // There are three different types of size validations. The attribute may be
-        // either a number, file, or string so we will check a few things to know
-        // which type of value it is and return the correct line for that type.
         $type = $this->getAttributeType($attribute);
 
         $key = "validation.{$lowerRule}.{$type}";
@@ -199,9 +171,6 @@ trait FormatsMessages
      */
     protected function getAttributeType($attribute)
     {
-        // We assume that the attributes present in the file array are files so that
-        // means that if the attribute does not have a numeric rule and the files
-        // list doesn't have it we'll just consider it a string by elimination.
         if ($this->hasRule($attribute, $this->numericRules)) {
             return 'numeric';
         } elseif ($this->hasRule($attribute, ['Array'])) {
@@ -255,24 +224,13 @@ trait FormatsMessages
                     ? [$attribute, $primaryAttribute] : [$attribute];
 
         foreach ($expectedAttributes as $name) {
-            // The developer may dynamically specify the array of custom attributes on this
-            // validator instance. If the attribute exists in this array it is used over
-            // the other ways of pulling the attribute name for this given attributes.
             if (isset($this->customAttributes[$name])) {
                 return $this->customAttributes[$name];
             }
-
-            // We allow for a developer to specify language lines for any attribute in this
-            // application, which allows flexibility for displaying a unique displayable
-            // version of the attribute name instead of the name used in an HTTP POST.
             if ($line = $this->getAttributeFromTranslations($name)) {
                 return $line;
             }
         }
-
-        // When no language line has been specified for the attribute and it is also
-        // an implicit attribute we will display the raw attribute's name and not
-        // modify it with any of these replacements before we display the name.
         if (isset($this->implicitAttributes[$primaryAttribute])) {
             return ($formatter = $this->implicitAttributesFormatter)
                             ? $formatter($attribute)
@@ -452,10 +410,6 @@ trait FormatsMessages
     protected function getAttributeList(array $values)
     {
         $attributes = [];
-
-        // For each attribute in the list we will simply get its displayable form as
-        // this is convenient when replacing lists of parameters like some of the
-        // replacement functions do when formatting out the validation message.
         foreach ($values as $key => $value) {
             $attributes[$key] = $this->getDisplayableAttribute($value);
         }

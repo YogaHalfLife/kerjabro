@@ -31,8 +31,6 @@ final class FencedCodeStartParser implements BlockStartParserInterface
         if ($fence === null) {
             return BlockStart::none();
         }
-
-        // fenced code block
         $fence = \ltrim($fence, " \t");
 
         return BlockStart::of(new FencedCodeParser(\strlen($fence), $fence[0], $indent))->at($cursor);

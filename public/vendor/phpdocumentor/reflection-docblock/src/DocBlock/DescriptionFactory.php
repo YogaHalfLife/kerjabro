@@ -72,11 +72,6 @@ class DescriptionFactory
             $tags[]     = $this->tagFactory->create($tokens[$i], $context);
             $tokens[$i] = '%' . ++$tagCount . '$s';
         }
-
-        //In order to allow "literal" inline tags, the otherwise invalid
-        //sequence "{@}" is changed to "@", and "{}" is changed to "}".
-        //"%" is escaped to "%%" because of vsprintf.
-        //See unit tests for examples.
         for ($i = 0; $i < $count; $i += 2) {
             $tokens[$i] = str_replace(['{@}', '{}', '%'], ['@', '}', '%%'], $tokens[$i]);
         }
@@ -92,8 +87,6 @@ class DescriptionFactory
     private function lex(string $contents): array
     {
         $contents = $this->removeSuperfluousStartingWhitespace($contents);
-
-        // performance optimalization; if there is no inline tag, don't bother splitting it up.
         if (strpos($contents, '{@') === false) {
             return [$contents];
         }
@@ -146,27 +139,16 @@ class DescriptionFactory
     private function removeSuperfluousStartingWhitespace(string $contents): string
     {
         $lines = Utils::pregSplit("/\r\n?|\n/", $contents);
-
-        // if there is only one line then we don't have lines with superfluous whitespace and
-        // can use the contents as-is
         if (count($lines) <= 1) {
             return $contents;
         }
-
-        // determine how many whitespace characters need to be stripped
         $startingSpaceCount = 9999999;
         for ($i = 1, $iMax = count($lines); $i < $iMax; ++$i) {
-            // lines with a no length do not count as they are not indented at all
             if (trim($lines[$i]) === '') {
                 continue;
             }
-
-            // determine the number of prefixing spaces by checking the difference in line length before and after
-            // an ltrim
             $startingSpaceCount = min($startingSpaceCount, strlen($lines[$i]) - strlen(ltrim($lines[$i])));
         }
-
-        // strip the number of spaces from each line
         if ($startingSpaceCount > 0) {
             for ($i = 1, $iMax = count($lines); $i < $iMax; ++$i) {
                 $lines[$i] = substr($lines[$i], $startingSpaceCount);

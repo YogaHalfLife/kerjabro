@@ -1,7 +1,6 @@
 <?php
 
 return [
-    // Dutch (Flemish)
     'nl' => [
         '=' => ' gelijk ',
         '%' => ' procent ',
@@ -12,7 +11,6 @@ return [
         '&' => ' en ',
         '+' => ' plus ',
     ],
-    // Italian
     'it' => [
         '=' => ' uguale ',
         '%' => ' percent ',
@@ -23,7 +21,6 @@ return [
         '&' => ' e ',
         '+' => ' piu ',
     ],
-    // Macedonian
     'mk' => [
         '=' => ' ednakva ',
         '%' => ' procenti ',
@@ -34,7 +31,6 @@ return [
         '&' => ' i ',
         '+' => ' plus ',
     ],
-    // Portuguese (Brazil)
     'pt' => [
         '=' => ' igual ',
         '%' => ' por cento ',
@@ -45,7 +41,6 @@ return [
         '&' => ' e ',
         '+' => ' mais ',
     ],
-    // Greek(lish) (Elláda)
     'el__greeklish' => [
         '=' => ' isos ',
         '%' => ' tois ekato ',
@@ -56,7 +51,6 @@ return [
         '&' => ' kai ',
         '+' => ' syn ',
     ],
-    // Greek (Elláda)
     'el' => [
         '=' => ' isos ',
         '%' => ' tois ekato ',
@@ -67,7 +61,6 @@ return [
         '&' => ' kai ',
         '+' => ' syn ',
     ],
-    // Hindi
     'hi' => [
         '=' => ' samana ',
         '%' => ' paratisata ',
@@ -78,7 +71,6 @@ return [
         '&' => ' aura ',
         '+' => ' palasa ',
     ],
-    // Armenian
     'hy' => [
         '=' => ' havasar ',
         '%' => ' tvokvos ',
@@ -89,7 +81,6 @@ return [
         '&' => ' ev ',
         '+' => ' gvoumarats ',
     ],
-    // Swedish
     'sv' => [
         '=' => ' lika ',
         '%' => ' procent ',
@@ -100,7 +91,6 @@ return [
         '&' => ' och ',
         '+' => ' plus ',
     ],
-    // Turkmen
     'tk' => [
         '=' => ' den ',
         '%' => ' yuzde ',
@@ -111,7 +101,6 @@ return [
         '&' => ' we ',
         '+' => ' yzy ',
     ],
-    // Turkish
     'tr' => [
         '=' => ' esit ',
         '%' => ' yuzde ',
@@ -122,7 +111,6 @@ return [
         '&' => ' ve ',
         '+' => ' arti ',
     ],
-    // Bulgarian
     'bg' => [
         '=' => ' raven ',
         '%' => ' na sto ',
@@ -133,7 +121,6 @@ return [
         '&' => ' i ',
         '+' => ' plus ',
     ],
-    // Hungarian
     'hu' => [
         '=' => ' Egyenlo ',
         '%' => ' Szazalek ',
@@ -144,7 +131,6 @@ return [
         '&' => ' Es ',
         '+' => ' Plusz ',
     ],
-    // Myanmar (Burmese)
     'my' => [
         '=' => ' ttn:ttnnym? ',
         '%' => ' raakhngnn:k ',
@@ -155,7 +141,6 @@ return [
         '&' => ' n ',
         '+' => ' ape?ng: ',
     ],
-    // Croatian (Hrvatska)
     'hr' => [
         '=' => ' Jednaki ',
         '%' => ' Posto ',
@@ -166,7 +151,6 @@ return [
         '&' => ' I ',
         '+' => ' Plus ',
     ],
-    // Finnish
     'fi' => [
         '=' => ' Sama ',
         '%' => ' Prosenttia ',
@@ -177,7 +161,6 @@ return [
         '&' => ' Ja ',
         '+' => ' Plus ',
     ],
-    // Georgian (Kartvelian)
     'ka' => [
         '=' => ' tanasts\'ori ',
         '%' => ' p\'rotsent\'i ',
@@ -188,7 +171,6 @@ return [
         '&' => ' da ',
         '+' => ' p\'lus ',
     ],
-    // Russian
     'ru' => [
         '=' => ' ravnyj ',
         '%' => ' procent ',
@@ -199,7 +181,6 @@ return [
         '&' => ' i ',
         '+' => ' plus ',
     ],
-    // Russian - GOST 7.79-2000(B)
     'ru__gost_2000_b' => [
         '=' => ' ravnyj ',
         '%' => ' procent ',
@@ -210,7 +191,6 @@ return [
         '&' => ' i ',
         '+' => ' plus ',
     ],
-    // Russian - Passport (2013), ICAO
     'ru__passport_2013' => [
         '=' => ' ravnyj ',
         '%' => ' procent ',
@@ -221,7 +201,6 @@ return [
         '&' => ' i ',
         '+' => ' plus ',
     ],
-    // Ukrainian
     'uk' => [
         '=' => ' rivnij ',
         '%' => ' vidsotkiv ',
@@ -232,7 +211,6 @@ return [
         '&' => ' i ',
         '+' => ' plus ',
     ],
-    // Kazakh
     'kk' => [
         '=' => ' ten\' ',
         '%' => ' Pajyzdar ',
@@ -243,7 +221,6 @@ return [
         '&' => ' z@ne ',
         '+' => ' plus ',
     ],
-    // Czech
     'cs' => [
         '=' => ' rovnat se ',
         '%' => ' procento ',
@@ -254,7 +231,6 @@ return [
         '&' => ' a ',
         '+' => ' plus ',
     ],
-    // Danish
     'da' => [
         '=' => ' Lige ',
         '%' => ' Prozent ',
@@ -265,7 +241,6 @@ return [
         '&' => ' Og ',
         '+' => ' Plus ',
     ],
-    // Polish
     'pl' => [
         '=' => ' rowny ',
         '%' => ' procent ',
@@ -276,7 +251,6 @@ return [
         '&' => ' i ',
         '+' => ' plus ',
     ],
-    // Romanian
     'ro' => [
         '=' => ' egal ',
         '%' => ' la suta ',
@@ -287,7 +261,6 @@ return [
         '&' => ' si ',
         '+' => ' la care se adauga ',
     ],
-    // Esperanto
     'eo' => [
         '=' => ' Egalaj ',
         '%' => ' Procento ',
@@ -298,7 +271,6 @@ return [
         '&' => ' Kaj ',
         '+' => ' Pli ',
     ],
-    // Estonian
     'et' => [
         '=' => ' Vordsed ',
         '%' => ' Protsenti ',
@@ -309,7 +281,6 @@ return [
         '&' => ' Ja ',
         '+' => ' Pluss ',
     ],
-    // Latvian
     'lv' => [
         '=' => ' vienads ',
         '%' => ' procents ',
@@ -320,7 +291,6 @@ return [
         '&' => ' un ',
         '+' => ' pluss ',
     ],
-    // Lithuanian
     'lt' => [
         '=' => ' lygus ',
         '%' => ' procentu ',
@@ -331,7 +301,6 @@ return [
         '&' => ' ir ',
         '+' => ' plius ',
     ],
-    // Norwegian
     'no' => [
         '=' => ' Lik ',
         '%' => ' Prosent ',
@@ -342,7 +311,6 @@ return [
         '&' => ' Og ',
         '+' => ' Pluss ',
     ],
-    // Vietnamese
     'vi' => [
         '=' => ' cong bang ',
         '%' => ' phan tram ',
@@ -353,7 +321,6 @@ return [
         '&' => ' va ',
         '+' => ' them ',
     ],
-    // Arabic
     'ar' => [
         '=' => ' mtsawy ',
         '%' => ' nsbh mywyh ',
@@ -364,7 +331,6 @@ return [
         '&' => ' w ',
         '+' => ' zayd ',
     ],
-    // Persian (Farsi)
     'fa' => [
         '=' => ' brabr ',
         '%' => ' dr sd ',
@@ -375,7 +341,6 @@ return [
         '&' => ' w ',
         '+' => ' bh \'lawh ',
     ],
-    // Serbian
     'sr' => [
         '=' => ' jednak ',
         '%' => ' procenat ',
@@ -386,7 +351,6 @@ return [
         '&' => ' i ',
         '+' => ' vise ',
     ],
-    // Serbian - Cyrillic
     'sr__cyr' => [
         '=' => ' jednak ',
         '%' => ' procenat ',
@@ -397,7 +361,6 @@ return [
         '&' => ' i ',
         '+' => ' vise ',
     ],
-    // Serbian - Latin
     'sr__lat' => [
         '=' => ' jednak ',
         '%' => ' procenat ',
@@ -408,7 +371,6 @@ return [
         '&' => ' i ',
         '+' => ' vise ',
     ],
-    // Azerbaijani
     'az' => [
         '=' => ' b@rab@r ',
         '%' => ' faiz ',
@@ -419,7 +381,6 @@ return [
         '&' => ' v@ ',
         '+' => ' plus ',
     ],
-    // Slovak
     'sk' => [
         '=' => ' rovny ',
         '%' => ' percento ',
@@ -430,7 +391,6 @@ return [
         '&' => ' a ',
         '+' => ' viac ',
     ],
-    // French
     'fr' => [
         '=' => ' Egal ',
         '%' => ' Pourcentage ',
@@ -441,7 +401,6 @@ return [
         '&' => ' Et ',
         '+' => ' Plus ',
     ],
-    // Austrian (French)
     'fr_at' => [
         '=' => ' Egal ',
         '%' => ' Pourcentage ',
@@ -452,7 +411,6 @@ return [
         '&' => ' Et ',
         '+' => ' Plus ',
     ],
-    // Switzerland (French)
     'fr_ch' => [
         '=' => ' Egal ',
         '%' => ' Pourcentage ',
@@ -463,7 +421,6 @@ return [
         '&' => ' Et ',
         '+' => ' Plus ',
     ],
-    // German
     'de' => [
         '=' => ' gleich ',
         '%' => ' Prozent ',
@@ -474,7 +431,6 @@ return [
         '&' => ' und ',
         '+' => ' plus ',
     ],
-    // Austrian (German)
     'de_at' => [
         '=' => ' gleich ',
         '%' => ' Prozent ',
@@ -485,7 +441,6 @@ return [
         '&' => ' und ',
         '+' => ' plus ',
     ],
-    // Switzerland (German)
     'de_ch' => [
         '=' => ' gleich ',
         '%' => ' Prozent ',
@@ -496,7 +451,6 @@ return [
         '&' => ' und ',
         '+' => ' plus ',
     ],
-    // Bengali (Bangla)
     'bn' => [
         '=' => ' Saman ',
         '%' => ' Satakora ',
@@ -507,7 +461,6 @@ return [
         '&' => ' Abong ',
         '+' => ' Songzojon ',
     ],
-    // English
     'en' => [
         '=' => ' equal ',
         '%' => ' percent ',
@@ -518,9 +471,6 @@ return [
         '&' => ' and ',
         '+' => ' plus ',
     ],
-    // Currency
-    //
-    // url: https://en.wikipedia.org/wiki/Currency_symbol
     'currency' => [
         '€'  => ' Euro ',
         '$'  => ' Dollar ',
@@ -573,9 +523,6 @@ return [
         '฿'  => ' baht ',
         '؋'  => ' afghani ',
     ],
-    // Temperature
-    //
-    // url: https://en.wikipedia.org/wiki/Conversion_of_units_of_temperature
     'temperature' => [
         '°De' => ' Delisle ',
         '°Re' => ' Reaumur ', // Réaumur
@@ -594,7 +541,6 @@ return [
         '♥' => '♥',
         '&' => '&',
         '+' => '+',
-        // ---
         '©' => ' (c) ',
         '®' => ' (r) ',
         '@' => ' (at) ',

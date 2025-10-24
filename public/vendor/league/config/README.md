@@ -25,8 +25,6 @@ The `Configuration` class provides everything you need to define the configurati
 ```php
 use League\Config\Configuration;
 use Nette\Schema\Expect;
-
-// Define your configuration schema
 $config = new Configuration([
     'database' => Expect::structure([
         'driver' => Expect::anyOf('mysql', 'postgresql', 'sqlite')->required(),
@@ -43,8 +41,6 @@ $config = new Configuration([
         'path' => Expect::string()->assert(function ($path) { return \is_writeable($path); })->required(),
     ]),
 ]);
-
-// Set the values, either all at once with `merge()`:
 $config->merge([
     'database' => [
         'driver' => 'mysql',
@@ -54,26 +50,15 @@ $config->merge([
         'password' => 'secret',
     ],
 ]);
-
-// Or one-at-a-time with `set()`:
 $config->set('logging.path', '/var/log/myapp.log');
-
-// You can now retrieve those values with `get()`.
-// Validation and defaults will be applied for you automatically
 $config->get('database');        // Fetches the entire "database" section as an array
 $config->get('database.driver'); // Fetch a specific nested value with dot notation
 $config->get('database/driver'); // Fetch a specific nested value with slash notation
 $config->get('database.host');   // Returns the default value "localhost"
 $config->get('logging.path');    // Guaranteed to be writeable thanks to the assertion in the schema
-
-// If validation fails an `InvalidConfigurationException` will be thrown:
 $config->set('database.driver', 'mongodb');
 $config->get('database.driver'); // InvalidConfigurationException
-
-// Attempting to fetch a non-existent key will result in an `InvalidConfigurationException`
 $config->get('foo.bar');
-
-// You could avoid this by checking whether that item exists:
 $config->exists('foo.bar'); // Returns `false`
 ```
 

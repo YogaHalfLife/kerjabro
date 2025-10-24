@@ -93,14 +93,6 @@ class FunctionExtension extends AbstractExtension
         }
 
         return $xpath->addCondition(implode(' and ', $conditions));
-
-        // todo: handle an+b, odd, even
-        // an+b means every-a, plus b, e.g., 2n+1 means odd
-        // 0n+b means b
-        // n+0 means a=1, i.e., all elements
-        // an means every a elements, i.e., 2n means even
-        // -n means -1n
-        // -1n+6 means elements 6 and previous
     }
 
     public function translateNthLastChild(XPathExpr $xpath, FunctionNode $function): XPathExpr

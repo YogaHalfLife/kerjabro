@@ -338,7 +338,6 @@ class ExceptionCaster
                     $stub->attr['line'] = $caller->getStartLine();
                 }
             } catch (\ReflectionException $e) {
-                // ignore fake class/function
             }
 
             $srcLines = ["\0~separator=\0" => $stub];

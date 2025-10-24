@@ -64,106 +64,39 @@ final class ExcludeList
      * @var array<string,int>
      */
     private const EXCLUDED_CLASS_NAMES = [
-        // composer
         ClassLoader::class => 1,
-
-        // doctrine/instantiator
         Instantiator::class => 1,
-
-        // myclabs/deepcopy
         DeepCopy::class => 1,
-
-        // nikic/php-parser
         Parser::class => 1,
-
-        // phar-io/manifest
         Manifest::class => 1,
-
-        // phar-io/version
         PharIoVersion::class => 1,
-
-        // phpdocumentor/reflection-common
         Project::class => 1,
-
-        // phpdocumentor/reflection-docblock
         DocBlock::class => 1,
-
-        // phpdocumentor/type-resolver
         Type::class => 1,
-
-        // phpspec/prophecy
         Prophet::class => 1,
-
-        // phpunit/phpunit
         TestCase::class => 2,
-
-        // phpunit/php-code-coverage
         CodeCoverage::class => 1,
-
-        // phpunit/php-file-iterator
         FileIteratorFacade::class => 1,
-
-        // phpunit/php-invoker
         Invoker::class => 1,
-
-        // phpunit/php-text-template
         Template::class => 1,
-
-        // phpunit/php-timer
         Timer::class => 1,
-
-        // sebastian/cli-parser
         CliParser::class => 1,
-
-        // sebastian/code-unit
         CodeUnit::class => 1,
-
-        // sebastian/code-unit-reverse-lookup
         Wizard::class => 1,
-
-        // sebastian/comparator
         Comparator::class => 1,
-
-        // sebastian/complexity
         Calculator::class => 1,
-
-        // sebastian/diff
         Diff::class => 1,
-
-        // sebastian/environment
         Runtime::class => 1,
-
-        // sebastian/exporter
         Exporter::class => 1,
-
-        // sebastian/global-state
         Snapshot::class => 1,
-
-        // sebastian/lines-of-code
         Counter::class => 1,
-
-        // sebastian/object-enumerator
         Enumerator::class => 1,
-
-        // sebastian/recursion-context
         Context::class => 1,
-
-        // sebastian/resource-operations
         ResourceOperations::class => 1,
-
-        // sebastian/type
         TypeName::class => 1,
-
-        // sebastian/version
         Version::class => 1,
-
-        // symfony/polyfill-ctype
         Ctype::class => 1,
-
-        // theseer/tokenizer
         Tokenizer::class => 1,
-
-        // webmozart/assert
         Assert::class => 1,
     ];
 
@@ -233,7 +166,6 @@ final class ExcludeList
 
                 try {
                     $directory = (new ReflectionClass($className))->getFileName();
-                    // @codeCoverageIgnoreStart
                 } catch (ReflectionException $e) {
                     throw new Exception(
                         $e->getMessage(),
@@ -241,7 +173,6 @@ final class ExcludeList
                         $e
                     );
                 }
-                // @codeCoverageIgnoreEnd
 
                 for ($i = 0; $i < $parent; $i++) {
                     $directory = dirname($directory);
@@ -249,11 +180,7 @@ final class ExcludeList
 
                 self::$directories[] = $directory;
             }
-
-            // Hide process isolation workaround on Windows.
             if (DIRECTORY_SEPARATOR === '\\') {
-                // tempnam() prefix is limited to first 3 chars.
-                // @see https://php.net/manual/en/function.tempnam.php
                 self::$directories[] = sys_get_temp_dir() . '\\PHP';
             }
         }

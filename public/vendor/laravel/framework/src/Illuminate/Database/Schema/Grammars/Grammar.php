@@ -120,26 +120,15 @@ abstract class Grammar extends BaseGrammar
      */
     public function compileForeign(Blueprint $blueprint, Fluent $command)
     {
-        // We need to prepare several of the elements of the foreign key definition
-        // before we can create the SQL, such as wrapping the tables and convert
-        // an array of columns to comma-delimited strings for the SQL queries.
         $sql = sprintf('alter table %s add constraint %s ',
             $this->wrapTable($blueprint),
             $this->wrap($command->index)
         );
-
-        // Once we have the initial portion of the SQL statement we will add on the
-        // key name, table name, and referenced columns. These will complete the
-        // main portion of the SQL statement and this SQL will almost be done.
         $sql .= sprintf('foreign key (%s) references %s (%s)',
             $this->columnize($command->columns),
             $this->wrapTable($command->on),
             $this->columnize((array) $command->references)
         );
-
-        // Once we have the basic foreign key creation statement constructed we can
-        // build out the syntax for what should happen on an update or delete of
-        // the affected columns, which will get something like "cascade", etc.
         if (! is_null($command->onDelete)) {
             $sql .= " on delete {$command->onDelete}";
         }
@@ -162,9 +151,6 @@ abstract class Grammar extends BaseGrammar
         $columns = [];
 
         foreach ($blueprint->getAddedColumns() as $column) {
-            // Each of the column types has their own compiler functions, which are tasked
-            // with turning the column definition into its SQL format for this platform
-            // used by the connection. The column's modifiers are compiled and added.
             $sql = $this->wrap($column).' '.$this->getType($column);
 
             $columns[] = $this->addModifiers($sql, $blueprint, $column);

@@ -81,23 +81,16 @@ class DayOfMonthField extends AbstractField
      */
     public function isSatisfiedBy(DateTimeInterface $date, $value, bool $invert): bool
     {
-        // ? states that the field value is to be skipped
         if ('?' === $value) {
             return true;
         }
 
         $fieldValue = $date->format('d');
-
-        // Check to see if this is the last day of the month
         if ('L' === $value) {
             return $fieldValue === $date->format('t');
         }
-
-        // Check to see if this is the nearest weekday to a particular value
         if (strpos($value, 'W')) {
-            // Parse the target day
             $targetDay = (int) substr($value, 0, strpos($value, 'W'));
-            // Find out if the current day is the nearest day of the week
             $nearest = self::getNearestWeekday(
                 (int) $date->format('Y'),
                 (int) $date->format('m'),
@@ -137,8 +130,6 @@ class DayOfMonthField extends AbstractField
     public function validate(string $value): bool
     {
         $basicChecks = parent::validate($value);
-
-        // Validate that a list don't have W or L
         if (false !== strpos($value, ',') && (false !== strpos($value, 'W') || false !== strpos($value, 'L'))) {
             return false;
         }

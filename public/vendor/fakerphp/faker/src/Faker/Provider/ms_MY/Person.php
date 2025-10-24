@@ -21,7 +21,6 @@ class Person extends \Faker\Provider\Person
      * @see https://en.wikipedia.org/wiki/Malaysian_names
      */
     protected static $maleNameFormats = [
-        //Malay
         '{{muhammadName}}{{haji}}{{titleMaleMalay}}{{firstNameMaleMalay}} {{lastNameMalay}} bin {{titleMaleMalay}}{{firstNameMaleMalay}} {{lastNameMalay}}',
         '{{muhammadName}}{{haji}}{{titleMaleMalay}}{{firstNameMaleMalay}} {{lastNameMalay}} bin {{titleMaleMalay}}{{firstNameMaleMalay}}',
         '{{muhammadName}}{{haji}}{{titleMaleMalay}}{{firstNameMaleMalay}} {{lastNameMalay}} bin {{titleMaleMalay}}{{lastNameMalay}}',
@@ -29,14 +28,12 @@ class Person extends \Faker\Provider\Person
         '{{muhammadName}}{{haji}}{{titleMaleMalay}}{{firstNameMaleMalay}} bin {{titleMaleMalay}}{{firstNameMaleMalay}} {{lastNameMalay}}',
         '{{muhammadName}}{{haji}}{{titleMaleMalay}}{{firstNameMaleMalay}} bin {{titleMaleMalay}}{{firstNameMaleMalay}}',
         '{{muhammadName}}{{haji}}{{titleMaleMalay}}{{firstNameMaleMalay}} bin {{titleMaleMalay}}{{lastNameMalay}}',
-        //Chinese
         '{{lastNameChinese}} {{firstNameMaleChinese}}',
         '{{lastNameChinese}} {{firstNameMaleChinese}}',
         '{{lastNameChinese}} {{firstNameMaleChinese}}',
         '{{lastNameChinese}} {{firstNameMaleChinese}}',
         '{{lastNameChinese}} {{firstNameMaleChinese}}',
         '{{firstNameMaleChristian}} {{lastNameChinese}} {{firstNameMaleChinese}}',
-        //Indian
         '{{initialIndian}} {{firstNameMaleIndian}}',
         '{{initialIndian}} {{lastNameIndian}}',
         '{{firstNameMaleIndian}} a/l {{firstNameMaleIndian}}',
@@ -50,7 +47,6 @@ class Person extends \Faker\Provider\Person
      * @see https://en.wikipedia.org/wiki/Malaysian_names
      */
     protected static $femaleNameFormats = [
-        //Malay
         '{{nurName}}{{hajjah}}{{firstNameFemaleMalay}} {{lastNameMalay}} binti {{titleMaleMalay}}{{firstNameMaleMalay}} {{lastNameMalay}}',
         '{{nurName}}{{hajjah}}{{firstNameFemaleMalay}} {{lastNameMalay}} binti {{titleMaleMalay}}{{firstNameMaleMalay}}',
         '{{nurName}}{{hajjah}}{{firstNameFemaleMalay}} {{lastNameMalay}} binti {{titleMaleMalay}}{{lastNameMalay}}',
@@ -58,14 +54,12 @@ class Person extends \Faker\Provider\Person
         '{{nurName}}{{hajjah}}{{firstNameFemaleMalay}} binti {{titleMaleMalay}}{{firstNameMaleMalay}} {{lastNameMalay}}',
         '{{nurName}}{{hajjah}}{{firstNameFemaleMalay}} binti {{titleMaleMalay}}{{firstNameMaleMalay}}',
         '{{nurName}}{{hajjah}}{{firstNameFemaleMalay}} binti {{titleMaleMalay}}{{lastNameMalay}}',
-        //Chinese
         '{{lastNameChinese}} {{firstNameFemaleChinese}}',
         '{{lastNameChinese}} {{firstNameFemaleChinese}}',
         '{{lastNameChinese}} {{firstNameFemaleChinese}}',
         '{{lastNameChinese}} {{firstNameFemaleChinese}}',
         '{{lastNameChinese}} {{firstNameFemaleChinese}}',
         '{{firstNameFemaleChristian}} {{lastNameChinese}} {{firstNameFemaleChinese}}',
-        //Indian
         '{{initialIndian}}{{firstNameFemaleIndian}}',
         '{{initialIndian}}{{lastNameIndian}}',
         '{{firstNameFemaleIndian}} a/l {{firstNameMaleIndian}}',
@@ -774,32 +768,18 @@ class Person extends \Faker\Provider\Person
      */
     public static function myKadNumber($gender = null, $hyphen = false)
     {
-        // year of birth
         $yy = self::numberBetween(0, 99);
-
-        // month of birth
         $mm = DateTime::month();
-
-        // day of birth
         $dd = DateTime::dayOfMonth();
-
-        // place of birth (1-59 except 17-20)
         while (in_array($pb = self::numberBetween(1, 59), [17, 18, 19, 20], false)) {
         }
-
-        // random number
         $nnn = self::numberBetween(0, 999);
-
-        // gender digit. Odd = MALE, Even = FEMALE
         $g = self::numberBetween(0, 9);
-        //Credit: https://gist.github.com/mauris/3629548
         if ($gender === static::GENDER_MALE) {
             $g = $g | 1;
         } elseif ($gender === static::GENDER_FEMALE) {
             $g = $g & ~1;
         }
-
-        // formatting with hyphen
         if ($hyphen === true) {
             $hyphen = '-';
         } elseif ($hyphen === false) {

@@ -229,9 +229,6 @@ class Mailer implements MailerContract, MailQueueContract
      */
     public function render($view, array $data = [])
     {
-        // First we need to parse the view, which could either be a string or an array
-        // containing both an HTML and plain text versions of the view which should
-        // be used when sending an e-mail. We will extract both of them out here.
         [$view, $plain, $raw] = $this->parseView($view);
 
         $data['message'] = $this->createMessage();
@@ -252,33 +249,17 @@ class Mailer implements MailerContract, MailQueueContract
         if ($view instanceof MailableContract) {
             return $this->sendMailable($view);
         }
-
-        // First we need to parse the view, which could either be a string or an array
-        // containing both an HTML and plain text versions of the view which should
-        // be used when sending an e-mail. We will extract both of them out here.
         [$view, $plain, $raw] = $this->parseView($view);
 
         $data['message'] = $message = $this->createMessage();
-
-        // Once we have retrieved the view content for the e-mail we will set the body
-        // of this message using the HTML type, which will provide a simple wrapper
-        // to creating view based emails that are able to receive arrays of data.
         if (! is_null($callback)) {
             $callback($message);
         }
 
         $this->addContent($message, $view, $plain, $raw, $data);
-
-        // If a global "to" address has been set, we will set that address on the mail
-        // message. This is primarily useful during local development in which each
-        // message should be delivered into a single mail address for inspection.
         if (isset($this->to['address'])) {
             $this->setGlobalToAndRemoveCcAndBcc($message);
         }
-
-        // Next we will determine if the message should be sent. We give the developer
-        // one final chance to stop this message and then we will send it to all of
-        // its recipients. We will then fire the sent event for the sent message.
         $symfonyMessage = $message->getSymfonyMessage();
 
         if ($this->shouldSendMessage($symfonyMessage, $data)) {
@@ -320,17 +301,9 @@ class Mailer implements MailerContract, MailQueueContract
         if (is_string($view)) {
             return [$view, null, null];
         }
-
-        // If the given view is an array with numeric keys, we will just assume that
-        // both a "pretty" and "plain" view were provided, so we will return this
-        // array as is, since it should contain both views with numerical keys.
         if (is_array($view) && isset($view[0])) {
             return [$view[0], $view[1], null];
         }
-
-        // If this view is an array but doesn't contain numeric keys, we will assume
-        // the views are being explicitly specified and will extract them via the
-        // named keys instead, allowing the developers to use one or the other.
         if (is_array($view)) {
             return [
                 $view['html'] ?? null,
@@ -487,17 +460,9 @@ class Mailer implements MailerContract, MailQueueContract
     protected function createMessage()
     {
         $message = new Message(new Email());
-
-        // If a global from address has been specified we will set it on every message
-        // instance so the developer does not have to repeat themselves every time
-        // they create a new message. We'll just go ahead and push this address.
         if (! empty($this->from['address'])) {
             $message->from($this->from['address'], $this->from['name']);
         }
-
-        // When a global reply address was specified we will set this on every message
-        // instance so the developer does not have to repeat themselves every time
-        // they create a new message. We will just go ahead and push this address.
         if (! empty($this->replyTo['address'])) {
             $message->replyTo($this->replyTo['address'], $this->replyTo['name']);
         }
@@ -520,7 +485,6 @@ class Mailer implements MailerContract, MailQueueContract
         try {
             return $this->transport->send($message, Envelope::create($message));
         } finally {
-            //
         }
     }
 

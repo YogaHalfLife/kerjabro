@@ -675,19 +675,11 @@ class Application extends Container implements ApplicationContract, CachesConfig
         if (($registered = $this->getProvider($provider)) && ! $force) {
             return $registered;
         }
-
-        // If the given "provider" is a string, we will resolve it, passing in the
-        // application instance automatically for the developer. This is simply
-        // a more convenient way of specifying your service provider classes.
         if (is_string($provider)) {
             $provider = $this->resolveProvider($provider);
         }
 
         $provider->register();
-
-        // If there are bindings / singletons set as properties on the provider we
-        // will spin through them and register them with the application, which
-        // serves as a convenience layer while registering a lot of bindings.
         if (property_exists($provider, 'bindings')) {
             foreach ($provider->bindings as $key => $value) {
                 $this->bind($key, $value);
@@ -701,10 +693,6 @@ class Application extends Container implements ApplicationContract, CachesConfig
         }
 
         $this->markAsRegistered($provider);
-
-        // If the application has already booted, we will call this boot method on
-        // the provider class so it has an opportunity to do its boot logic and
-        // will be ready for any usage by this developer's application logic.
         if ($this->isBooted()) {
             $this->bootProvider($provider);
         }
@@ -769,9 +757,6 @@ class Application extends Container implements ApplicationContract, CachesConfig
      */
     public function loadDeferredProviders()
     {
-        // We will simply spin through each of the deferred providers and register each
-        // one and boot them if the application has booted. This should make each of
-        // the remaining services available to this application for immediate use.
         foreach ($this->deferredServices as $service => $provider) {
             $this->loadDeferredProvider($service);
         }
@@ -792,10 +777,6 @@ class Application extends Container implements ApplicationContract, CachesConfig
         }
 
         $provider = $this->deferredServices[$service];
-
-        // If the service provider has not already been loaded and registered we can
-        // register it with the application and remove the service from this list
-        // of deferred services, since it will already be loaded on subsequent.
         if (! isset($this->loadedProviders[$provider])) {
             $this->registerDeferredProvider($provider, $service);
         }
@@ -810,9 +791,6 @@ class Application extends Container implements ApplicationContract, CachesConfig
      */
     public function registerDeferredProvider($provider, $service = null)
     {
-        // Once the provider that provides the deferred service has been registered we
-        // will remove it from our local list of the deferred services with related
-        // providers so that this container does not try to resolve it out again.
         if ($service) {
             unset($this->deferredServices[$service]);
         }
@@ -899,10 +877,6 @@ class Application extends Container implements ApplicationContract, CachesConfig
         if ($this->isBooted()) {
             return;
         }
-
-        // Once the application has booted we will also fire some "booted" callbacks
-        // for any listeners that need to do work after this initial booting gets
-        // finished. This is useful when ordering the boot-up processes we run.
         $this->fireAppCallbacks($this->bootingCallbacks);
 
         array_walk($this->serviceProviders, function ($p) {

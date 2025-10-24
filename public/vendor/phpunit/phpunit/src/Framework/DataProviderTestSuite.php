@@ -31,9 +31,7 @@ final class DataProviderTestSuite extends TestSuite
 
         foreach ($this->tests as $test) {
             if (!$test instanceof TestCase) {
-                // @codeCoverageIgnoreStart
                 continue;
-                // @codeCoverageIgnoreStart
             }
             $test->setDependencies($dependencies);
         }
@@ -56,8 +54,6 @@ final class DataProviderTestSuite extends TestSuite
      */
     public function requires(): array
     {
-        // A DataProviderTestSuite does not have to traverse its child tests
-        // as these are inherited and cannot reference dataProvider rows directly
         return $this->dependencies;
     }
 

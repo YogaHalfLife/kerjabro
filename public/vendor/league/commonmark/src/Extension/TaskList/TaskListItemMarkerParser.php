@@ -29,8 +29,6 @@ final class TaskListItemMarkerParser implements InlineParserInterface
     public function parse(InlineParserContext $inlineContext): bool
     {
         $container = $inlineContext->getContainer();
-
-        // Checkbox must come at the beginning of the first paragraph of the list item
         if ($container->hasChildren() || ! ($container instanceof Paragraph && $container->parent() && $container->parent() instanceof ListItem)) {
             return false;
         }

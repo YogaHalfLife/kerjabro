@@ -21,17 +21,9 @@ trait ManagesTransactions
     {
         for ($currentAttempt = 1; $currentAttempt <= $attempts; $currentAttempt++) {
             $this->beginTransaction();
-
-            // We'll simply execute the given callback within a try / catch block and if we
-            // catch any exception we can rollback this transaction so that none of this
-            // gets actually persisted to a database or stored in a permanent fashion.
             try {
                 $callbackResult = $callback($this);
             }
-
-            // If we catch an exception we'll rollback this transaction and try again if we
-            // are not out of attempts. If we are out of attempts we will just throw the
-            // exception back out, and let the developer handle an uncaught exception.
             catch (Throwable $e) {
                 $this->handleTransactionException(
                     $e, $currentAttempt, $attempts
@@ -76,9 +68,6 @@ trait ManagesTransactions
      */
     protected function handleTransactionException(Throwable $e, $currentAttempt, $maxAttempts)
     {
-        // On a deadlock, MySQL rolls back the entire transaction so we can't just
-        // retry the query. We have to throw this exception all the way out and
-        // let the developer handle it in another way. We will decrement too.
         if ($this->causedByConcurrencyError($e) &&
             $this->transactions > 1) {
             $this->transactions--;
@@ -89,10 +78,6 @@ trait ManagesTransactions
 
             throw $e;
         }
-
-        // If there was an exception we will rollback this transaction and then we
-        // can check if we have exceeded the maximum attempt count for this and
-        // if we haven't we will return and try this query again in our loop.
         $this->rollBack();
 
         if ($this->causedByConcurrencyError($e) &&
@@ -236,9 +221,6 @@ trait ManagesTransactions
      */
     public function rollBack($toLevel = null)
     {
-        // We allow developers to rollback to a certain transaction level. We will verify
-        // that this given transaction level is valid before attempting to rollback to
-        // that level. If it's not we will just return out and not attempt anything.
         $toLevel = is_null($toLevel)
                     ? $this->transactions - 1
                     : $toLevel;
@@ -246,10 +228,6 @@ trait ManagesTransactions
         if ($toLevel < 0 || $toLevel >= $this->transactions) {
             return;
         }
-
-        // Next, we will actually perform this rollback within this database and fire the
-        // rollback event. We will also set the current transaction level to the given
-        // level that was passed into this method so it will be right from here out.
         try {
             $this->performRollBack($toLevel);
         } catch (Throwable $e) {

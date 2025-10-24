@@ -13,8 +13,6 @@ class BaseSolution implements Solution
 
     public static function create(string $title = ''): static
     {
-        // It's important to keep the return type as static because
-        // the old Facade Ignition contracts extend from this method.
 
         /** @phpstan-ignore-next-line */
         return new static($title);

@@ -22,9 +22,6 @@ class MemcachedConnector
         );
 
         if (! $memcached->getServerList()) {
-            // For each server in the array, we'll just extract the configuration and add
-            // the server to the Memcached connection. Once we have added all of these
-            // servers we'll verify the connection is successful and return it back.
             foreach ($servers as $server) {
                 $memcached->addServer(
                     $server['host'], $server['port'], $server['weight']

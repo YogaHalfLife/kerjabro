@@ -65,7 +65,6 @@ class BufferHandler extends AbstractHandler implements ProcessableHandlerInterfa
         }
 
         if (!$this->initialized) {
-            // __destructor() doesn't get called on Fatal errors
             register_shutdown_function([$this, 'close']);
             $this->initialized = true;
         }
@@ -102,9 +101,6 @@ class BufferHandler extends AbstractHandler implements ProcessableHandlerInterfa
 
     public function __destruct()
     {
-        // suppress the parent behavior since we already have register_shutdown_function()
-        // to call close(), and the reference contained there will prevent this from being
-        // GC'd until the end of the request
     }
 
     /**

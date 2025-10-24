@@ -17,17 +17,12 @@ $tokensResultsFile = $resultDir . '/Tokens.php';
 
 $kmyacc = getenv('KMYACC');
 if (!$kmyacc) {
-    // Use phpyacc from dev dependencies by default.
     $kmyacc = __DIR__ . '/../vendor/bin/phpyacc';
 }
 
 $options = array_flip($argv);
 $optionDebug = isset($options['--debug']);
 $optionKeepTmpGrammar = isset($options['--keep-tmp-grammar']);
-
-///////////////////
-/// Main script ///
-///////////////////
 
 $tokens = file_get_contents($tokensFile);
 
@@ -60,10 +55,6 @@ foreach ($grammarFileToName as $grammarFile => $name) {
         unlink($tmpGrammarFile);
     }
 }
-
-////////////////////////////////
-/// Utility helper functions ///
-////////////////////////////////
 
 function ensureDirExists($dir) {
     if (!is_dir($dir)) {

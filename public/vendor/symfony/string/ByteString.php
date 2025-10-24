@@ -62,18 +62,11 @@ class ByteString extends AbstractString
             $unpackedData = 0;
             $unpackedBits = 0;
             for ($i = 0; $i < $urandomLength && $length > 0; ++$i) {
-                // Unpack 8 bits
                 $unpackedData = ($unpackedData << 8) | \ord($data[$i]);
                 $unpackedBits += 8;
-
-                // While we have enough bits to select a character from the alphabet, keep
-                // consuming the random data
                 for (; $unpackedBits >= $bits && $length > 0; $unpackedBits -= $bits) {
                     $index = ($unpackedData & ((1 << $bits) - 1));
                     $unpackedData >>= $bits;
-                    // Unfortunately, the alphabet size is not necessarily a power of two.
-                    // Worst case, it is 2^k + 1, which means we need (k+1) bits and we
-                    // have around a 50% chance of missing as k gets larger
                     if ($index < $alphabetSize) {
                         $ret .= $alphabet[$index];
                         --$length;

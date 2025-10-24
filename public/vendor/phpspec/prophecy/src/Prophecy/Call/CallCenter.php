@@ -61,8 +61,6 @@ class CallCenter
      */
     public function makeCall(ObjectProphecy $prophecy, $methodName, array $arguments)
     {
-        // For efficiency exclude 'args' from the generated backtrace
-        // Limit backtrace to last 3 calls as we don't use the rest
         $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
 
         $file = $line = null;
@@ -70,30 +68,21 @@ class CallCenter
             $file = $backtrace[2]['file'];
             $line = $backtrace[2]['line'];
         }
-
-        // If no method prophecies defined, then it's a dummy, so we'll just return null
         if ('__destruct' === strtolower($methodName) || 0 == count($prophecy->getMethodProphecies())) {
             $this->recordedCalls[] = new Call($methodName, $arguments, null, null, $file, $line);
 
             return null;
         }
-
-        // There are method prophecies, so it's a fake/stub. Searching prophecy for this call
         $matches = $this->findMethodProphecies($prophecy, $methodName, $arguments);
-
-        // If fake/stub doesn't have method prophecy for this call - throw exception
         if (!count($matches)) {
             $this->unexpectedCalls->attach(new Call($methodName, $arguments, null, null, $file, $line), $prophecy);
             $this->recordedCalls[] = new Call($methodName, $arguments, null, null, $file, $line);
 
             return null;
         }
-
-        // Sort matches by their score value
         @usort($matches, function ($match1, $match2) { return $match2[0] - $match1[0]; });
 
         $score = $matches[0][0];
-        // If Highest rated method prophecy has a promise - execute it or return null instead
         $methodProphecy = $matches[0][1];
         $returnValue = null;
         $exception   = null;
@@ -153,8 +142,6 @@ class CallCenter
         /** @var Call $call */
         foreach ($this->unexpectedCalls as $call) {
             $prophecy = $this->unexpectedCalls[$call];
-
-            // If fake/stub doesn't have method prophecy for this call - throw exception
             if (!count($this->findMethodProphecies($prophecy, $call->getMethodName(), $call->getArguments()))) {
                 throw $this->createUnexpectedCallException($prophecy, $call->getMethodName(), $call->getArguments());
             }

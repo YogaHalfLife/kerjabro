@@ -36,7 +36,6 @@ final class AsIsNormalizerStrategy implements NormalizerStrategyInterface
     public function addItem(int $level, ListItem $listItemToAdd): void
     {
         while ($level > $this->parentLevel) {
-            // Descend downwards, creating new ListBlocks if needed, until we reach the correct depth
             if ($this->lastListItem === null) {
                 $this->lastListItem = new ListItem($this->parentListBlock->getListData());
                 $this->parentListBlock->appendChild($this->lastListItem);
@@ -53,7 +52,6 @@ final class AsIsNormalizerStrategy implements NormalizerStrategyInterface
         }
 
         while ($level < $this->parentLevel) {
-            // Search upwards for the previous parent list block
             $search = $this->parentListBlock;
             while ($search = $search->parent()) {
                 if ($search instanceof ListBlock) {

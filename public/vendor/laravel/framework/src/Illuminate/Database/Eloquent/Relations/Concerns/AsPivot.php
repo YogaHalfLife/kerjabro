@@ -42,18 +42,10 @@ trait AsPivot
         $instance = new static;
 
         $instance->timestamps = $instance->hasTimestampAttributes($attributes);
-
-        // The pivot model is a "dynamic" model since we will set the tables dynamically
-        // for the instance. This allows it work for any intermediate tables for the
-        // many to many relationship that are defined by this developer's classes.
         $instance->setConnection($parent->getConnectionName())
             ->setTable($table)
             ->forceFill($attributes)
             ->syncOriginal();
-
-        // We store off the parent instance so we will access the timestamp column names
-        // for the model, since the pivot model timestamps aren't easily configurable
-        // from the developer's point of view. We can use the parents to get these.
         $instance->pivotParent = $parent;
 
         $instance->exists = $exists;

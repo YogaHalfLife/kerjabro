@@ -131,8 +131,6 @@ class Mirror
         $namespaces = [];
         foreach ($allNames as $name) {
             $chunks = \explode('\\', \strtolower($name));
-
-            // the last one is the function or class or whatever...
             \array_pop($chunks);
 
             while (!empty($chunks)) {

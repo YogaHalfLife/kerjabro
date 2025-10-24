@@ -39,9 +39,6 @@
     }
   }
 }
-
-
-// Colors
 .pagination {
   @each $name, $value in $theme-gradient-colors {
     &.pagination-#{$name} {

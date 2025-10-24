@@ -318,15 +318,6 @@ final class Loader
         if (strpos($path, '/') === 0) {
             return $path;
         }
-
-        // Matches the following on Windows:
-        //  - \\NetworkComputer\Path
-        //  - \\.\D:
-        //  - \\.\c:
-        //  - C:\Windows
-        //  - C:\windows
-        //  - C:/windows
-        //  - c:/windows
         if (defined('PHP_WINDOWS_VERSION_BUILD') &&
             ($path[0] === '\\' || (strlen($path) >= 3 && preg_match('#^[A-Z]\:[/\\\]#i', substr($path, 0, 3))))) {
             return $path;

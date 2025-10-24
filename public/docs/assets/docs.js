@@ -8,13 +8,10 @@
       sidebarCollapseLinks.style.display = null;
     } else {
       sidebarCollapseLinks.style.display = "block";
-      // the 48 is for the padding heights as well
-      // 2rem + 1rem = 3rem = 3 * 16 px = 48px
       sidebarCollapseLinks.style.maxHeight = sidebarCollapseLinks.scrollHeight + 48 + "px";
       sidebarCollapseLinks.style.padding = "2rem 0 1rem";
     }
   })
-  // navbar dropdowns init
   let dropdowns = document.getElementsByClassName("ct-docs-nav-item-dropdown");
   for (var i = 0; i < dropdowns.length; i++) {
     dropdowns[i].addEventListener("mouseenter", dropdownEvent);

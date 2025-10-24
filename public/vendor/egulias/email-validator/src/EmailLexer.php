@@ -6,7 +6,6 @@ use Doctrine\Common\Lexer\AbstractLexer;
 
 class EmailLexer extends AbstractLexer
 {
-    //ASCII values
     const S_EMPTY            = null;
     const C_NUL              = 0;
     const S_HTAB             = 9;

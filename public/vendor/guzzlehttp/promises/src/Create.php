@@ -16,8 +16,6 @@ final class Create
         if ($value instanceof PromiseInterface) {
             return $value;
         }
-
-        // Return a Guzzle promise that shadows the given promise.
         if (is_object($value) && method_exists($value, 'then')) {
             $wfn = method_exists($value, 'wait') ? [$value, 'wait'] : null;
             $cfn = method_exists($value, 'cancel') ? [$value, 'cancel'] : null;

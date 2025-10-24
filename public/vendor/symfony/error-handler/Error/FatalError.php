@@ -40,7 +40,6 @@ class FatalError extends \Error
 
                 foreach ($trace as &$frame) {
                     if (!isset($frame['type'])) {
-                        // XDebug pre 2.1.1 doesn't currently set the call type key http://bugs.xdebug.org/view.php?id=695
                         if (isset($frame['class'])) {
                             $frame['type'] = '::';
                         }
@@ -49,8 +48,6 @@ class FatalError extends \Error
                     } elseif ('static' === $frame['type']) {
                         $frame['type'] = '::';
                     }
-
-                    // XDebug also has a different name for the parameters array
                     if (!$traceArgs) {
                         unset($frame['params'], $frame['args']);
                     } elseif (isset($frame['params']) && !isset($frame['args'])) {

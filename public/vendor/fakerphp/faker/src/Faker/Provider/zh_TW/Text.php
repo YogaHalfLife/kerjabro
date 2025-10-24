@@ -830,18 +830,12 @@ EOT;
     protected static function appendEnd($text)
     {
         $mbAvailable = extension_loaded('mbstring');
-
-        // extract the last char of $text
         if ($mbAvailable) {
-            // in order to support php 5.3, third param use 1 instead of null
-            // https://secure.php.net/manual/en/function.mb-substr.php#refsect1-function.mb-substr-changelog
             $last = mb_substr($text, mb_strlen($text, static::$encoding) - 1, 1, static::$encoding);
         } else {
             $chars = static::utf8Encoding($text);
             $last = $chars[count($chars) - 1];
         }
-
-        // if the last char is a not-valid-end punctuation, remove it
         if (in_array($last, static::$notEndPunct, false)) {
             if ($mbAvailable) {
                 $text = mb_substr($text, 0, mb_strlen($text, static::$encoding) - 1, static::$encoding);
@@ -850,8 +844,6 @@ EOT;
                 $text = implode('', $chars);
             }
         }
-
-        // if the last char is not a valid punctuation, append a default one.
         return in_array($last, static::$endPunct, false) ? $text : $text . '。';
     }
 
@@ -878,16 +870,12 @@ EOT;
             switch (true) {
                 case $ord > 251:
                     $temp .= $chars[++$i];
-                    // no break
                 case $ord > 247:
                     $temp .= $chars[++$i];
-                    // no break
                 case $ord > 239:
                     $temp .= $chars[++$i];
-                    // no break
                 case $ord > 223:
                     $temp .= $chars[++$i];
-                    // no break
                 case $ord > 191:
                     $temp .= $chars[++$i];
             }

@@ -29,7 +29,6 @@ class LogBroadcaster extends Broadcaster
      */
     public function auth($request)
     {
-        //
     }
 
     /**
@@ -37,7 +36,6 @@ class LogBroadcaster extends Broadcaster
      */
     public function validAuthenticationResponse($request, $result)
     {
-        //
     }
 
     /**

@@ -47,17 +47,12 @@ final class TableOfContentsBuilder implements ConfigurationAwareInterface
 
         $toc = $generator->generate($document);
         if ($toc === null) {
-            // No linkable headers exist, so no TOC could be generated
             return;
         }
-
-        // Add custom CSS class(es), if defined
         $class = $this->config->get('table_of_contents/html_class');
         if ($class !== null) {
             $toc->data->append('attributes/class', $class);
         }
-
-        // Add the TOC to the Document
         $position = $this->config->get('table_of_contents/position');
         if ($position === self::POSITION_TOP) {
             $document->prependChild($toc);
@@ -90,7 +85,6 @@ final class TableOfContentsBuilder implements ConfigurationAwareInterface
     private function replacePlaceholders(Document $document, TableOfContents $toc): void
     {
         foreach ($document->iterator(NodeIterator::FLAG_BLOCKS_ONLY) as $node) {
-            // Add the block once we find a placeholder
             if (! $node instanceof TableOfContentsPlaceholder) {
                 continue;
             }

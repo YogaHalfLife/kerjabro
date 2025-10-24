@@ -15,7 +15,6 @@ class NullFailedJobProvider implements FailedJobProviderInterface
      */
     public function log($connection, $queue, $payload, $exception)
     {
-        //
     }
 
     /**
@@ -36,7 +35,6 @@ class NullFailedJobProvider implements FailedJobProviderInterface
      */
     public function find($id)
     {
-        //
     }
 
     /**
@@ -58,6 +56,5 @@ class NullFailedJobProvider implements FailedJobProviderInterface
      */
     public function flush($hours = null)
     {
-        //
     }
 }

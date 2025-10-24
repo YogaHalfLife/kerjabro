@@ -44,8 +44,6 @@ final class Counter
             assert($nodes !== null);
 
             return $this->countInAbstractSyntaxTree($linesOfCode, $nodes);
-
-            // @codeCoverageIgnoreStart
         } catch (Error $error) {
             throw new RuntimeException(
                 $error->getMessage(),
@@ -53,7 +51,6 @@ final class Counter
                 $error
             );
         }
-        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -71,7 +68,6 @@ final class Counter
         try {
             /* @noinspection UnusedFunctionResultInspection */
             $traverser->traverse($nodes);
-            // @codeCoverageIgnoreStart
         } catch (Error $error) {
             throw new RuntimeException(
                 $error->getMessage(),
@@ -79,7 +75,6 @@ final class Counter
                 $error
             );
         }
-        // @codeCoverageIgnoreEnd
 
         return $visitor->result();
     }

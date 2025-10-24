@@ -62,9 +62,6 @@ final class Differ
         } elseif (null === $outputBuilder) {
             $this->outputBuilder = new UnifiedDiffOutputBuilder;
         } elseif (is_string($outputBuilder)) {
-            // PHPUnit 6.1.4, 6.2.0, 6.2.1, 6.2.2, and 6.2.3 support
-            // @see https://github.com/sebastianbergmann/phpunit/issues/2734#issuecomment-314514056
-            // @deprecated
             $this->outputBuilder = new UnifiedDiffOutputBuilder($outputBuilder);
         } else {
             throw new InvalidArgumentException(
@@ -196,10 +193,6 @@ final class Differ
 
     private function selectLcsImplementation(array $from, array $to): LongestCommonSubsequenceCalculator
     {
-        // We do not want to use the time-efficient implementation if its memory
-        // footprint will probably exceed this value. Note that the footprint
-        // calculation is only an estimation for the matrix and the LCS method
-        // will typically allocate a bit more memory than this.
         $memoryLimit = 100 * 1024 * 1024;
 
         if ($this->calculateEstimatedFootprint($from, $to) > $memoryLimit) {
@@ -240,13 +233,9 @@ final class Differ
                 $oldLineBreaks[$this->getLinebreak($entry[0])] = true;
             }
         }
-
-        // if either input or output is a single line without breaks than no warning should be raised
         if (['' => true] === $newLineBreaks || ['' => true] === $oldLineBreaks) {
             return false;
         }
-
-        // two way compare
         foreach ($newLineBreaks as $break => $set) {
             if (!isset($oldLineBreaks[$break])) {
                 return true;

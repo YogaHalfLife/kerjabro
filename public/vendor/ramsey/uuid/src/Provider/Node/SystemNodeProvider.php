@@ -77,12 +77,9 @@ class SystemNodeProvider implements NodeProviderInterface
         if ($node !== null) {
             return (string) $node;
         }
-
-        // First, try a Linux-specific approach.
         $node = $this->getSysfs();
 
         if ($node === '') {
-            // Search ifconfig output for MAC addresses & return the first one.
             $node = $this->getIfconfig();
         }
 
@@ -158,8 +155,6 @@ class SystemNodeProvider implements NodeProviderInterface
             });
 
             $macs = array_map('trim', $macs);
-
-            // Remove invalid entries.
             $macs = array_filter($macs, function (string $address) {
                 return $address !== '00:00:00:00:00:00'
                     && preg_match(self::SYSFS_PATTERN, $address);

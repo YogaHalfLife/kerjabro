@@ -33,7 +33,6 @@ Lets look at the following made up, but not impossible scenario:
 
         public static function fetch()
         {
-            // Fetcher gets something for us from somewhere...
             return self::SUCCESS;
         }
     }
@@ -61,8 +60,6 @@ random stuff from the internet every time we run our test suite. So we mock it
 out:
 
 .. code-block:: php
-
-    // Using alias: because fetch is called statically!
     \Mockery::mock('alias:Fetcher')
         ->shouldReceive('fetch')
         ->andReturn(0);
@@ -109,7 +106,6 @@ dependency:
 
         public function fetch()
         {
-            // Fetcher gets something for us from somewhere...
             return self::SUCCESS;
         }
     }
@@ -162,7 +158,6 @@ Given a class with constants:
 
         public function fetch()
         {
-            // Fetcher gets something for us from somewhere...
             return self::SUCCESS;
         }
     }

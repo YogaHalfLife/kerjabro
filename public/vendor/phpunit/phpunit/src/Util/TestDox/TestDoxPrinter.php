@@ -258,8 +258,6 @@ class TestDoxPrinter extends DefaultResultPrinter
                 if (!$forceFlush && isset($this->originalExecutionOrder[$this->testFlushIndex])) {
                     $result = $this->getTestResultByName($this->originalExecutionOrder[$this->testFlushIndex]);
                 } else {
-                    // This test(name) cannot found in original execution order,
-                    // flush result to output stream right away
                     $result = $this->testResults[$this->testFlushIndex];
                 }
 
@@ -305,12 +303,10 @@ class TestDoxPrinter extends DefaultResultPrinter
 
     protected function drawSpinner(): void
     {
-        // optional for CLI printers: show the user a 'buffering output' spinner
     }
 
     protected function undrawSpinner(): void
     {
-        // remove the spinner from the current line
     }
 
     protected function writeTestResult(array $prevResult, array $result): void

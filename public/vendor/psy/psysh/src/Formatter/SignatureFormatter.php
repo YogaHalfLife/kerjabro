@@ -37,8 +37,6 @@ class SignatureFormatter implements ReflectorFormatter
             case $reflector instanceof \ReflectionFunction:
             case $reflector instanceof ReflectionLanguageConstruct:
                 return self::formatFunction($reflector);
-
-            // this case also covers \ReflectionObject:
             case $reflector instanceof \ReflectionClass:
                 return self::formatClass($reflector);
 
@@ -278,19 +276,11 @@ class SignatureFormatter implements ReflectorFormatter
                     }
                 }
             } catch (\Throwable $e) {
-                // sometimes we just don't know...
-                // bad class names, or autoloaded classes that haven't been loaded yet, or whathaveyou.
-                // come to think of it, the only time I've seen this is with the intl extension.
-
-                // Hax: we'll try to extract it :P
-
-                // @codeCoverageIgnoreStart
                 $chunks = \explode('$'.$param->getName(), (string) $param);
                 $chunks = \explode(' ', \trim($chunks[0]));
                 $guess = \end($chunks);
 
                 $hint = \sprintf('<urgent>%s</urgent>', OutputFormatter::escape($guess));
-                // @codeCoverageIgnoreEnd
             }
 
             if ($param->isOptional()) {
@@ -338,11 +328,7 @@ class SignatureFormatter implements ReflectorFormatter
 
         foreach ($types as $type) {
             $typeStyle = $type->isBuiltin() ? 'keyword' : 'class';
-
-            // PHP 7.0 didn't have `getName` on reflection types, so wheee!
             $typeName = \method_exists($type, 'getName') ? $type->getName() : (string) $type;
-
-            // @todo Do we want to include the ? for nullable types? Maybe only sometimes?
             $formattedTypes[] = \sprintf('<%s>%s</%s>', $typeStyle, OutputFormatter::escape($typeName), $typeStyle);
         }
 

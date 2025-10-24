@@ -29,7 +29,6 @@ final class Utils
             default:
                 \ob_start();
                 \var_dump($input);
-                // normalize float vs double
                 /** @var string $varDumpContent */
                 $varDumpContent = \ob_get_clean();
 
@@ -132,19 +131,12 @@ final class Utils
     {
         static $cached = null;
         static $cafiles = [
-            // Red Hat, CentOS, Fedora (provided by the ca-certificates package)
             '/etc/pki/tls/certs/ca-bundle.crt',
-            // Ubuntu, Debian (provided by the ca-certificates package)
             '/etc/ssl/certs/ca-certificates.crt',
-            // FreeBSD (provided by the ca_root_nss package)
             '/usr/local/share/certs/ca-root-nss.crt',
-            // SLES 12 (provided by the ca-certificates package)
             '/var/lib/ca-certificates/ca-bundle.pem',
-            // OS X provided by homebrew (using the default path)
             '/usr/local/etc/openssl/cert.pem',
-            // Google app engine
             '/etc/ca-certificates.crt',
-            // Windows?
             'C:\\windows\\system32\\curl-ca-bundle.crt',
             'C:\\windows\\curl-ca-bundle.crt',
         ];
@@ -223,27 +215,20 @@ EOT
         if (\strlen($host) === 0) {
             throw new InvalidArgumentException('Empty host provided');
         }
-
-        // Strip port if present.
         [$host] = \explode(':', $host, 2);
 
         foreach ($noProxyArray as $area) {
-            // Always match on wildcards.
             if ($area === '*') {
                 return true;
             }
 
             if (empty($area)) {
-                // Don't match on empty values.
                 continue;
             }
 
             if ($area === $host) {
-                // Exact matches.
                 return true;
             }
-            // Special match if the area when prefixed with ".". Remove any
-            // existing leading "." and add a new leading ".".
             $area = '.' . \ltrim($area, '.');
             if (\substr($host, -(\strlen($area))) === $area) {
                 return true;
@@ -344,7 +329,6 @@ EOT
                 throw new InvalidArgumentException($errorMessage);
             }
             if ($uri->getHost() !== $asciiHost) {
-                // Replace URI only if the ASCII version is different
                 $uri = $uri->withHost($asciiHost);
             }
         }

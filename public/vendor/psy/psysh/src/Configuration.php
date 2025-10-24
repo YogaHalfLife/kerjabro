@@ -110,8 +110,6 @@ class Configuration
     private $formatterStyles = [];
     private $verbosity = self::VERBOSITY_NORMAL;
     private $yolo = false;
-
-    // services
     private $readline;
     private $output;
     private $shell;
@@ -134,15 +132,11 @@ class Configuration
     public function __construct(array $config = [])
     {
         $this->configPaths = new ConfigPaths();
-
-        // explicit configFile option
         if (isset($config['configFile'])) {
             $this->configFile = $config['configFile'];
         } elseif (isset($_SERVER['PSYSH_CONFIG']) && $_SERVER['PSYSH_CONFIG']) {
             $this->configFile = $_SERVER['PSYSH_CONFIG'];
         }
-
-        // legacy baseDir option
         if (isset($config['baseDir'])) {
             $msg = "The 'baseDir' configuration option is deprecated; ".
                 "please specify 'configDir' and 'dataDir' options instead";
@@ -150,8 +144,6 @@ class Configuration
         }
 
         unset($config['configFile'], $config['baseDir']);
-
-        // go go gadget, config!
         $this->loadConfig($config);
         $this->init();
     }
@@ -177,35 +169,24 @@ class Configuration
     public static function fromInput(InputInterface $input): self
     {
         $config = new self(['configFile' => self::getConfigFileFromInput($input)]);
-
-        // Handle --color and --no-color (and --ansi and --no-ansi aliases)
         if (self::getOptionFromInput($input, ['color', 'ansi'])) {
             $config->setColorMode(self::COLOR_MODE_FORCED);
         } elseif (self::getOptionFromInput($input, ['no-color', 'no-ansi'])) {
             $config->setColorMode(self::COLOR_MODE_DISABLED);
         }
-
-        // Handle verbosity options
         if ($verbosity = self::getVerbosityFromInput($input)) {
             $config->setVerbosity($verbosity);
         }
-
-        // Handle interactive mode
         if (self::getOptionFromInput($input, ['interactive', 'interaction'], ['-a', '-i'])) {
             $config->setInteractiveMode(self::INTERACTIVE_MODE_FORCED);
         } elseif (self::getOptionFromInput($input, ['no-interactive', 'no-interaction'], ['-n'])) {
             $config->setInteractiveMode(self::INTERACTIVE_MODE_DISABLED);
         }
-
-        // Handle --raw-output
-        // @todo support raw output with interactive input?
         if (!$config->getInputInteractive()) {
             if (self::getOptionFromInput($input, ['raw-output'], ['-r'])) {
                 $config->setRawOutput(true);
             }
         }
-
-        // Handle --yolo
         if (self::getOptionFromInput($input, ['yolo'])) {
             $config->setYolo(true);
         }
@@ -220,7 +201,6 @@ class Configuration
      */
     private static function getConfigFileFromInput(InputInterface $input)
     {
-        // Best case, input is properly bound and validated.
         if ($input->hasOption('config')) {
             return $input->getOption('config');
         }
@@ -239,7 +219,6 @@ class Configuration
      */
     private static function getOptionFromInput(InputInterface $input, array $names, array $otherParams = []): bool
     {
-        // Best case, input is properly bound and validated.
         foreach ($names as $name) {
             if ($input->hasOption($name) && $input->getOption($name)) {
                 return true;
@@ -269,19 +248,9 @@ class Configuration
      */
     private static function getVerbosityFromInput(InputInterface $input)
     {
-        // --quiet wins!
         if (self::getOptionFromInput($input, ['quiet'], ['-q'])) {
             return self::VERBOSITY_QUIET;
         }
-
-        // Best case, input is properly bound and validated.
-        //
-        // Note that if the `--verbose` option is incorrectly defined as `VALUE_NONE` rather than
-        // `VALUE_OPTIONAL` (as it is in Symfony Console by default) it doesn't actually work with
-        // multiple verbosity levels as it claims.
-        //
-        // We can detect this by checking whether the the value === true, and fall back to unbound
-        // parsing for this option.
         if ($input->hasOption('verbose') && $input->getOption('verbose') !== true) {
             switch ($input->getOption('verbose')) {
                 case '-1':
@@ -301,8 +270,6 @@ class Configuration
                     return;
             }
         }
-
-        // quiet and normal have to come before verbose, because it eats everything else.
         if ($input->hasParameterOption('--verbose=-1', true) || $input->getParameterOption('--verbose', false, true) === '-1') {
             return self::VERBOSITY_QUIET;
         }
@@ -310,8 +277,6 @@ class Configuration
         if ($input->hasParameterOption('--verbose=0', true) || $input->getParameterOption('--verbose', false, true) === '0') {
             return self::VERBOSITY_NORMAL;
         }
-
-        // `-vvv`, `-vv` and `-v` have to come in descending length order, because `hasParameterOption` matches prefixes.
         if ($input->hasParameterOption('-vvv', true) || $input->hasParameterOption('--verbose=3', true) || $input->getParameterOption('--verbose', false, true) === '3') {
             return self::VERBOSITY_DEBUG;
         }
@@ -340,7 +305,6 @@ class Configuration
 
             new InputOption('color', null, InputOption::VALUE_NONE, 'Force colors in output.'),
             new InputOption('no-color', null, InputOption::VALUE_NONE, 'Disable colors in output.'),
-            // --ansi and --no-ansi aliases to match Symfony, Composer, etc.
             new InputOption('ansi', null, InputOption::VALUE_NONE, 'Force colors in output.'),
             new InputOption('no-ansi', null, InputOption::VALUE_NONE, 'Disable colors in output.'),
 
@@ -348,7 +312,6 @@ class Configuration
             new InputOption('verbose', 'v|vv|vvv', InputOption::VALUE_OPTIONAL, 'Increase the verbosity of messages.', '0'),
             new InputOption('interactive', 'i|a', InputOption::VALUE_NONE, 'Force PsySH to run in interactive mode.'),
             new InputOption('no-interactive', 'n', InputOption::VALUE_NONE, 'Run PsySH without interactive input. Requires input from stdin.'),
-            // --interaction and --no-interaction aliases for compatibility with Symfony, Composer, etc
             new InputOption('interaction', null, InputOption::VALUE_NONE, 'Force PsySH to run in interactive mode.'),
             new InputOption('no-interaction', null, InputOption::VALUE_NONE, 'Run PsySH without interactive input. Requires input from stdin.'),
             new InputOption('raw-output', 'r', InputOption::VALUE_NONE, 'Print var_export-style return values (for non-interactive input)'),
@@ -369,7 +332,6 @@ class Configuration
      */
     public function init()
     {
-        // feature detection
         $this->hasReadline = \function_exists('readline');
         $this->hasPcntl = ProcessForker::isSupported();
 
@@ -450,8 +412,6 @@ class Configuration
                 $this->$method($options[$option]);
             }
         }
-
-        // legacy `tabCompletion` option
         if (isset($options['tabCompletion'])) {
             $msg = '`tabCompletion` is deprecated; use `useTabCompletion` instead.';
             @\trigger_error($msg, \E_USER_DEPRECATED);
@@ -465,8 +425,6 @@ class Configuration
                 $this->$method($options[$option]);
             }
         }
-
-        // legacy `tabCompletionMatchers` option
         if (isset($options['tabCompletionMatchers'])) {
             $msg = '`tabCompletionMatchers` is deprecated; use `matchers` instead.';
             @\trigger_error($msg, \E_USER_DEPRECATED);
@@ -655,7 +613,6 @@ class Configuration
 
             $this->setHistoryFile($files[0]);
         } else {
-            // fallback: create our own history file
             $this->setHistoryFile($this->configPaths->currentConfigDir().'/psysh_history');
         }
 
@@ -856,9 +813,6 @@ class Configuration
         $readlineClass = $this->getReadlineClass();
 
         return $this->useBracketedPaste && $readlineClass::supportsBracketedPaste();
-
-        // @todo mebbe turn this on by default some day?
-        // return $readlineClass::supportsBracketedPaste() && $this->useBracketedPaste !== false;
     }
 
     /**
@@ -969,8 +923,6 @@ class Configuration
         if (isset($this->useUnicode)) {
             return $this->useUnicode;
         }
-
-        // @todo detect `chsh` != 65001 on Windows and return false
         return true;
     }
 
@@ -1124,10 +1076,6 @@ class Configuration
                 null,
                 $this->getPager()
             ));
-
-            // This is racy because `getOutputDecorated` needs access to the
-            // output stream to figure out if it's piped or not, so create it
-            // first, then update after we have a stream.
             $decorated = $this->getOutputDecorated();
             if ($decorated !== null) {
                 $this->output->setDecorated($decorated);
@@ -1202,10 +1150,8 @@ class Configuration
     {
         if (!isset($this->pager) && $this->usePcntl()) {
             if ($pager = \ini_get('cli.pager')) {
-                // use the default pager
                 $this->pager = $pager;
             } elseif ($less = \exec('which less 2>/dev/null')) {
-                // check for the presence of less...
                 $this->pager = $less.' -R -S -F -X';
             }
         }

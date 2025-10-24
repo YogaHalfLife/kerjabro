@@ -134,14 +134,11 @@ class ValidClassNamePass extends NamespaceAwarePass
      */
     protected function ensureCanDefine(Stmt $stmt, string $scopeType = self::CLASS_TYPE)
     {
-        // Anonymous classes don't have a name, and uniqueness shouldn't be enforced.
         if ($stmt->name === null) {
             return;
         }
 
         $name = $this->getFullyQualifiedName($stmt->name);
-
-        // check for name collisions
         $errorType = null;
         if ($this->classExists($name)) {
             $errorType = self::CLASS_TYPE;
@@ -154,9 +151,6 @@ class ValidClassNamePass extends NamespaceAwarePass
         if ($errorType !== null) {
             throw $this->createError(\sprintf('%s named %s already exists', \ucfirst($errorType), $name), $stmt);
         }
-
-        // Store creation for the rest of this code snippet so we can find local
-        // issue too
         $this->currentScope[\strtolower($name)] = $scopeType;
     }
 
@@ -217,18 +211,12 @@ class ValidClassNamePass extends NamespaceAwarePass
     protected function ensureMethodExists(string $class, string $name, Stmt $stmt)
     {
         $this->ensureClassOrTraitExists($class, $stmt);
-
-        // let's pretend all calls to self, parent and static are valid
         if (\in_array(\strtolower($class), ['self', 'parent', 'static'])) {
             return;
         }
-
-        // ... and all calls to classes defined right now
         if ($this->findInScope($class) === self::CLASS_TYPE) {
             return;
         }
-
-        // if method name is an expression, give it a pass for now
         if ($name instanceof Expr) {
             return;
         }
@@ -289,9 +277,6 @@ class ValidClassNamePass extends NamespaceAwarePass
      */
     protected function classExists(string $name): bool
     {
-        // Give `self`, `static` and `parent` a pass. This will actually let
-        // some errors through, since we're not checking whether the keyword is
-        // being used in a class scope.
         if (\in_array(\strtolower($name), ['self', 'static', 'parent'])) {
             return true;
         }

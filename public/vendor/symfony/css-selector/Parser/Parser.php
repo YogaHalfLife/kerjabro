@@ -188,8 +188,6 @@ class Parser implements ParserInterface
 
                 $identifier = $stream->getNextIdentifier();
                 if (\in_array(strtolower($identifier), ['first-line', 'first-letter', 'before', 'after'])) {
-                    // Special case: CSS 2.1 pseudo-elements can have a single ':'.
-                    // Any new pseudo-element must have two.
                     $pseudoElement = $identifier;
 
                     continue;
@@ -333,7 +331,6 @@ class Parser implements ParserInterface
         $value = $stream->getNext();
 
         if ($value->isNumber()) {
-            // if the value is a number, it's casted into a string
             $value = new Token(Token::TYPE_STRING, (string) $value->getValue(), $value->getPosition());
         }
 

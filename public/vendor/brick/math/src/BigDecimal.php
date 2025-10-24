@@ -469,12 +469,9 @@ final class BigDecimal extends BigNumber
         $addDigits = 2 * $scale - $this->scale;
 
         if ($addDigits > 0) {
-            // add zeros
             $value .= \str_repeat('0', $addDigits);
         } elseif ($addDigits < 0) {
-            // trim digits
             if (-$addDigits >= \strlen($this->value)) {
-                // requesting a scale too low, will always yield a zero result
                 return new BigDecimal('0', $scale);
             }
 

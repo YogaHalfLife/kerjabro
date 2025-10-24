@@ -97,15 +97,12 @@ class AsciiSlugger implements SluggerInterface, LocaleAwareInterface
 
         $transliterator = [];
         if ($locale && ('de' === $locale || 0 === strpos($locale, 'de_'))) {
-            // Use the shortcut for German in UnicodeString::ascii() if possible (faster and no requirement on intl)
             $transliterator = ['de-ASCII'];
         } elseif (\function_exists('transliterator_transliterate') && $locale) {
             $transliterator = (array) $this->createTransliterator($locale);
         }
 
         if ($this->symbolsMap instanceof \Closure) {
-            // If the symbols map is passed as a closure, there is no need to fallback to the parent locale
-            // as the closure can just provide substitutions for all locales of interest.
             $symbolsMap = $this->symbolsMap;
             array_unshift($transliterator, static function ($s) use ($symbolsMap, $locale) {
                 return $symbolsMap($s, $locale);
@@ -142,18 +139,12 @@ class AsciiSlugger implements SluggerInterface, LocaleAwareInterface
         if (\array_key_exists($locale, $this->transliterators)) {
             return $this->transliterators[$locale];
         }
-
-        // Exact locale supported, cache and return
         if ($id = self::LOCALE_TO_TRANSLITERATOR_ID[$locale] ?? null) {
             return $this->transliterators[$locale] = \Transliterator::create($id.'/BGN') ?? \Transliterator::create($id);
         }
-
-        // Locale not supported and no parent, fallback to any-latin
         if (!$parent = self::getParentLocale($locale)) {
             return $this->transliterators[$locale] = null;
         }
-
-        // Try to use the parent locale (ie. try "de" for "de_AT") and cache both locales
         if ($id = self::LOCALE_TO_TRANSLITERATOR_ID[$parent] ?? null) {
             $transliterator = \Transliterator::create($id.'/BGN') ?? \Transliterator::create($id);
         }
@@ -167,7 +158,6 @@ class AsciiSlugger implements SluggerInterface, LocaleAwareInterface
             return null;
         }
         if (false === $str = strrchr($locale, '_')) {
-            // no parent locale
             return null;
         }
 

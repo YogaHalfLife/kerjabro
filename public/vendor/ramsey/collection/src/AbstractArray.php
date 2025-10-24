@@ -43,8 +43,6 @@ abstract class AbstractArray implements ArrayInterface
      */
     public function __construct(array $data = [])
     {
-        // Invoke offsetSet() for each value added; in this way, sub-classes
-        // may provide additional logic about values added to the array object.
         foreach ($data as $key => $value) {
             $this[$key] = $value;
         }
@@ -101,7 +99,6 @@ abstract class AbstractArray implements ArrayInterface
      *     set at a numerically-indexed offset.
      * @param T $value The value to set at the given offset.
      */
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function offsetSet($offset, $value): void
     {
         if ($offset === null) {

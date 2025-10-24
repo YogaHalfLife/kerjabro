@@ -23,8 +23,6 @@ class RecursiveDirectoryIterator extends \RecursiveDirectoryIterator
 {
     private bool $ignoreUnreadableDirs;
     private ?bool $rewindable = null;
-
-    // these 3 properties take part of the performance optimization to avoid redoing the same work in all iterations
     private string $rootPath;
     private string $subPath;
     private string $directorySeparator = '/';
@@ -51,7 +49,6 @@ class RecursiveDirectoryIterator extends \RecursiveDirectoryIterator
      */
     public function current(): SplFileInfo
     {
-        // the logic here avoids redoing the same work in all iterations
 
         if (!isset($this->subPath)) {
             $this->subPath = $this->getSubPath();
@@ -82,7 +79,6 @@ class RecursiveDirectoryIterator extends \RecursiveDirectoryIterator
 
             return true;
         } catch (\UnexpectedValueException $e) {
-            // If directory is unreadable and finder is set to ignore it, skip children
             return false;
         }
     }
@@ -96,10 +92,7 @@ class RecursiveDirectoryIterator extends \RecursiveDirectoryIterator
             $children = parent::getChildren();
 
             if ($children instanceof self) {
-                // parent method will call the constructor with default arguments, so unreadable dirs won't be ignored anymore
                 $children->ignoreUnreadableDirs = $this->ignoreUnreadableDirs;
-
-                // performance optimization to avoid redoing the same work in all children
                 $children->rewindable = &$this->rewindable;
                 $children->rootPath = $this->rootPath;
             }

@@ -59,8 +59,6 @@ class Terminal
         if (null !== self::$stty) {
             return self::$stty;
         }
-
-        // skip check if exec function is disabled
         if (!\function_exists('exec')) {
             return false;
         }
@@ -74,16 +72,11 @@ class Terminal
     {
         if ('\\' === \DIRECTORY_SEPARATOR) {
             if (preg_match('/^(\d+)x(\d+)(?: \((\d+)x(\d+)\))?$/', trim(getenv('ANSICON')), $matches)) {
-                // extract [w, H] from "wxh (WxH)"
-                // or [w, h] from "wxh"
                 self::$width = (int) $matches[1];
                 self::$height = isset($matches[4]) ? (int) $matches[4] : (int) $matches[2];
             } elseif (!self::hasVt100Support() && self::hasSttyAvailable()) {
-                // only use stty on Windows if the terminal does not support vt100 (e.g. Windows 7 + git-bash)
-                // testing for stty in a Windows 10 vt100-enabled console will implicitly disable vt100 support on STDOUT
                 self::initDimensionsUsingStty();
             } elseif (null !== $dimensions = self::getConsoleMode()) {
-                // extract [w, h] from "wxh"
                 self::$width = (int) $dimensions[0];
                 self::$height = (int) $dimensions[1];
             }
@@ -107,11 +100,9 @@ class Terminal
     {
         if ($sttyString = self::getSttyColumns()) {
             if (preg_match('/rows.(\d+);.columns.(\d+);/i', $sttyString, $matches)) {
-                // extract [w, h] from "rows h; columns w;"
                 self::$width = (int) $matches[2];
                 self::$height = (int) $matches[1];
             } elseif (preg_match('/;.(\d+).rows;.(\d+).columns/i', $sttyString, $matches)) {
-                // extract [w, h] from "; h rows; w columns"
                 self::$width = (int) $matches[2];
                 self::$height = (int) $matches[1];
             }

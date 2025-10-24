@@ -23,8 +23,6 @@ return array_replace_recursive(require __DIR__.'/en.php', [
     'weekdays_short' => ['ken', 'man', 'tus', 'lel', 'tas', 'pel', 'sat'],
     'weekdays_min' => ['ken', 'man', 'tus', 'lel', 'tas', 'pel', 'sat'],
     'day_of_first_week_of_year' => 1,
-
-    // Too unreliable
     /*
     'year' => ':count kaxtëne',
     'y' => ':count kaxtëne',

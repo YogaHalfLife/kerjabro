@@ -45,7 +45,6 @@ final class ExecutionOrderDependency
 
     public static function createFromDependsAnnotation(string $className, string $annotation): self
     {
-        // Split clone option and target
         $parts = explode(' ', trim($annotation), 2);
 
         if (count($parts) === 1) {
@@ -55,8 +54,6 @@ final class ExecutionOrderDependency
             $cloneOption = $parts[0];
             $target      = $parts[1];
         }
-
-        // Prefix provided class for targets assumed to be in scope
         if ($target !== '' && strpos($target, '::') === false) {
             $target = $className . '::' . $target;
         }
@@ -173,7 +170,6 @@ final class ExecutionOrderDependency
 
     public function isValid(): bool
     {
-        // Invalid dependencies can be declared and are skipped by the runner
         return $this->className !== '' && $this->methodName !== '';
     }
 

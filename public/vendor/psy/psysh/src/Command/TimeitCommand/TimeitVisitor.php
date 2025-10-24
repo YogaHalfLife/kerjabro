@@ -46,15 +46,11 @@ class TimeitVisitor extends NodeVisitorAbstract
      */
     public function enterNode(Node $node)
     {
-        // keep track of nested function-like nodes, because they can have
-        // returns statements... and we don't want to call markEnd for those.
         if ($node instanceof FunctionLike) {
             $this->functionDepth++;
 
             return;
         }
-
-        // replace any top-level `return` statements with a `markEnd` call
         if ($this->functionDepth === 0 && $node instanceof Return_) {
             return new Return_($this->getEndCall($node->expr), $node->getAttributes());
         }
@@ -75,10 +71,7 @@ class TimeitVisitor extends NodeVisitorAbstract
      */
     public function afterTraverse(array $nodes)
     {
-        // prepend a `markStart` call
         \array_unshift($nodes, $this->maybeExpression($this->getStartCall()));
-
-        // append a `markEnd` call (wrapping the final node, if it's an expression)
         $last = $nodes[\count($nodes) - 1];
         if ($last instanceof Expr) {
             \array_pop($nodes);
@@ -87,7 +80,6 @@ class TimeitVisitor extends NodeVisitorAbstract
             \array_pop($nodes);
             $nodes[] = new Expression($this->getEndCall($last->expr), $last->getAttributes());
         } elseif ($last instanceof Return_) {
-            // nothing to do here, we're already ending with a return call
         } else {
             $nodes[] = $this->maybeExpression($this->getEndCall());
         }

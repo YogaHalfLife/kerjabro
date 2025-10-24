@@ -23,8 +23,6 @@ class IgnitionWhoopsHandler extends Handler
         try {
             $this->errorPageHandler->render($this->exception);
         } catch (Error $error) {
-            // Errors aren't caught by Whoops.
-            // Convert the error to an exception and throw again.
 
             throw new ErrorException(
                 $error->getMessage(),

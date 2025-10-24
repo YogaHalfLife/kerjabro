@@ -46,7 +46,6 @@ class NodeTraverser implements NodeTraverserInterface
     protected $stopTraversal;
 
     public function __construct() {
-        // for BC
     }
 
     /**

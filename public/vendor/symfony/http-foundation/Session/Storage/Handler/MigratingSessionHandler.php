@@ -79,7 +79,6 @@ class MigratingSessionHandler implements \SessionHandlerInterface, \SessionUpdat
 
     public function read(string $sessionId): string
     {
-        // No reading from new handler until switch-over
         return $this->currentHandler->read($sessionId);
     }
 
@@ -93,7 +92,6 @@ class MigratingSessionHandler implements \SessionHandlerInterface, \SessionUpdat
 
     public function validateId(string $sessionId): bool
     {
-        // No reading from new handler until switch-over
         return $this->currentHandler->validateId($sessionId);
     }
 

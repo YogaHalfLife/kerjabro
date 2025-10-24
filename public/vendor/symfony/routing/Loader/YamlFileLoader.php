@@ -63,13 +63,9 @@ class YamlFileLoader extends FileLoader
 
         $collection = new RouteCollection();
         $collection->addResource(new FileResource($path));
-
-        // empty file
         if (null === $parsedConfig) {
             return $collection;
         }
-
-        // not an array
         if (!\is_array($parsedConfig)) {
             throw new \InvalidArgumentException(sprintf('The file "%s" must contain a YAML array.', $path));
         }

@@ -181,8 +181,6 @@ class NativeCalculator extends Calculator
             $nb = $b * 1;
 
             if (is_int($nb)) {
-                // the only division that may overflow is PHP_INT_MIN / -1,
-                // which cannot happen here as we've already handled a divisor of -1 above.
                 $r = $na % $nb;
                 $q = ($na - $r) / $nb;
 
@@ -245,12 +243,9 @@ class NativeCalculator extends Calculator
      */
     public function modPow(string $base, string $exp, string $mod) : string
     {
-        // special case: the algorithm below fails with 0 power 0 mod 1 (returns 1 instead of 0)
         if ($base === '0' && $exp === '0' && $mod === '1') {
             return '0';
         }
-
-        // special case: the algorithm below fails with power 0 mod 1 (returns 1 instead of 0)
         if ($exp === '0' && $mod === '1') {
             return '0';
         }
@@ -258,8 +253,6 @@ class NativeCalculator extends Calculator
         $x = $base;
 
         $res = '1';
-
-        // numbers are positive, so we can use remainder instead of modulo
         $x = $this->divR($x, $mod);
 
         while ($exp !== '0') {
@@ -284,8 +277,6 @@ class NativeCalculator extends Calculator
         if ($n === '0') {
             return '0';
         }
-
-        // initial approximation
         $x = \str_repeat('9', \intdiv(\strlen($n), 2) ?: 1);
 
         $decreased = false;
@@ -374,8 +365,6 @@ class NativeCalculator extends Calculator
         if ($a === $b) {
             return '0';
         }
-
-        // Ensure that we always subtract to a positive result: biggest minus smallest.
         $cmp = $this->doCmp($a, $b);
 
         $invert = ($cmp === -1);
@@ -430,8 +419,6 @@ class NativeCalculator extends Calculator
                 break;
             }
         }
-
-        // Carry cannot be 1 when the loop ends, as a > b
         assert($carry === 0);
 
         $result = \ltrim($result, '0');
@@ -537,8 +524,6 @@ class NativeCalculator extends Calculator
 
         $x = \strlen($a);
         $y = \strlen($b);
-
-        // we now know that a >= b && x >= y
 
         $q = '0'; // quotient
         $r = $a; // remainder

@@ -146,27 +146,15 @@ final class Test
             get_class($test),
             $test->getName(false)
         );
-
-        // If there is no @covers annotation but a @coversNothing annotation on
-        // the test method then code coverage data does not need to be collected
         if (isset($annotations['method']['coversNothing'])) {
             return false;
         }
-
-        // If there is at least one @covers annotation then
-        // code coverage data needs to be collected
         if (isset($annotations['method']['covers'])) {
             return true;
         }
-
-        // If there is no @covers annotation but a @coversNothing annotation
-        // then code coverage data does not need to be collected
         if (isset($annotations['class']['coversNothing'])) {
             return false;
         }
-
-        // If there is no @coversNothing annotation then
-        // code coverage data may be collected
         return true;
     }
 
@@ -336,7 +324,6 @@ final class Test
                     'class'  => $registry->forClassName($className)->symbolAnnotations(),
                 ];
             } catch (Exception $methodNotFound) {
-                // ignored
             }
         }
 
@@ -391,8 +378,6 @@ final class Test
                 $annotations['method']['depends']
             );
         }
-
-        // Normalize dependency name to className::methodName
         $dependencies = [];
 
         foreach ($dependsAnnotations as $value) {

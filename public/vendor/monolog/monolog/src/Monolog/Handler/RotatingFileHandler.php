@@ -112,7 +112,6 @@ class RotatingFileHandler extends StreamHandler
      */
     protected function write(array $record): void
     {
-        // on the first record written, if the log is new, we should rotate (once per day)
         if (null === $this->mustRotate) {
             $this->mustRotate = null === $this->url || !file_exists($this->url);
         }
@@ -130,35 +129,26 @@ class RotatingFileHandler extends StreamHandler
      */
     protected function rotate(): void
     {
-        // update filename
         $this->url = $this->getTimedFilename();
         $this->nextRotation = new \DateTimeImmutable('tomorrow');
-
-        // skip GC of old logs if files are unlimited
         if (0 === $this->maxFiles) {
             return;
         }
 
         $logFiles = glob($this->getGlobPattern());
         if (false === $logFiles) {
-            // failed to glob
             return;
         }
 
         if ($this->maxFiles >= count($logFiles)) {
-            // no files to remove
             return;
         }
-
-        // Sorting the files by name to remove the older ones
         usort($logFiles, function ($a, $b) {
             return strcmp($b, $a);
         });
 
         foreach (array_slice($logFiles, $this->maxFiles) as $file) {
             if (is_writable($file)) {
-                // suppress errors here as unlink() might fail if two processes
-                // are cleaning up/rotating at the same time
                 set_error_handler(function (int $errno, string $errstr, string $errfile, int $errline): bool {
                     return false;
                 });

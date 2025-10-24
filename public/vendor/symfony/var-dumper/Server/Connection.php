@@ -84,7 +84,6 @@ class Connection
 
     private static function nullErrorHandler(int $t, string $m)
     {
-        // no-op
     }
 
     private function createSocket()

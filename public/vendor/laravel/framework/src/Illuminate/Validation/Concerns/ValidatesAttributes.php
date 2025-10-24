@@ -301,7 +301,6 @@ trait ValidatesAttributes
         try {
             return @Date::parse($value) ?: null;
         } catch (Exception $e) {
-            //
         }
     }
 
@@ -769,10 +768,6 @@ trait ValidatesAttributes
         $this->requireParameterCount(1, $parameters, 'exists');
 
         [$connection, $table] = $this->parseTable($parameters[0]);
-
-        // The second parameter position holds the name of the column that should be
-        // verified as existing. If this parameter is not specified we will guess
-        // that the columns being "verified" shares the given attribute's name.
         $column = $this->getQueryColumn($parameters, $attribute);
 
         $expected = is_array($value) ? count(array_unique($value)) : 1;
@@ -824,10 +819,6 @@ trait ValidatesAttributes
         $this->requireParameterCount(1, $parameters, 'unique');
 
         [$connection, $table, $idColumn] = $this->parseTable($parameters[0]);
-
-        // The second parameter position holds the name of the column that needs to
-        // be verified as unique. If this parameter isn't specified we will just
-        // assume that this column to be verified shares the attribute's name.
         $column = $this->getQueryColumn($parameters, $attribute);
 
         $id = null;
@@ -839,10 +830,6 @@ trait ValidatesAttributes
                 $id = stripslashes($id);
             }
         }
-
-        // The presence verifier is responsible for counting rows within this store
-        // mechanism which might be a relational database or any other permanent
-        // data store like Redis, etc. We will use it to determine uniqueness.
         $verifier = $this->getPresenceVerifier($connection);
 
         $extra = $this->getUniqueExtra($parameters);
@@ -2029,11 +2016,6 @@ trait ValidatesAttributes
     protected function getSize($attribute, $value)
     {
         $hasNumeric = $this->hasRule($attribute, $this->numericRules);
-
-        // This method will determine if the attribute is a number, string, or file and
-        // return the proper size accordingly. If it is a number, then number itself
-        // is the size. If it is a file, we take kilobytes, and for a string the
-        // entire length of the string will be considered the attribute size.
         if (is_numeric($value) && $hasNumeric) {
             return $value;
         } elseif (is_array($value)) {

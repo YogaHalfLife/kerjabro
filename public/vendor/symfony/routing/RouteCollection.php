@@ -155,8 +155,6 @@ class RouteCollection implements \IteratorAggregate, \Countable
      */
     public function addCollection(self $collection)
     {
-        // we need to remove all routes with the same names first because just replacing them
-        // would not place the new route at the end of the merged array
         foreach ($collection->all() as $name => $route) {
             unset($this->routes[$name], $this->priorities[$name], $this->aliases[$name]);
             $this->routes[$name] = $route;

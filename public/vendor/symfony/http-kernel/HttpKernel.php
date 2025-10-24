@@ -31,8 +31,6 @@ use Symfony\Component\HttpKernel\Exception\ControllerDoesNotReturnResponseExcept
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-
-// Help opcache.preload discover always-needed symbols
 class_exists(ControllerArgumentsEvent::class);
 class_exists(ControllerEvent::class);
 class_exists(ExceptionEvent::class);
@@ -122,16 +120,12 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
     private function handleRaw(Request $request, int $type = self::MAIN_REQUEST): Response
     {
         $this->requestStack->push($request);
-
-        // request
         $event = new RequestEvent($this, $request, $type);
         $this->dispatcher->dispatch($event, KernelEvents::REQUEST);
 
         if ($event->hasResponse()) {
             return $this->filterResponse($event->getResponse(), $request, $type);
         }
-
-        // load controller
         if (false === $controller = $this->resolver->getController($request)) {
             throw new NotFoundHttpException(sprintf('Unable to find the controller for path "%s". The route is wrongly configured.', $request->getPathInfo()));
         }
@@ -139,19 +133,13 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
         $event = new ControllerEvent($this, $controller, $request, $type);
         $this->dispatcher->dispatch($event, KernelEvents::CONTROLLER);
         $controller = $event->getController();
-
-        // controller arguments
         $arguments = $this->argumentResolver->getArguments($request, $controller);
 
         $event = new ControllerArgumentsEvent($this, $controller, $arguments, $request, $type);
         $this->dispatcher->dispatch($event, KernelEvents::CONTROLLER_ARGUMENTS);
         $controller = $event->getController();
         $arguments = $event->getArguments();
-
-        // call controller
         $response = $controller(...$arguments);
-
-        // view
         if (!$response instanceof Response) {
             $event = new ViewEvent($this, $request, $type, $response);
             $this->dispatcher->dispatch($event, KernelEvents::VIEW);
@@ -160,8 +148,6 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
                 $response = $event->getResponse();
             } else {
                 $msg = sprintf('The controller must return a "Symfony\Component\HttpFoundation\Response" object but it returned %s.', $this->varToString($response));
-
-                // the user may have forgotten to return something
                 if (null === $response) {
                     $msg .= ' Did you forget to add a return statement somewhere in your controller?';
                 }
@@ -211,8 +197,6 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
     {
         $event = new ExceptionEvent($this, $request, $type, $e);
         $this->dispatcher->dispatch($event, KernelEvents::EXCEPTION);
-
-        // a listener might have replaced the exception
         $e = $event->getThrowable();
 
         if (!$event->hasResponse()) {
@@ -222,12 +206,8 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
         }
 
         $response = $event->getResponse();
-
-        // the developer asked for a specific status code
         if (!$event->isAllowingCustomResponseCode() && !$response->isClientError() && !$response->isServerError() && !$response->isRedirect()) {
-            // ensure that we actually have an error response
             if ($e instanceof HttpExceptionInterface) {
-                // keep the HTTP status code and headers
                 $response->setStatusCode($e->getStatusCode());
                 $response->headers->add($e->getHeaders());
             } else {

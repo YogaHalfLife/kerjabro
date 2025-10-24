@@ -5,7 +5,6 @@ namespace Faker\Provider\en_NG;
 class PhoneNumber extends \Faker\Provider\PhoneNumber
 {
     protected static $formats = [
-        // Local
         '0703#######',
         '0704#######',
         '0705#######',

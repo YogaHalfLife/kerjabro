@@ -75,18 +75,11 @@ class SQLiteGrammar extends Grammar
         $foreigns = $this->getCommandsByName($blueprint, 'foreign');
 
         return collect($foreigns)->reduce(function ($sql, $foreign) {
-            // Once we have all the foreign key commands for the table creation statement
-            // we'll loop through each of them and add them to the create table SQL we
-            // are building, since SQLite needs foreign keys on the tables creation.
             $sql .= $this->getForeignKey($foreign);
 
             if (! is_null($foreign->onDelete)) {
                 $sql .= " on delete {$foreign->onDelete}";
             }
-
-            // If this foreign key specifies the action to be taken on update we will add
-            // that to the statement here. We'll append it to this SQL and then return
-            // the SQL so we can keep adding any other foreign constraints onto this.
             if (! is_null($foreign->onUpdate)) {
                 $sql .= " on update {$foreign->onUpdate}";
             }
@@ -103,9 +96,6 @@ class SQLiteGrammar extends Grammar
      */
     protected function getForeignKey($foreign)
     {
-        // We need to columnize the columns that the foreign key is being defined for
-        // so that it is a properly formatted list. Once we have done this, we can
-        // return the foreign key SQL declaration to the calling method for use.
         return sprintf(', foreign key(%s) references %s(%s)',
             $this->columnize($foreign->columns),
             $this->wrapTable($foreign->on),
@@ -199,7 +189,6 @@ class SQLiteGrammar extends Grammar
      */
     public function compileForeign(Blueprint $blueprint, Fluent $command)
     {
-        // Handled on table creation...
     }
 
     /**

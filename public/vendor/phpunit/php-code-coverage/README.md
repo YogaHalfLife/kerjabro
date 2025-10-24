@@ -39,8 +39,6 @@ $coverage = new CodeCoverage(
 
 $coverage->start('<name of test>');
 
-// ...
-
 $coverage->stop();
 
 

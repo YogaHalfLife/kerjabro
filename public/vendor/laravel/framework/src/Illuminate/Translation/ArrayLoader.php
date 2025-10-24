@@ -37,7 +37,6 @@ class ArrayLoader implements Loader
      */
     public function addNamespace($namespace, $hint)
     {
-        //
     }
 
     /**
@@ -48,7 +47,6 @@ class ArrayLoader implements Loader
      */
     public function addJsonPath($path)
     {
-        //
     }
 
     /**

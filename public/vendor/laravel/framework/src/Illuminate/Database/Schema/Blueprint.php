@@ -122,10 +122,6 @@ class Blueprint
         $this->addImpliedCommands($grammar);
 
         $statements = [];
-
-        // Each type of command has a corresponding compiler function on the schema
-        // grammar which is used to build the necessary SQL statements to build
-        // the blueprint element, so we'll just call that compilers function.
         $this->ensureCommandsAreValid($connection);
 
         foreach ($this->commands as $command) {
@@ -209,19 +205,12 @@ class Blueprint
     {
         foreach ($this->columns as $column) {
             foreach (['primary', 'unique', 'index', 'fulltext', 'fullText', 'spatialIndex'] as $index) {
-                // If the index has been specified on the given column, but is simply equal
-                // to "true" (boolean), no name has been specified for this index so the
-                // index method can be called without a name and it will generate one.
                 if ($column->{$index} === true) {
                     $this->{$index}($column->name);
                     $column->{$index} = false;
 
                     continue 2;
                 }
-
-                // If the index has been specified on the given column, and it has a string
-                // value, we'll go ahead and call the index method and pass the name for
-                // the index since the developer specified the explicit name for this.
                 elseif (isset($column->{$index})) {
                     $this->{$index}($column->name, $column->{$index});
                     $column->{$index} = false;
@@ -1519,10 +1508,6 @@ class Blueprint
     protected function indexCommand($type, $columns, $index, $algorithm = null)
     {
         $columns = (array) $columns;
-
-        // If no name was specified for this index, we will create one using a basic
-        // convention of the table name, followed by the columns, followed by an
-        // index type, such as primary or index, which makes the index unique.
         $index = $index ?: $this->createIndexName($type, $columns);
 
         return $this->addCommand(
@@ -1541,10 +1526,6 @@ class Blueprint
     protected function dropIndexCommand($command, $type, $index)
     {
         $columns = [];
-
-        // If the given "index" is actually an array of columns, the developer means
-        // to drop an index merely by specifying the columns involved without the
-        // conventional name, so we will build the index name from the columns.
         if (is_array($index)) {
             $index = $this->createIndexName($type, $columns = $index);
         }

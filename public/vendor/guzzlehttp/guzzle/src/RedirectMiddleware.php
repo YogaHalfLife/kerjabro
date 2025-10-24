@@ -60,7 +60,6 @@ class RedirectMiddleware
         } elseif (!\is_array($options['allow_redirects'])) {
             throw new \InvalidArgumentException('allow_redirects must be true, false, or array');
         } else {
-            // Merge the default settings with the provided settings
             $options['allow_redirects'] += self::$defaultSettings;
         }
 
@@ -97,8 +96,6 @@ class RedirectMiddleware
         }
 
         $promise = $this($nextRequest, $options);
-
-        // Add headers to be able to track history of redirects.
         if (!empty($options['allow_redirects']['track_redirects'])) {
             return $this->withTracking(
                 $promise,
@@ -117,9 +114,6 @@ class RedirectMiddleware
     {
         return $promise->then(
             static function (ResponseInterface $response) use ($uri, $statusCode) {
-                // Note that we are pushing to the front of the list as this
-                // would be an earlier response than what is currently present
-                // in the history header.
                 $historyHeader = $response->getHeader(self::HISTORY_HEADER);
                 $statusHeader = $response->getHeader(self::STATUS_HISTORY_HEADER);
                 \array_unshift($historyHeader, $uri);
@@ -150,13 +144,8 @@ class RedirectMiddleware
 
     public function modifyRequest(RequestInterface $request, array $options, ResponseInterface $response): RequestInterface
     {
-        // Request modifications to apply.
         $modify = [];
         $protocols = $options['allow_redirects']['protocols'];
-
-        // Use a GET request if this is an entity enclosing request and we are
-        // not forcing RFC compliance, but rather emulating what all browsers
-        // would do.
         $statusCode = $response->getStatusCode();
         if ($statusCode == 303 ||
             ($statusCode <= 302 && !$options['allow_redirects']['strict'])
@@ -176,9 +165,6 @@ class RedirectMiddleware
 
         $modify['uri'] = $uri;
         Psr7\Message::rewindBody($request);
-
-        // Add the Referer header if it is told to do so and only
-        // add the header if we are not redirecting from https to http.
         if ($options['allow_redirects']['referer']
             && $modify['uri']->getScheme() === $request->getUri()->getScheme()
         ) {
@@ -187,8 +173,6 @@ class RedirectMiddleware
         } else {
             $modify['remove_headers'][] = 'Referer';
         }
-
-        // Remove Authorization header if host is different.
         if ($request->getUri()->getHost() !== $modify['uri']->getHost()) {
             $modify['remove_headers'][] = 'Authorization';
         }
@@ -205,8 +189,6 @@ class RedirectMiddleware
             $request->getUri(),
             new Psr7\Uri($response->getHeaderLine('Location'))
         );
-
-        // Ensure that the redirect URI is allowed based on the protocols.
         if (!\in_array($location->getScheme(), $protocols)) {
             throw new BadResponseException(\sprintf('Redirect URI, %s, does not use one of the allowed redirect protocols: %s', $location, \implode(', ', $protocols)), $request, $response);
         }

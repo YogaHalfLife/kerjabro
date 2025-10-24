@@ -18,7 +18,6 @@ class {{ class }} extends Notification
      */
     public function __construct()
     {
-        //
     }
 
     /**
@@ -52,7 +51,6 @@ class {{ class }} extends Notification
     public function toArray($notifiable)
     {
         return [
-            //
         ];
     }
 }

@@ -59,7 +59,6 @@ interface CollectionInterface extends ArrayInterface
      *
      * @return bool `true` if this collection changed as a result of the call.
      */
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function add($element): bool;
 
     /**
@@ -68,7 +67,6 @@ interface CollectionInterface extends ArrayInterface
      * @param T $element The element to check whether the collection contains.
      * @param bool $strict Whether to perform a strict type check on the value.
      */
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function contains($element, bool $strict = true): bool;
 
     /**
@@ -84,7 +82,6 @@ interface CollectionInterface extends ArrayInterface
      *
      * @return bool `true` if an element was removed as a result of this call.
      */
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function remove($element): bool;
 
     /**

@@ -136,7 +136,6 @@ class DataPart extends TextPart
 
     public function __sleep(): array
     {
-        // converts the body to a string
         parent::__sleep();
 
         $this->_parent = [];

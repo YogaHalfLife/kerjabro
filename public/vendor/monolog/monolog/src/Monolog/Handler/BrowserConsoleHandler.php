@@ -59,10 +59,7 @@ class BrowserConsoleHandler extends AbstractProcessingHandler
      */
     protected function write(array $record): void
     {
-        // Accumulate records
         static::$records[] = $record;
-
-        // Register shutdown handler if not already done
         if (!static::$initialized) {
             static::$initialized = true;
             $this->registerShutdownFunction();
@@ -140,7 +137,6 @@ class BrowserConsoleHandler extends AbstractProcessingHandler
      */
     protected static function getResponseFormat(): string
     {
-        // Check content type
         foreach (headers_list() as $header) {
             if (stripos($header, 'content-type:') === 0) {
                 return static::getResponseFormatFromContentType($header);
@@ -156,8 +152,6 @@ class BrowserConsoleHandler extends AbstractProcessingHandler
      */
     protected static function getResponseFormatFromContentType(string $contentType): string
     {
-        // This handler only works with HTML and javascript outputs
-        // text/javascript is obsolete in favour of application/javascript, but still used
         if (stripos($contentType, 'application/javascript') !== false || stripos($contentType, 'text/javascript') !== false) {
             return self::FORMAT_JS;
         }
@@ -222,7 +216,6 @@ class BrowserConsoleHandler extends AbstractProcessingHandler
 
         $style = preg_replace_callback('/macro\s*:(.*?)(?:;|$)/', function (array $m) use ($string, &$colors, &$labels) {
             if (trim($m[1]) === 'autolabel') {
-                // Format the string as a label with consistent auto assigned background color
                 if (!isset($labels[$string])) {
                     $labels[$string] = $colors[count($labels) % count($colors)];
                 }

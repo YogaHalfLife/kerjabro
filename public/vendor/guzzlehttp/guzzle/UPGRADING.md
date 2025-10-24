@@ -42,10 +42,7 @@ change makes it impossible for method overloading by other libraries or applicat
 Example:
 
 ```php
-// Before:
 curl_version();
-
-// After:
 \curl_version();
 ```
 
@@ -160,9 +157,7 @@ v5:
 ```php
 use GuzzleHttp\Event\BeforeEvent;
 $client = new GuzzleHttp\Client();
-// Get the emitter and listen to the before event.
 $client->getEmitter()->on('before', function (BeforeEvent $e) {
-    // Guzzle v5 events relied on mutation
     $e->getRequest()->setHeader('X-Foo', 'Bar');
 });
 ```
@@ -176,14 +171,10 @@ client.
 
 ```php
 use GuzzleHttp\Middleware;
-// Create a handler stack that has all of the default middlewares attached
 $handler = GuzzleHttp\HandlerStack::create();
-// Push the handler onto the handler stack
 $handler->push(Middleware::mapRequest(function (RequestInterface $request) {
-    // Notice that we have to return a request object
     return $request->withHeader('X-Foo', 'Bar');
 }));
-// Inject the handler into the client
 $client = new GuzzleHttp\Client(['handler' => $handler]);
 ```
 
@@ -340,10 +331,8 @@ Guzzle no longer requires Symfony's EventDispatcher component. Guzzle now uses
 
 ```php
 $mock = new Mock();
-// 3.x
 $request->getEventDispatcher()->addSubscriber($mock);
 $request->getEventDispatcher()->removeSubscriber($mock);
-// 4.x
 $request->getEmitter()->attach($mock);
 $request->getEmitter()->detach($mock);
 ```
@@ -351,9 +340,7 @@ $request->getEmitter()->detach($mock);
 Use the `on()` method to add a listener rather than the `addListener()` method.
 
 ```php
-// 3.x
 $request->getEventDispatcher()->addListener('foo', function (Event $event) { /* ... */ } );
-// 4.x
 $request->getEmitter()->on('foo', function (Event $event, $name) { /* ... */ } );
 ```
 
@@ -384,14 +371,9 @@ return a request, but rather creates a request, sends the request, and returns
 the response.
 
 ```php
-// 3.0
 $request = $client->get('/');
 $response = $request->send();
-
-// 4.0
 $response = $client->get('/');
-
-// or, to mirror the previous behavior
 $request = $client->createRequest('GET', '/');
 $response = $client->send($request);
 ```
@@ -497,16 +479,12 @@ Streaming requests can now be created by a client directly, returning a
 referencing an open PHP HTTP stream.
 
 ```php
-// 3.0
 use Guzzle\Stream\PhpStreamRequestFactory;
 $request = $client->get('/');
 $factory = new PhpStreamRequestFactory();
 $stream = $factory->fromRequest($request);
 $data = $stream->read(1024);
-
-// 4.0
 $response = $client->get('/', ['stream' => true]);
-// Read some data off of the stream in the response body
 $data = $response->getBody()->read(1024);
 ```
 
@@ -516,10 +494,7 @@ The `configureRedirects()` method has been removed in favor of a
 `allow_redirects` request option.
 
 ```php
-// Standard redirects with a default of a max of 5 redirects
 $request = $client->createRequest('GET', '/', ['allow_redirects' => true]);
-
-// Strict redirects with a custom number of redirects
 $request = $client->createRequest('GET', '/', [
     'allow_redirects' => ['max' => 5, 'strict' => true]
 ]);
@@ -758,8 +733,6 @@ configuration options and methods of a client and AbstractCommand have been depr
             'command.response_body' => '/path/to/file'
         ));
 
-        // Should be changed to:
-
         $command = $client->getCommand('foo', array(
             'command.request_options' => array(
                 'headers' => array('Test' => '123'),
@@ -922,7 +895,6 @@ Before:
 ```php
 $request = $client->get('http://www.foo.com');
 echo $request->getUrl();
-// >> http://www.foo.com/
 ```
 
 After:
@@ -930,7 +902,6 @@ After:
 ```php
 $request = $client->get('http://www.foo.com');
 echo $request->getUrl();
-// >> http://www.foo.com
 ```
 
 ### Less verbose BadResponseException
@@ -1189,8 +1160,6 @@ use Guzzle\Http\Plugin\LogPlugin;
 
 /** @var \Guzzle\Http\Client */
 $client;
-
-// $verbosity is an integer indicating desired message verbosity level
 $client->addSubscriber(new LogPlugin(new ClosureLogAdapter(function($m) { echo $m; }, $verbosity = LogPlugin::LOG_VERBOSE);
 ```
 
@@ -1203,8 +1172,6 @@ use Guzzle\Plugin\Log\LogPlugin;
 
 /** @var \Guzzle\Http\Client */
 $client;
-
-// $format is a string indicating desired message format -- @see MessageFormatter
 $client->addSubscriber(new LogPlugin(new ClosureLogAdapter(function($m) { echo $m; }, $format = MessageFormatter::DEBUG_FORMAT);
 ```
 
@@ -1233,9 +1200,6 @@ $client->addSubscriber($backoffPlugin);
 ```php
 use Guzzle\Plugin\Backoff\BackoffPlugin;
 use Guzzle\Plugin\Backoff\HttpBackoffStrategy;
-
-// Use convenient factory method instead -- see implementation for ideas of what
-// you can do with chaining backoff strategies
 $backoffPlugin = BackoffPlugin::getExponentialBackoff($maxRetries, array_merge(
         HttpBackoffStrategy::getDefaultFailureCodes(), array(429)
     ));

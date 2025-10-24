@@ -309,7 +309,6 @@ class Table
                     if (isset($row[$i])) {
                         $rows[$i][] = $row[$i];
                     } elseif ($rows[$i][0] instanceof TableCell && $rows[$i][0]->getColspan() >= 2) {
-                        // Noop, there is a "title"
                     } else {
                         $rows[$i][] = null;
                     }
@@ -460,13 +459,10 @@ class Table
         $cell = $row[$column] ?? '';
         $width = $this->effectiveColumnWidths[$column];
         if ($cell instanceof TableCell && $cell->getColspan() > 1) {
-            // add the width of the following columns(numbers of colspan).
             foreach (range($column + 1, $column + $cell->getColspan() - 1) as $nextColumn) {
                 $width += $this->getColumnSeparatorWidth() + $this->effectiveColumnWidths[$nextColumn];
             }
         }
-
-        // str_pad won't work properly with multi-byte strings, we need to fix the padding
         if (false !== $encoding = mb_detect_encoding($cell, null, true)) {
             $width += \strlen($cell) - mb_strwidth($cell, $encoding);
         }
@@ -530,8 +526,6 @@ class Table
         $unmergedRows = [];
         for ($rowKey = 0; $rowKey < \count($rows); ++$rowKey) {
             $rows = $this->fillNextRows($rows, $rowKey);
-
-            // Remove any new line breaks and replace it with a new line
             foreach ($rows[$rowKey] as $column => $cell) {
                 $colspan = $cell instanceof TableCell ? $cell->getColspan() : 1;
 
@@ -610,8 +604,6 @@ class Table
                     $rows[$line][$column] = new TableCell($lines[0], ['colspan' => $cell->getColspan(), 'style' => $cell->getStyle()]);
                     unset($lines[0]);
                 }
-
-                // create a two dimensional array (rowspan x colspan)
                 $unmergedRows = array_replace_recursive(array_fill($line + 1, $nbLines, []), $unmergedRows);
                 foreach ($unmergedRows as $unmergedRowKey => $unmergedRow) {
                     $value = $lines[$unmergedRowKey - $line] ?? '';
@@ -624,10 +616,8 @@ class Table
         }
 
         foreach ($unmergedRows as $unmergedRowKey => $unmergedRow) {
-            // we need to know if $unmergedRow will be merged or inserted into $rows
             if (isset($rows[$unmergedRowKey]) && \is_array($rows[$unmergedRowKey]) && ($this->getNumberOfColumns($rows[$unmergedRowKey]) + $this->getNumberOfColumns($unmergedRows[$unmergedRowKey]) <= $this->numberOfColumns)) {
                 foreach ($unmergedRow as $cellKey => $cell) {
-                    // insert cell into row at cellKey position
                     array_splice($rows[$unmergedRowKey], $cellKey, 0, [$cell]);
                 }
             } else {
@@ -655,7 +645,6 @@ class Table
             $newRow[] = $cell;
             if ($cell instanceof TableCell && $cell->getColspan() > 1) {
                 foreach (range($column + 1, $column + $cell->getColspan() - 1) as $position) {
-                    // insert empty value at column position
                     $newRow[] = '';
                 }
             }
@@ -698,7 +687,6 @@ class Table
         $columns = range(0, $this->numberOfColumns - 1);
         foreach ($row as $cellKey => $cell) {
             if ($cell instanceof TableCell && $cell->getColspan() > 1) {
-                // exclude grouped columns.
                 $columns = array_diff($columns, range($cellKey + 1, $cellKey + $cell->getColspan() - 1));
             }
         }

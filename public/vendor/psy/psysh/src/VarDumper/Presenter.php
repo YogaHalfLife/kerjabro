@@ -50,14 +50,11 @@ class Presenter
 
     public function __construct(OutputFormatter $formatter, $forceArrayIndexes = false)
     {
-        // Work around https://github.com/symfony/symfony/issues/23572
         $oldLocale = \setlocale(\LC_NUMERIC, 0);
         \setlocale(\LC_NUMERIC, 'C');
 
         $this->dumper = new Dumper($formatter, $forceArrayIndexes);
         $this->dumper->setStyles($this->styles);
-
-        // Now put the locale back
         \setlocale(\LC_NUMERIC, $oldLocale);
 
         $this->cloner = new Cloner();
@@ -116,8 +113,6 @@ class Presenter
         if (null !== $depth) {
             $data = $data->withMaxDepth($depth);
         }
-
-        // Work around https://github.com/symfony/symfony/issues/23572
         $oldLocale = \setlocale(\LC_NUMERIC, 0);
         \setlocale(\LC_NUMERIC, 'C');
 
@@ -130,8 +125,6 @@ class Presenter
                 $output .= \str_repeat('  ', $depth).$line;
             }
         });
-
-        // Now put the locale back
         \setlocale(\LC_NUMERIC, $oldLocale);
 
         return OutputFormatter::escape($output);

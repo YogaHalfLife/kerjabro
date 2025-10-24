@@ -35,8 +35,6 @@ final class AnonymousFootnotesListener implements ConfigurationAwareInterface
             if (! $node instanceof FootnoteRef || ($text = $node->getContent()) === null) {
                 continue;
             }
-
-            // Anonymous footnote needs to create a footnote from its content
             $existingReference = $node->getReference();
             $newReference      = new Reference(
                 $existingReference->getLabel(),

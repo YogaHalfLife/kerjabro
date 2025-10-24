@@ -28,15 +28,9 @@ final class FixOrphanedFootnotesAndRefsListener
 
         foreach ($map['_flat'] as $node) {
             if ($node instanceof FootnoteRef && ! isset($map[Footnote::class][$node->getReference()->getLabel()])) {
-                // Found an orphaned FootnoteRef without a corresponding Footnote
-                // Restore the original footnote ref text
                 $node->replaceWith(new Text(\sprintf('[^%s]', $node->getReference()->getLabel())));
             }
-
-            // phpcs:disable SlevomatCodingStandard.ControlStructures.EarlyExit.EarlyExitNotUsed
             if ($node instanceof Footnote && ! isset($map[FootnoteRef::class][$node->getReference()->getLabel()])) {
-                // Found an orphaned Footnote without a corresponding FootnoteRef
-                // Remove the footnote
                 $node->detach();
             }
         }

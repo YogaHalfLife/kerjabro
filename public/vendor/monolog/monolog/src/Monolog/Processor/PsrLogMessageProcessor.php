@@ -60,8 +60,6 @@ class PsrLogMessageProcessor implements ProcessorInterface
                 $replacements[$placeholder] = $val;
             } elseif ($val instanceof \DateTimeInterface) {
                 if (!$this->dateFormat && $val instanceof \Monolog\DateTimeImmutable) {
-                    // handle monolog dates using __toString if no specific dateFormat was asked for
-                    // so that it follows the useMicroseconds flag
                     $replacements[$placeholder] = (string) $val;
                 } else {
                     $replacements[$placeholder] = $val->format($this->dateFormat ?: static::SIMPLE_DATE);

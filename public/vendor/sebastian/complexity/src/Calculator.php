@@ -39,8 +39,6 @@ final class Calculator
             assert($nodes !== null);
 
             return $this->calculateForAbstractSyntaxTree($nodes);
-
-            // @codeCoverageIgnoreStart
         } catch (Error $error) {
             throw new RuntimeException(
                 $error->getMessage(),
@@ -48,7 +46,6 @@ final class Calculator
                 $error
             );
         }
-        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -68,7 +65,6 @@ final class Calculator
         try {
             /* @noinspection UnusedFunctionResultInspection */
             $traverser->traverse($nodes);
-            // @codeCoverageIgnoreStart
         } catch (Error $error) {
             throw new RuntimeException(
                 $error->getMessage(),
@@ -76,7 +72,6 @@ final class Calculator
                 $error
             );
         }
-        // @codeCoverageIgnoreEnd
 
         return $complexityCalculatingVisitor->result();
     }

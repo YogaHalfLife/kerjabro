@@ -52,18 +52,12 @@ final class ImmutableWriter implements WriterInterface
      */
     public function write(string $name, string $value)
     {
-        // Don't overwrite existing environment variables
-        // Ruby's dotenv does this with `ENV[key] ||= value`
         if ($this->isExternallyDefined($name)) {
             return false;
         }
-
-        // Set the value on the inner writer
         if (!$this->writer->write($name, $value)) {
             return false;
         }
-
-        // Record that we have loaded the variable
         $this->loaded[$name] = '';
 
         return true;
@@ -78,17 +72,12 @@ final class ImmutableWriter implements WriterInterface
      */
     public function delete(string $name)
     {
-        // Don't clear existing environment variables
         if ($this->isExternallyDefined($name)) {
             return false;
         }
-
-        // Clear the value on the inner writer
         if (!$this->writer->delete($name)) {
             return false;
         }
-
-        // Leave the variable as fair game
         unset($this->loaded[$name]);
 
         return true;

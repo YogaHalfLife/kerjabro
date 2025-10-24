@@ -83,7 +83,6 @@ class CompiledRouteCollection extends AbstractRouteCollection
      */
     public function refreshNameLookups()
     {
-        //
     }
 
     /**
@@ -95,7 +94,6 @@ class CompiledRouteCollection extends AbstractRouteCollection
      */
     public function refreshActionLookups()
     {
-        //
     }
 
     /**
@@ -125,7 +123,6 @@ class CompiledRouteCollection extends AbstractRouteCollection
             try {
                 return $this->routes->match($request);
             } catch (NotFoundHttpException $e) {
-                //
             }
         }
 
@@ -137,7 +134,6 @@ class CompiledRouteCollection extends AbstractRouteCollection
                     $route = $dynamicRoute;
                 }
             } catch (NotFoundHttpException|MethodNotAllowedHttpException $e) {
-                //
             }
         }
 

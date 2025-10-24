@@ -13,7 +13,6 @@ class {{ class }}
      */
     public function __construct()
     {
-        //
     }
 
     /**
@@ -24,6 +23,5 @@ class {{ class }}
      */
     public function join({{ userModel }} $user)
     {
-        //
     }
 }

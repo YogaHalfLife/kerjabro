@@ -69,30 +69,20 @@ final class CachingStream implements StreamInterface
         $diff = $byte - $this->stream->getSize();
 
         if ($diff > 0) {
-            // Read the remoteStream until we have read in at least the amount
-            // of bytes requested, or we reach the end of the file.
             while ($diff > 0 && !$this->remoteStream->eof()) {
                 $this->read($diff);
                 $diff = $byte - $this->stream->getSize();
             }
         } else {
-            // We can just do a normal seek since we've already seen this byte.
             $this->stream->seek($byte);
         }
     }
 
     public function read($length): string
     {
-        // Perform a regular read on any previously read data from the buffer
         $data = $this->stream->read($length);
         $remaining = $length - strlen($data);
-
-        // More data was requested so read from the remote stream
         if ($remaining) {
-            // If data was written to the buffer in a position that would have
-            // been filled from the remote stream, then we must skip bytes on
-            // the remote stream to emulate overwriting bytes from that
-            // position. This mimics the behavior of other PHP stream wrappers.
             $remoteData = $this->remoteStream->read(
                 $remaining + $this->skipReadBytes
             );
@@ -112,10 +102,6 @@ final class CachingStream implements StreamInterface
 
     public function write($string): int
     {
-        // When appending to the end of the currently read stream, you'll want
-        // to skip bytes from being read from the remote stream to emulate
-        // other stream wrappers. Basically replacing bytes of data of a fixed
-        // length.
         $overflow = (strlen($string) + $this->tell()) - $this->remoteStream->tell();
         if ($overflow > 0) {
             $this->skipReadBytes += $overflow;

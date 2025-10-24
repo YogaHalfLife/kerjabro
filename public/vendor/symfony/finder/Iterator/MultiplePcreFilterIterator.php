@@ -53,14 +53,11 @@ abstract class MultiplePcreFilterIterator extends \FilterIterator
      */
     protected function isAccepted(string $string): bool
     {
-        // should at least not match one rule to exclude
         foreach ($this->noMatchRegexps as $regex) {
             if (preg_match($regex, $string)) {
                 return false;
             }
         }
-
-        // should at least match one rule
         if ($this->matchRegexps) {
             foreach ($this->matchRegexps as $regex) {
                 if (preg_match($regex, $string)) {
@@ -70,8 +67,6 @@ abstract class MultiplePcreFilterIterator extends \FilterIterator
 
             return false;
         }
-
-        // If there is no match rules, the file is accepted
         return true;
     }
 

@@ -65,7 +65,6 @@ abstract class AbstractSessionListener implements EventSubscriberInterface, Rese
 
         $request = $event->getRequest();
         if (!$request->hasSession()) {
-            // This variable prevents calling `$this->getSession()` twice in case the Request (and the below factory) is cloned
             $sess = null;
             $request->setSessionFactory(function () use (&$sess, $request) {
                 if (!$sess) {
@@ -96,7 +95,6 @@ abstract class AbstractSessionListener implements EventSubscriberInterface, Rese
 
         $response = $event->getResponse();
         $autoCacheControl = !$response->headers->has(self::NO_AUTO_CACHE_CONTROL_HEADER);
-        // Always remove the internal header if present
         $response->headers->remove(self::NO_AUTO_CACHE_CONTROL_HEADER);
         if (!$event->getRequest()->hasSession(true)) {
             return;
@@ -246,7 +244,6 @@ abstract class AbstractSessionListener implements EventSubscriberInterface, Rese
     {
         return [
             KernelEvents::REQUEST => ['onKernelRequest', 128],
-            // low priority to come after regular response listeners, but higher than StreamedResponseListener
             KernelEvents::RESPONSE => ['onKernelResponse', -1000],
         ];
     }
@@ -279,7 +276,6 @@ abstract class AbstractSessionListener implements EventSubscriberInterface, Rese
         }
 
         foreach ($sessionOptions as $key => $value) {
-            // do the same logic as in the NativeSessionStorage
             if ('cookie_secure' === $key && 'auto' === $value) {
                 continue;
             }

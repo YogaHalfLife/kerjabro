@@ -34,13 +34,9 @@ $usageInstructions = <<<END
 END;
 
 $config = [
-    // if TRUE, the full list of missing translations is displayed
     'verbose_output' => false,
-    // NULL = analyze all locales
     'locale_to_analyze' => null,
-    // append --incomplete to only show incomplete languages
     'include_completed_languages' => true,
-    // the reference files all the other translations are compared to
     'original_files' => [
         'src/Symfony/Component/Form/Resources/translations/validators.en.xlf',
         'src/Symfony/Component/Security/Core/Resources/translations/security.en.xlf',

@@ -24,7 +24,6 @@ class IntervalChecker extends GitHubChecker
 
     public function fetchLatestRelease()
     {
-        // Read the cached file
         $cached = \json_decode(@\file_get_contents($this->cacheFile, false));
         if ($cached && isset($cached->last_check) && isset($cached->release)) {
             $now = new \DateTime();
@@ -33,8 +32,6 @@ class IntervalChecker extends GitHubChecker
                 return $cached->release;
             }
         }
-
-        // Fall back to fetching from GitHub
         $release = parent::fetchLatestRelease();
         if ($release && isset($release->tag_name)) {
             $this->updateCache($release);

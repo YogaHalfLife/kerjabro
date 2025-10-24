@@ -95,10 +95,6 @@ class Repository implements ArrayAccess, CacheContract
         }
 
         $value = $this->store->get($this->itemKey($key));
-
-        // If we could not find the cache value, we will fire the missed event and get
-        // the default value for this cache value. This default could be a callback
-        // so we will execute the value function which will resolve it if needed.
         if (is_null($value)) {
             $this->event(new CacheMissed($key));
 
@@ -155,18 +151,11 @@ class Repository implements ArrayAccess, CacheContract
      */
     protected function handleManyResult($keys, $key, $value)
     {
-        // If we could not find the cache value, we will fire the missed event and get
-        // the default value for this cache value. This default could be a callback
-        // so we will execute the value function which will resolve it if needed.
         if (is_null($value)) {
             $this->event(new CacheMissed($key));
 
             return isset($keys[$key]) ? value($keys[$key]) : null;
         }
-
-        // If we found a valid value we will fire the "hit" event and return the value
-        // back from this function. The "hit" event gives developers an opportunity
-        // to listen for every possible cache "hit" throughout this applications.
         $this->event(new CacheHit($key, $value));
 
         return $value;
@@ -306,20 +295,12 @@ class Repository implements ArrayAccess, CacheContract
             if ($seconds <= 0) {
                 return false;
             }
-
-            // If the store has an "add" method we will call the method on the store so it
-            // has a chance to override this logic. Some drivers better support the way
-            // this operation should work with a total "atomic" implementation of it.
             if (method_exists($this->store, 'add')) {
                 return $this->store->add(
                     $this->itemKey($key), $value, $seconds
                 );
             }
         }
-
-        // If the value did not exist in the cache, we will put the value in the cache
-        // so it exists for subsequent requests. Then, we will return true so it is
-        // easy to know if the value gets added. Otherwise, we will return false.
         if (is_null($this->get($key))) {
             return $this->put($key, $value, $seconds);
         }
@@ -380,10 +361,6 @@ class Repository implements ArrayAccess, CacheContract
     public function remember($key, $ttl, Closure $callback)
     {
         $value = $this->get($key);
-
-        // If the item exists in the cache we will just return this immediately and if
-        // not we will execute the given Closure and cache the result of that for a
-        // given number of seconds so it's available for all subsequent requests.
         if (! is_null($value)) {
             return $value;
         }
@@ -415,10 +392,6 @@ class Repository implements ArrayAccess, CacheContract
     public function rememberForever($key, Closure $callback)
     {
         $value = $this->get($key);
-
-        // If the item exists in the cache we will just return this immediately
-        // and if not we will execute the given Closure and cache the result
-        // of that forever so it is available for all subsequent requests.
         if (! is_null($value)) {
             return $value;
         }

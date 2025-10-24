@@ -24,12 +24,9 @@ class FunctionEnumerator extends Enumerator
      */
     protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null): array
     {
-        // if we have a reflector, ensure that it's a namespace reflector
         if (($target !== null || $reflector !== null) && !$reflector instanceof ReflectionNamespace) {
             return [];
         }
-
-        // only list functions if we are specifically asked
         if (!$input->getOption('functions')) {
             return [];
         }
@@ -89,8 +86,6 @@ class FunctionEnumerator extends Enumerator
     protected function prepareFunctions(array $functions, string $prefix = null): array
     {
         \natcasesort($functions);
-
-        // My kingdom for a generator.
         $ret = [];
 
         foreach ($functions as $name) {
@@ -106,7 +101,6 @@ class FunctionEnumerator extends Enumerator
                         'value' => $this->presentSignature($name),
                     ];
                 } catch (\Throwable $e) {
-                    // Ignore failures.
                 }
             }
         }

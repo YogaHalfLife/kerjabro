@@ -72,7 +72,6 @@ class MockHandler implements \Countable
         $this->onRejected = $onRejected;
 
         if ($queue) {
-            // array_values included for BC
             $this->append(...array_values($queue));
         }
     }

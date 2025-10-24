@@ -76,7 +76,6 @@ class RollbarHandler extends AbstractProcessingHandler
     protected function write(array $record): void
     {
         if (!$this->initialized) {
-            // __destructor() doesn't get called on Fatal errors
             register_shutdown_function(array($this, 'close'));
             $this->initialized = true;
         }
@@ -96,8 +95,6 @@ class RollbarHandler extends AbstractProcessingHandler
         } else {
             $toLog = $record['message'];
         }
-
-        // @phpstan-ignore-next-line
         $this->rollbarLogger->log($context['level'], $toLog, $context);
 
         $this->hasRecords = true;

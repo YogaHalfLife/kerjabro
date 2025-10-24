@@ -35,8 +35,6 @@ Zepto(function($) {
    */
 
   var highlightCurrentLine = function() {
-    // We show more code than needed, purely for proper syntax highlighting
-    // Let’s hide a big chunk of that code and then scroll the remaining block
     $activeFrame.find('.code-block').first().css({
       maxHeight: 345,
       overflow: 'hidden',
@@ -131,10 +129,6 @@ Zepto(function($) {
         frameClass = applicationFrames ? '.frame.frame-application' : '.frame';
 
 	  if(e.ctrlKey || e.which === 74  || e.which === 75) {
-		  // CTRL+Arrow-UP/k and Arrow-Down/j support:
-		  // 1) select the next/prev element
-		  // 2) make sure the newly selected element is within the view-scope
-		  // 3) focus the (right) container, so arrow-up/down (without ctrl) scroll the details
 		  if (e.which === 38 /* arrow up */ || e.which === 75 /* k */) {
 			  $activeLine.prev(frameClass).click();
 			  scrollIntoView($activeLine, $leftPanel);
@@ -152,23 +146,15 @@ Zepto(function($) {
       }
     }
   });
-
-  // Render late enough for highlightCurrentLine to be ready
   renderCurrentCodeblock();
-
-  // Avoid to quit the page with some protocol (e.g. IntelliJ Platform REST API)
   $ajaxEditors.on('click', function(e){
     e.preventDefault();
     $.get(this.href);
   });
-
-  // Symfony VarDumper: Close the by default expanded objects
   $('.sf-dump-expanded')
     .removeClass('sf-dump-expanded')
     .addClass('sf-dump-compact');
   $('.sf-dump-toggle span').html('&#9654;');
-
-  // Make the given frames-tab active
   function setActiveFramesTab($tab) {
     $tab.addClass('frames-tab-active');
 

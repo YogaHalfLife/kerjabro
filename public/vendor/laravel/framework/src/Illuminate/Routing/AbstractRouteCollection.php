@@ -31,10 +31,6 @@ abstract class AbstractRouteCollection implements Countable, IteratorAggregate, 
         if (! is_null($route)) {
             return $route->bind($request);
         }
-
-        // If no route was found we will now check if a matching route is specified by
-        // another HTTP verb. If it is we will need to throw a MethodNotAllowed and
-        // inform the user agent of which HTTP verb it should use for this route.
         $others = $this->checkForAlternateVerbs($request);
 
         if (count($others) > 0) {
@@ -53,10 +49,6 @@ abstract class AbstractRouteCollection implements Countable, IteratorAggregate, 
     protected function checkForAlternateVerbs($request)
     {
         $methods = array_diff(Router::$verbs, [$request->getMethod()]);
-
-        // Here we will spin through all verbs except for the current request verb and
-        // check to see if any routes respond to them. If they do, we will return a
-        // proper error response with the correct headers on the response string.
         return array_values(array_filter(
             $methods,
             function ($method) use ($request) {

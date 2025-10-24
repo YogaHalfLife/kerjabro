@@ -46,16 +46,12 @@
     padding: $btn-padding-y-xs $btn-padding-x-xs;
     font-size: $btn-font-size-xs;
   }
-  
-  // Button Just Icon
 
   &.btn-icon-only {
     width: $btn-just-icon-width;
     height: $btn-just-icon-height;
     padding: $btn-just-icon-padding-y $btn-just-icon-padding-x;
   }
-
-  // Button Icon Sizes
 
   &.btn-sm {
     &.btn-icon-only {

@@ -171,7 +171,6 @@ abstract class Option implements IteratorAggregate
                 },
                 false
             );
-            // if at least one parameter is empty, return None
             if ($reduced_args) {
                 return None::create();
             }
@@ -179,8 +178,6 @@ abstract class Option implements IteratorAggregate
             $args = array_map(
                 /** @return T */
                 static function (self $o) {
-                    // it is safe to do so because the fold above checked
-                    // that all arguments are of type Some
                     /** @var T */
                     return $o->get();
                 },

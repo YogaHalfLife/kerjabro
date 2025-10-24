@@ -169,32 +169,18 @@ class Exporter
         $array = [];
 
         foreach ((array) $value as $key => $val) {
-            // Exception traces commonly reference hundreds to thousands of
-            // objects currently loaded in memory. Including them in the result
-            // has a severe negative performance impact.
             if ("\0Error\0trace" === $key || "\0Exception\0trace" === $key) {
                 continue;
             }
-
-            // properties are transformed to keys in the following way:
-            // private   $property => "\0Classname\0property"
-            // protected $property => "\0*\0property"
-            // public    $property => "property"
             if (preg_match('/^\0.+\0(.+)$/', (string) $key, $matches)) {
                 $key = $matches[1];
             }
-
-            // See https://github.com/php/php-src/commit/5721132
             if ($key === "\0gcdata") {
                 continue;
             }
 
             $array[$key] = $val;
         }
-
-        // Some internal classes like SplObjectStorage don't work with the
-        // above (fast) mechanism nor with reflection in Zend.
-        // Format the output similarly to print_r() in this case
         if ($value instanceof SplObjectStorage) {
             foreach ($value as $key => $val) {
                 $array[spl_object_hash($val)] = [
@@ -249,7 +235,6 @@ class Exporter
         }
 
         if (is_string($value)) {
-            // Match for most non printable chars somewhat taking multibyte chars into account
             if (preg_match('/[^\x09-\x0d\x1b\x20-\xff]/', $value)) {
                 return 'Binary String: 0x' . bin2hex($value);
             }

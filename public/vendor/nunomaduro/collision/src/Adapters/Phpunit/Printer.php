@@ -163,7 +163,6 @@ final class Printer implements \PHPUnit\TextUI\ResultPrinter
      */
     public function endTestSuite(TestSuite $suite): void
     {
-        // ..
     }
 
     /**
@@ -172,8 +171,6 @@ final class Printer implements \PHPUnit\TextUI\ResultPrinter
     public function startTest(Test $testCase): void
     {
         $testCase = $this->testCaseFromTest($testCase);
-
-        // Let's check first if the testCase is over.
         if ($this->state->testCaseHasChanged($testCase)) {
             $this->style->writeCurrentTestCaseSummary($this->state);
 
@@ -205,7 +202,6 @@ final class Printer implements \PHPUnit\TextUI\ResultPrinter
      */
     public function write(string $content): void
     {
-        // ..
     }
 
     /**

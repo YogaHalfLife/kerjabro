@@ -13,7 +13,6 @@ class {{ class }} extends Exception
      */
     public function report()
     {
-        //
     }
 
     /**
@@ -24,6 +23,5 @@ class {{ class }} extends Exception
      */
     public function render($request)
     {
-        //
     }
 }

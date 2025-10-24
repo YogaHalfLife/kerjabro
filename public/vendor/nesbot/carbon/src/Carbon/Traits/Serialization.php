@@ -143,15 +143,12 @@ trait Serialization
     public function __wakeup()
     {
         if (get_parent_class() && method_exists(parent::class, '__wakeup')) {
-            // @codeCoverageIgnoreStart
             try {
                 parent::__wakeup();
             } catch (Throwable $exception) {
-                // FatalError occurs when calling msgpack_unpack() in PHP 7.4 or later.
                 ['date' => $date, 'timezone' => $timezone] = $this->dumpDateProperties;
                 parent::__construct($date, unserialize($timezone));
             }
-            // @codeCoverageIgnoreEnd
         }
 
         $this->constructedObjectId = spl_object_hash($this);
@@ -219,8 +216,6 @@ trait Serialization
     private function getSleepProperties(): array
     {
         $properties = $this->dumpProperties;
-
-        // @codeCoverageIgnoreStart
         if (!\extension_loaded('msgpack')) {
             return $properties;
         }
@@ -235,6 +230,5 @@ trait Serialization
         }
 
         return $properties;
-        // @codeCoverageIgnoreEnd
     }
 }

@@ -79,8 +79,6 @@ class ClassCodeGenerator
         if (!$typeNode->getTypes()) {
             return '';
         }
-
-        // When we require PHP 8 we can stop generating ?foo nullables and remove this first block
         if ($typeNode->canUseNullShorthand()) {
             return sprintf( '?%s', $typeNode->getNonNullTypes()[0]);
         } else {

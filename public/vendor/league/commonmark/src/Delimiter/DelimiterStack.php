@@ -56,7 +56,6 @@ final class DelimiterStack
         }
 
         if ($delimiter->getNext() === null) {
-            // top of stack
             $this->top = $delimiter->getPrevious();
         } else {
             /** @psalm-suppress PossiblyNullReference */
@@ -123,11 +122,7 @@ final class DelimiterStack
     public function processDelimiters(?DelimiterInterface $stackBottom, DelimiterProcessorCollection $processors): void
     {
         $openersBottom = [];
-
-        // Find first closer above stackBottom
         $closer = $this->findEarliest($stackBottom);
-
-        // Move forward, looking for closers, and handling each
         while ($closer !== null) {
             $delimiterChar = $closer->getChar();
 
@@ -158,17 +153,8 @@ final class DelimiterStack
 
             if (! $openerFound) {
                 if (! $potentialOpenerFound) {
-                    // Only do this when we didn't even have a potential
-                    // opener (one that matches the character and can open).
-                    // If an opener was rejected because of the number of
-                    // delimiters (e.g. because of the "multiple of 3"
-                    // Set lower bound for future searches for openersrule),
-                    // we want to consider it next time because the number
-                    // of delimiters can change as we continue processing.
                     $openersBottom[$delimiterChar] = $closer->getPrevious();
                     if (! $closer->canOpen()) {
-                        // We can remove a closer that can't be an opener,
-                        // once we've seen there's no matching opener.
                         $this->removeDelimiter($closer);
                     }
                 }
@@ -181,8 +167,6 @@ final class DelimiterStack
 
             $openerNode = $opener->getInlineNode();
             $closerNode = $closer->getInlineNode();
-
-            // Remove number of used delimiters from stack and inline nodes.
             $opener->setLength($opener->getLength() - $useDelims);
             $closer->setLength($closer->getLength() - $useDelims);
 
@@ -190,25 +174,17 @@ final class DelimiterStack
             $closerNode->setLiteral(\substr($closerNode->getLiteral(), 0, -$useDelims));
 
             $this->removeDelimitersBetween($opener, $closer);
-            // The delimiter processor can re-parent the nodes between opener and closer,
-            // so make sure they're contiguous already. Exclusive because we want to keep opener/closer themselves.
             AdjacentTextMerger::mergeTextNodesBetweenExclusive($openerNode, $closerNode);
             $delimiterProcessor->process($openerNode, $closerNode, $useDelims);
-
-            // No delimiter characters left to process, so we can remove delimiter and the now empty node.
             if ($opener->getLength() === 0) {
                 $this->removeDelimiterAndNode($opener);
             }
-
-            // phpcs:disable SlevomatCodingStandard.ControlStructures.EarlyExit.EarlyExitNotUsed
             if ($closer->getLength() === 0) {
                 $next = $closer->getNext();
                 $this->removeDelimiterAndNode($closer);
                 $closer = $next;
             }
         }
-
-        // Remove all delimiters
         $this->removeAll($stackBottom);
     }
 }

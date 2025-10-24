@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace phpDocumentor\Reflection;
 
 use phpDocumentor\Reflection\DocBlock\Tag;
-
-// phpcs:ignore SlevomatCodingStandard.Classes.SuperfluousInterfaceNaming.SuperfluousSuffix
 interface DocBlockFactoryInterface
 {
     /**

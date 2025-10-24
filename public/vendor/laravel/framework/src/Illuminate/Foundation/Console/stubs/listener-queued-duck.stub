@@ -16,7 +16,6 @@ class {{ class }} implements ShouldQueue
      */
     public function __construct()
     {
-        //
     }
 
     /**
@@ -27,6 +26,5 @@ class {{ class }} implements ShouldQueue
      */
     public function handle($event)
     {
-        //
     }
 }

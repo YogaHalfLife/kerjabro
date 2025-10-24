@@ -57,14 +57,11 @@ class StreamHandler extends AbstractProcessingHandler
 
         if (($phpMemoryLimit = Utils::expandIniShorthandBytes(ini_get('memory_limit'))) !== false) {
             if ($phpMemoryLimit > 0) {
-                // use max 10% of allowed memory for the chunk size, and at least 100KB
                 $this->streamChunkSize = min(static::MAX_CHUNK_SIZE, max((int) ($phpMemoryLimit / 10), 100 * 1024));
             } else {
-                // memory is unlimited, set to the default 10MB
                 $this->streamChunkSize = static::DEFAULT_CHUNK_SIZE;
             }
         } else {
-            // no memory limit information, set to the default 10MB
             $this->streamChunkSize = static::DEFAULT_CHUNK_SIZE;
         }
 
@@ -155,7 +152,6 @@ class StreamHandler extends AbstractProcessingHandler
         }
 
         if ($this->useLocking) {
-            // ignoring errors here, there's not much we can do about them
             flock($stream, LOCK_EX);
         }
 
@@ -201,7 +197,6 @@ class StreamHandler extends AbstractProcessingHandler
 
     private function createDir(string $url): void
     {
-        // Do not try to create dir if it has already been tried.
         if ($this->dirCreated) {
             return;
         }

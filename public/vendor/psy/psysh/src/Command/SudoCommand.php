@@ -99,8 +99,6 @@ HELP
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $code = $input->getArgument('code');
-
-        // special case for !!
         if ($code === '!!') {
             $history = $this->readline->listHistory();
             if (\count($history) < 2) {
@@ -137,8 +135,6 @@ HELP
             if (\strpos($e->getMessage(), 'unexpected EOF') === false) {
                 throw $e;
             }
-
-            // If we got an unexpected EOF, let's try it again with a semicolon.
             return $this->parser->parse($code.';');
         }
     }

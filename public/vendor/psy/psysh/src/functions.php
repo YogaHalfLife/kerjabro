@@ -96,10 +96,6 @@ if (!\function_exists('Psy\\debug')) {
 
         $sh = new Shell();
         $sh->setScopeVariables($vars);
-
-        // Show a couple of lines of call context for the debug session.
-        //
-        // @todo come up with a better way of doing this which doesn't involve injecting input :-P
         if ($sh->has('whereami')) {
             $sh->addInput('whereami -n2', true);
         }
@@ -171,12 +167,7 @@ if (!\function_exists('Psy\\info')) {
                 'local config file'   => $prettyPath($config->getLocalConfigFile()),
                 'PSYSH_CONFIG env'    => $prettyPath($configEnv),
             ],
-            // 'config dir'  => $config->getConfigDir(),
-            // 'data dir'    => $config->getDataDir(),
-            // 'runtime dir' => $config->getRuntimeDir(),
         ];
-
-        // Use an explicit, fresh update check here, rather than relying on whatever is in $config.
         $checker = new GitHubChecker();
         $updateAvailable = null;
         $latest = null;
@@ -285,8 +276,6 @@ if (!\function_exists('Psy\\info')) {
             'tab completion enabled' => $config->useTabCompletion(),
             'bracketed paste'        => $config->useBracketedPaste(),
         ];
-
-        // Shenanigans, but totally justified.
         try {
             if ($shell = Sudo::fetchProperty($config, 'shell')) {
                 $shellClass = \get_class($shell);
@@ -300,7 +289,6 @@ if (!\function_exists('Psy\\info')) {
                 try {
                     $core['loop listeners'] = \array_map('get_class', Sudo::fetchProperty($shell, 'loopListeners'));
                 } catch (\ReflectionException $e) {
-                    // shrug
                 }
 
                 $core['commands'] = \array_map('get_class', $shell->all());
@@ -308,14 +296,10 @@ if (!\function_exists('Psy\\info')) {
                 try {
                     $autocomplete['custom matchers'] = \array_map('get_class', Sudo::fetchProperty($shell, 'matchers'));
                 } catch (\ReflectionException $e) {
-                    // shrug
                 }
             }
         } catch (\ReflectionException $e) {
-            // shrug
         }
-
-        // @todo Show Presenter / custom casters.
 
         return \array_merge($shellInfo, $core, \compact('updates', 'pcntl', 'input', 'readline', 'output', 'history', 'docs', 'autocomplete'));
     }
@@ -376,8 +360,6 @@ if (!\function_exists('Psy\\bin')) {
             } catch (\InvalidArgumentException $e) {
                 $usageException = $e;
             }
-
-            // Handle --help
             if ($usageException !== null || $input->getOption('help')) {
                 if ($usageException !== null) {
                     echo $usageException->getMessage().\PHP_EOL.\PHP_EOL;
@@ -410,29 +392,18 @@ Options:
 EOL;
                 exit($usageException === null ? 0 : 1);
             }
-
-            // Handle --version
             if ($input->getOption('version')) {
                 echo Shell::getVersionHeader($config->useUnicode()).\PHP_EOL;
                 exit(0);
             }
 
             $shell = new Shell($config);
-
-            // Pass additional arguments to Shell as 'includes'
             $shell->setIncludes($input->getArgument('include'));
 
             try {
-                // And go!
                 $shell->run();
             } catch (\Throwable $e) {
                 \fwrite(\STDERR, $e->getMessage().\PHP_EOL);
-
-                // @todo this triggers the "exited unexpectedly" logic in the
-                // ForkingLoop, so we can't exit(1) after starting the shell...
-                // fix this :)
-
-                // exit(1);
             }
         };
     }

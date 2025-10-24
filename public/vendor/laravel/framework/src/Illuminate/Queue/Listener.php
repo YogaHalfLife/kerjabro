@@ -106,10 +106,6 @@ class Listener
             $queue,
             $options
         );
-
-        // If the environment is set, we will append it to the command array so the
-        // workers will run under the specified environment. Otherwise, they will
-        // just run under the production environment which is not always right.
         if (isset($options->environment)) {
             $command = $this->addEnvironment($command, $options);
         }
@@ -174,10 +170,6 @@ class Listener
         $process->run(function ($type, $line) {
             $this->handleWorkerOutput($type, $line);
         });
-
-        // Once we have run the job we'll go check if the memory limit has been exceeded
-        // for the script. If it has, we will kill this script so the process manager
-        // will restart this with a clean slate of memory automatically on exiting.
         if ($this->memoryExceeded($memory)) {
             $this->stop();
         }

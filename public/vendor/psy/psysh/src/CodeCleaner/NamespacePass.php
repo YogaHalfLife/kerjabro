@@ -57,14 +57,9 @@ class NamespacePass extends CodeCleanerPass
 
         if ($last instanceof Namespace_) {
             $kind = $last->getAttribute('kind');
-
-            // Treat all namespace statements pre-PHP-Parser v3.1.2 as "open",
-            // even though we really have no way of knowing.
             if ($kind === null || $kind === Namespace_::KIND_SEMICOLON) {
-                // Save the current namespace for open namespaces
                 $this->setNamespace($last->name);
             } else {
-                // Clear the current namespace after a braced namespace
                 $this->setNamespace(null);
             }
 

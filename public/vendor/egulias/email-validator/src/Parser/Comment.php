@@ -76,7 +76,6 @@ class Comment extends PartParser
      */
     private function warnEscaping() : bool
     {
-        //Backslash found
         if ($this->lexer->token['type'] !== EmailLexer::S_BACKSLASH) {
             return false;
         }

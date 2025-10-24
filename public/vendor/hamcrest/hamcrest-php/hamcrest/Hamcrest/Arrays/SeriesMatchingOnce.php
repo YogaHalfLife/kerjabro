@@ -40,8 +40,6 @@ class SeriesMatchingOnce
         return true;
     }
 
-    // -- Private Methods
-
     private function _isNotSurplus($item)
     {
         if (empty($this->_elementMatchers)) {

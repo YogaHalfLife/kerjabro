@@ -52,7 +52,6 @@ class ClassHasAttribute extends Constraint
     {
         try {
             return (new ReflectionClass($other))->hasProperty($this->attributeName);
-            // @codeCoverageIgnoreStart
         } catch (ReflectionException $e) {
             throw new Exception(
                 $e->getMessage(),
@@ -60,7 +59,6 @@ class ClassHasAttribute extends Constraint
                 $e
             );
         }
-        // @codeCoverageIgnoreEnd
     }
 
     /**

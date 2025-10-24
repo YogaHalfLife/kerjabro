@@ -49,7 +49,6 @@ trait CompiledUrlMatcherTrait
             throw new ResourceNotFoundException(sprintf('No routes found for "%s".', $pathinfo));
         }
         if (!\in_array($this->context->getMethod(), ['HEAD', 'GET'], true)) {
-            // no-op
         } elseif ($allowSchemes) {
             redirect_scheme:
             $scheme = $this->context->getScheme();

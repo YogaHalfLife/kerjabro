@@ -23,8 +23,6 @@ use Symfony\Component\VarDumper\Dumper\ContextProvider\SourceContextProvider;
 use Symfony\Component\VarDumper\Dumper\ContextualizedDumper;
 use Symfony\Component\VarDumper\Dumper\HtmlDumper;
 use Symfony\Component\VarDumper\Dumper\ServerDumper;
-
-// Load the global dump() function
 require_once __DIR__.'/Resources/functions/dump.php';
 
 /**
@@ -49,8 +47,6 @@ class VarDumper
     public static function setHandler(callable $callable = null): ?callable
     {
         $prevHandler = self::$handler;
-
-        // Prevent replacing the handler with expected format as soon as the env var was set:
         if (isset($_SERVER['VAR_DUMPER_FORMAT'])) {
             return $prevHandler;
         }

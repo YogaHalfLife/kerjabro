@@ -36,7 +36,6 @@ trait ValidatesWhenResolvedTrait
      */
     protected function prepareForValidation()
     {
-        //
     }
 
     /**
@@ -56,7 +55,6 @@ trait ValidatesWhenResolvedTrait
      */
     protected function passedValidation()
     {
-        //
     }
 
     /**

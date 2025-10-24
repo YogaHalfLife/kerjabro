@@ -79,7 +79,6 @@ final class StandardTagFactory implements TagFactory
         'author' => Author::class,
         'covers' => Covers::class,
         'deprecated' => Deprecated::class,
-        // 'example'        => '\phpDocumentor\Reflection\DocBlock\Tags\Example',
         'link' => LinkTag::class,
         'method' => Method::class,
         'param' => Param::class,
@@ -233,7 +232,6 @@ final class StandardTagFactory implements TagFactory
         if (isset($this->tagHandlerMappings[$tagName])) {
             $handlerClassName = $this->tagHandlerMappings[$tagName];
         } elseif ($this->isAnnotation($tagName)) {
-            // TODO: Annotation support is planned for a later stage and as such is disabled for now
             $tagName = (string) $this->fqsenResolver->resolve($tagName, $context);
             if (isset($this->annotationMappings[$tagName])) {
                 $handlerClassName = $this->annotationMappings[$tagName];
@@ -338,10 +336,6 @@ final class StandardTagFactory implements TagFactory
      */
     private function isAnnotation(string $tagContent): bool
     {
-        // 1. Contains a namespace separator
-        // 2. Contains parenthesis
-        // 3. Is present in a list of known annotations (make the algorithm smart by first checking is the last part
-        //    of the annotation class name matches the found tag name
 
         return false;
     }

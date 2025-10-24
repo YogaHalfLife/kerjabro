@@ -21,7 +21,6 @@ final class Resolver
      */
     private function __construct()
     {
-        //
     }
 
     /**

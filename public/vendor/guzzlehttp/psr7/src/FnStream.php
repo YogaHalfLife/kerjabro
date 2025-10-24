@@ -29,8 +29,6 @@ final class FnStream implements StreamInterface
     public function __construct(array $methods)
     {
         $this->methods = $methods;
-
-        // Create the functions on the class
         foreach ($methods as $name => $fn) {
             $this->{'_fn_' . $name} = $fn;
         }
@@ -78,8 +76,6 @@ final class FnStream implements StreamInterface
      */
     public static function decorate(StreamInterface $stream, array $methods)
     {
-        // If any of the required methods were not provided, then simply
-        // proxy to the decorated stream.
         foreach (array_diff(self::SLOTS, array_keys($methods)) as $diff) {
             /** @var callable $callable */
             $callable = [$stream, $diff];

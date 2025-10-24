@@ -21,8 +21,6 @@ use League\CommonMark\Parser\InlineParserContext;
 final class UrlAutolinkParser implements InlineParserInterface
 {
     private const ALLOWED_AFTER = [null, ' ', "\t", "\n", "\x0b", "\x0c", "\x0d", '*', '_', '~', '('];
-
-    // RegEx adapted from https://github.com/symfony/symfony/blob/4.2/src/Symfony/Component/Validator/Constraints/UrlValidator.php
     private const REGEX = '~
         (
             # Must start with a supported scheme + auth, or "www"
@@ -75,39 +73,26 @@ final class UrlAutolinkParser implements InlineParserInterface
     public function parse(InlineParserContext $inlineContext): bool
     {
         $cursor = $inlineContext->getCursor();
-
-        // Autolinks can only come at the beginning of a line, after whitespace, or certain delimiting characters
         $previousChar = $cursor->peek(-1);
         if (! \in_array($previousChar, self::ALLOWED_AFTER, true)) {
             return false;
         }
-
-        // Check if we have a valid URL
         if (! \preg_match($this->finalRegex, $cursor->getRemainder(), $matches)) {
             return false;
         }
 
         $url = $matches[0];
-
-        // Does the URL end with punctuation that should be stripped?
         if (\preg_match('/(.+)([?!.,:*_~]+)$/', $url, $matches)) {
-            // Add the punctuation later
             $url = $matches[1];
         }
-
-        // Does the URL end with something that looks like an entity reference?
         if (\preg_match('/(.+)(&[A-Za-z0-9]+;)$/', $url, $matches)) {
             $url = $matches[1];
         }
-
-        // Does the URL need unmatched parens chopped off?
         if (\substr($url, -1) === ')' && ($diff = self::diffParens($url)) > 0) {
             $url = \substr($url, 0, -$diff);
         }
 
         $cursor->advanceBy(\mb_strlen($url));
-
-        // Auto-prefix 'http://' onto 'www' URLs
         if (\substr($url, 0, 4) === 'www.') {
             $inlineContext->getContainer()->appendChild(new Link('http://' . $url, $url));
 
@@ -124,10 +109,6 @@ final class UrlAutolinkParser implements InlineParserInterface
      */
     private static function diffParens(string $content): int
     {
-        // Scan the entire autolink for the total number of parentheses.
-        // If there is a greater number of closing parentheses than opening ones,
-        // we don’t consider ANY of the last characters as part of the autolink,
-        // in order to facilitate including an autolink inside a parenthesis.
         \preg_match_all('/[()]/', $content, $matches);
 
         $charCount = ['(' => 0, ')' => 0];

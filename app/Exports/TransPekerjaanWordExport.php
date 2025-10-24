@@ -54,8 +54,6 @@ class TransPekerjaanWordExport
             ->when($this->divisi, fn($s) => $s->where('id_divisi', $this->divisi))
             ->orderBy('bulan')->orderBy('id')
             ->get();
-
-        // urut per pegawai biar rapi
         $this->rows = $q->sortBy(fn($r) => mb_strtolower(optional($r->pegawai)->nama_pegawai ?? '') . '|' . ($r->bulan ?? '') . '|' . $r->id)->values();
     }
 
@@ -69,28 +67,22 @@ class TransPekerjaanWordExport
 
         foreach ($absPaths as $path) {
             if (!is_file($path)) continue;
-
-            // hitung skala: beri width maksimum, biar tinggi menyesuaikan (rasio ke-jaga)
             $imgSize = @getimagesize($path);
             if ($imgSize) {
                 [$wPx, $hPx] = $imgSize;
                 $targetW = min($wPx, $maxWidthPx);
-                // beri hanya "width" → PhpWord otomatis jaga aspect ratio
                 $section->addImage($path, [
                     'width'         => $targetW,
                     'wrappingStyle' => 'inline',
                     'alignment'     => Jc::LEFT,
                 ]);
             } else {
-                // fallback
                 $section->addImage($path, [
                     'width'         => $maxWidthPx,
                     'wrappingStyle' => 'inline',
                     'alignment'     => Jc::LEFT,
                 ]);
             }
-
-            // spasi antar gambar
             $section->addTextBreak(1);
         }
     }
@@ -102,8 +94,6 @@ class TransPekerjaanWordExport
 
         $phpWord = new PhpWord();
         $phpWord->getCompatibility()->setOoxmlVersion(15);
-
-        // Section landscape
         $section = $phpWord->addSection([
             'orientation' => 'landscape',
             'marginLeft'   => 900,
@@ -111,11 +101,7 @@ class TransPekerjaanWordExport
             'marginTop'    => 720,
             'marginBottom' => 720,
         ]);
-
-        // Judul
         $section->addText('LAPORAN PEKERJAAN', ['bold' => true, 'size' => 16], ['alignment' => Jc::CENTER, 'spaceAfter' => 120]);
-
-        // Info filter
         $info = [];
         if ($this->bulan)  $info[] = "Bulan: {$this->bulan}";
         if ($this->divisi) $info[] = "Divisi: {$this->divisi}";
@@ -123,20 +109,12 @@ class TransPekerjaanWordExport
         if ($info) {
             $section->addText(implode(' | ', $info), ['size' => 10, 'color' => '666666'], ['spaceAfter' => 200]);
         }
-
-        // Lebar konten kira-kira (px) → halaman A4 landscape ~ 1122px lebar area tulis setelah margin (aproksimasi)
         $maxImageWidth = 180; // silakan sesuaikan kalau mau lebih kecil/besar
-
-        // Loop data → tulis blok per pekerjaan
         foreach ($this->rows as $idx => $row) {
-            // Judul
             $section->addText($row->judul_pekerjaan ?? '(Tanpa Judul)', ['bold' => true, 'size' => 12]);
-            // Detail
             if (!empty($row->detail_pekerjaan)) {
                 $section->addText($row->detail_pekerjaan, ['size' => 11], ['spaceAfter' => 120]);
             }
-
-            // Meta
             $meta = sprintf(
                 "Pegawai: %s\nDivisi: %s\nTanggal: %s\nID: %s",
                 optional($row->pegawai)->nama_pegawai ?? '-',
@@ -146,35 +124,25 @@ class TransPekerjaanWordExport
             );
             $section->addText($meta, ['size' => 10, 'color' => '444444']);
             $section->addTextBreak(1);
-
-            // Foto Sebelum
             $section->addText('Foto Sebelum', ['bold' => true, 'size' => 11], ['spaceAfter' => 80]);
             $pathsSeb = $row->fotos->where('kategori', 'sebelum')->pluck('path')->values()
                 ->map(fn($p) => storage_path('app/public/' . $p))
                 ->filter(fn($p) => is_string($p) && $p)
                 ->toArray();
             $this->addImagesBlock($section, $pathsSeb, $maxImageWidth);
-
-            // spasi antar blok
             $section->addTextBreak(1);
-
-            // Foto Sesudah
             $section->addText('Foto Sesudah', ['bold' => true, 'size' => 11], ['spaceAfter' => 80]);
             $pathsSes = $row->fotos->where('kategori', 'sesudah')->pluck('path')->values()
                 ->map(fn($p) => storage_path('app/public/' . $p))
                 ->filter(fn($p) => is_string($p) && $p)
                 ->toArray();
             $this->addImagesBlock($section, $pathsSes, $maxImageWidth);
-
-            // Pembatas antar pekerjaan
             if ($idx < count($this->rows) - 1) {
                 $section->addTextBreak(2);
                 $section->addText(str_repeat('—', 80), ['color' => 'AAAAAA']);
                 $section->addTextBreak(2);
             }
         }
-
-        // Jika tidak ada data
         if (!$this->rows || $this->rows->isEmpty()) {
             $section->addText('Tidak ada data untuk filter yang dipilih.', ['italic' => true, 'color' => '888888']);
         }

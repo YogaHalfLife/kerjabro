@@ -88,12 +88,9 @@ return [
     */
 
     'solution_providers' => [
-        // from spatie/ignition
         BadMethodCallSolutionProvider::class,
         MergeConflictSolutionProvider::class,
         UndefinedPropertySolutionProvider::class,
-
-        // from spatie/laravel-ignition
         IncorrectValetDbCredentialsSolutionProvider::class,
         MissingAppKeySolutionProvider::class,
         DefaultDbNameSolutionProvider::class,

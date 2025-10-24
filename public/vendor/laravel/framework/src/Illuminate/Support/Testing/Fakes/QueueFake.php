@@ -349,7 +349,6 @@ class QueueFake extends QueueManager implements Queue
      */
     public function pushRaw($payload, $queue = null, array $options = [])
     {
-        //
     }
 
     /**
@@ -401,7 +400,6 @@ class QueueFake extends QueueManager implements Queue
      */
     public function pop($queue = null)
     {
-        //
     }
 
     /**
@@ -436,7 +434,6 @@ class QueueFake extends QueueManager implements Queue
      */
     public function getConnectionName()
     {
-        //
     }
 
     /**

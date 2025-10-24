@@ -74,7 +74,6 @@ class BladeCompiler extends Compiler implements CompilerInterface
      * @var string[]
      */
     protected $compilers = [
-        // 'Comments',
         'Extensions',
         'Statements',
         'Echos',
@@ -232,10 +231,6 @@ class BladeCompiler extends Compiler implements CompilerInterface
     public function compileString($value)
     {
         [$this->footer, $result] = [[], ''];
-
-        // First we will compile the Blade component tags. This is a precompile style
-        // step which compiles the component Blade tags into @component directives
-        // that may be used by Blade. Then we should call any other precompilers.
         $value = $this->compileComponentTags(
             $this->compileComments($this->storeUncompiledBlocks($value))
         );
@@ -243,10 +238,6 @@ class BladeCompiler extends Compiler implements CompilerInterface
         foreach ($this->precompilers as $precompiler) {
             $value = $precompiler($value);
         }
-
-        // Here we will loop through all of the tokens returned by the Zend lexer and
-        // parse each one into the corresponding valid PHP. We will then have this
-        // template as the correctly rendered PHP that can be rendered natively.
         foreach (token_get_all($value) as $token) {
             $result .= is_array($token) ? $this->parseToken($token) : $token;
         }
@@ -254,10 +245,6 @@ class BladeCompiler extends Compiler implements CompilerInterface
         if (! empty($this->rawBlocks)) {
             $result = $this->restoreRawContent($result);
         }
-
-        // If there are any footer lines that need to get added to a template we will
-        // add them here at the end of the template. This gets used mainly for the
-        // template inheritance via the extends keyword that should be appended.
         if (count($this->footer) > 0) {
             $result = $this->addFooters($result);
         }

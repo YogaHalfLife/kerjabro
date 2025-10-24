@@ -89,9 +89,6 @@ final class NameFilterIterator extends RecursiveFilterIterator
     private function setFilter(string $filter): void
     {
         if (RegularExpression::safeMatch($filter, '') === false) {
-            // Handles:
-            //  * testAssertEqualsSucceeds#4
-            //  * testAssertEqualsSucceeds#4-8
             if (preg_match('/^(.*?)#(\d+)(?:-(\d+))?$/', $filter, $matches)) {
                 if (isset($matches[3]) && $matches[2] < $matches[3]) {
                     $filter = sprintf(
@@ -109,8 +106,6 @@ final class NameFilterIterator extends RecursiveFilterIterator
                     );
                 }
             } // Handles:
-            //  * testDetermineJsonError@JSON_ERROR_NONE
-            //  * testDetermineJsonError@JSON.*
             elseif (preg_match('/^(.*?)@(.+)$/', $filter, $matches)) {
                 $filter = sprintf(
                     '%s.*with data set "%s"$',
@@ -118,9 +113,6 @@ final class NameFilterIterator extends RecursiveFilterIterator
                     $matches[2]
                 );
             }
-
-            // Escape delimiters in regular expression. Do NOT use preg_quote,
-            // to keep magic characters.
             $filter = sprintf(
                 '/%s/i',
                 str_replace(

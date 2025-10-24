@@ -175,7 +175,6 @@ final class Reflection
 	{
 		foreach ($prop->getDeclaringClass()->getTraits() as $trait) {
 			if ($trait->hasProperty($prop->name)
-				// doc-comment guessing as workaround for insufficient PHP reflection
 				&& $trait->getProperty($prop->name)->getDocComment() === $prop->getDocComment()
 			) {
 				return self::getPropertyDeclaringClass($trait->getProperty($prop->name));
@@ -192,7 +191,6 @@ final class Reflection
 	 */
 	public static function getMethodDeclaringMethod(\ReflectionMethod $method): \ReflectionMethod
 	{
-		// file & line guessing as workaround for insufficient PHP reflection
 		$decl = $method->getDeclaringClass();
 		if ($decl->getFileName() === $method->getFileName()
 			&& $decl->getStartLine() <= $method->getStartLine()

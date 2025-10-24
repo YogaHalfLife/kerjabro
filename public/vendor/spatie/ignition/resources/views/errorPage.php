@@ -44,7 +44,6 @@
 <style><?= $viewModel->getAssetContents('ignition.css') ?></style>
 
 <script>
-    // Process `auto` theme as soon as possible to avoid flashing of white background:
     if (document.documentElement.classList.contains('auto') && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.documentElement.classList.add('dark');
     }

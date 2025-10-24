@@ -15,8 +15,6 @@ use Symfony\Component\HttpFoundation\Session\SessionBagInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\StrictSessionHandler;
 use Symfony\Component\HttpFoundation\Session\Storage\Proxy\AbstractProxy;
 use Symfony\Component\HttpFoundation\Session\Storage\Proxy\SessionHandlerProxy;
-
-// Help opcache.preload discover always-needed symbols
 class_exists(MetadataBag::class);
 class_exists(StrictSessionHandler::class);
 class_exists(SessionHandlerProxy::class);
@@ -134,8 +132,6 @@ class NativeSessionStorage implements SessionStorageInterface
         if (filter_var(ini_get('session.use_cookies'), \FILTER_VALIDATE_BOOLEAN) && headers_sent($file, $line)) {
             throw new \RuntimeException(sprintf('Failed to start the session because headers have already been sent by "%s" at line %d.', $file, $line));
         }
-
-        // ok to try and start the session
         if (!session_start()) {
             throw new \RuntimeException('Failed to start the session.');
         }
@@ -182,7 +178,6 @@ class NativeSessionStorage implements SessionStorageInterface
      */
     public function regenerate(bool $destroy = false, int $lifetime = null): bool
     {
-        // Cannot regenerate the session ID for non-active sessions.
         if (\PHP_SESSION_ACTIVE !== session_status()) {
             return false;
         }
@@ -209,7 +204,6 @@ class NativeSessionStorage implements SessionStorageInterface
      */
     public function save()
     {
-        // Store a copy so we can restore the bags in case the session was not left empty
         $session = $_SESSION;
 
         foreach ($this->bags as $bag) {
@@ -220,8 +214,6 @@ class NativeSessionStorage implements SessionStorageInterface
         if ([$key = $this->metadataBag->getStorageKey()] === array_keys($_SESSION)) {
             unset($_SESSION[$key]);
         }
-
-        // Register error handler to add information about the current save handler
         $previousHandler = set_error_handler(function ($type, $msg, $file, $line) use (&$previousHandler) {
             if (\E_WARNING === $type && str_starts_with($msg, 'session_write_close():')) {
                 $handler = $this->saveHandler instanceof SessionHandlerProxy ? $this->saveHandler->getHandler() : $this->saveHandler;
@@ -235,8 +227,6 @@ class NativeSessionStorage implements SessionStorageInterface
             session_write_close();
         } finally {
             restore_error_handler();
-
-            // Restore only if not empty
             if ($_SESSION) {
                 $_SESSION = $session;
             }
@@ -251,15 +241,10 @@ class NativeSessionStorage implements SessionStorageInterface
      */
     public function clear()
     {
-        // clear out the bags
         foreach ($this->bags as $bag) {
             $bag->clear();
         }
-
-        // clear out the session
         $_SESSION = [];
-
-        // reconnect the bags to the session
         $this->loadSession();
     }
 
@@ -379,8 +364,6 @@ class NativeSessionStorage implements SessionStorageInterface
             null !== $saveHandler) {
             throw new \InvalidArgumentException('Must be instance of AbstractProxy; implement \SessionHandlerInterface; or be null.');
         }
-
-        // Wrap $saveHandler in proxy and prevent double wrapping of proxy
         if (!$saveHandler instanceof AbstractProxy && $saveHandler instanceof \SessionHandlerInterface) {
             $saveHandler = new SessionHandlerProxy($saveHandler);
         } elseif (!$saveHandler instanceof AbstractProxy) {

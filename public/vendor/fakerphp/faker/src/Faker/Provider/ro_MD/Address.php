@@ -13,26 +13,16 @@ class Address extends \Faker\Provider\Address
     protected static $streetPrefix = [
         'Str.', 'B-dul.', 'Aleea', 'Calea', 'P-ța', 'Str-la',
     ];
-
-    // random selection of seemingly frequently used streets and naming categories
     protected static $streetPlainName = [
-        // historical events
         'Eroilor', 'Independenței', 'Lenin', 'Unirii', '31 August 1989', 'Sovietului',
-        // historical people
         'Mihai Viteazul', 'Mircea cel Bătrân', 'Mitropolitul Varlaam', 'Traian', 'Decebal', 'Alexandru cel Bun', 'Alexandri V.', 'Arhangelul Mihail',
-        // national and international people names
         'Veronica Micle', 'Ion Creangă', 'Mihai Eminescu', 'B. P. Hașdeu',
-        // nature-related
         'Cireșilor', 'Frasinului', 'Salcâmilor', 'Brăduțului', 'Frunzișului', 'Castanilor', 'Mesteacănului', 'Florilor', 'Pădurii', 'Piersicului', 'Trandafirilor',
-        // work-related
         'Croitorilor', 'Meșterilor', 'Zidarilor', 'Păcurari', 'Muncii', 'Învățătorului',
-        // geography related
         'Chisinau', 'Paris',
     ];
 
     protected static $postcode = ['####'];
-
-    // http://ro.wikipedia.org/wiki/Lista_ora%C8%99elor_din_Republica_Moldova
     protected static $cityNames = [
         'Chișinău', 'Tiraspol', 'Bălți', 'Tighina', 'Râbnița', 'Cahul', 'Ungheni', 'Soroca',
         'Orhei', 'Dubăsari', 'Comrat', 'Ceadâr-Lunga', 'Strășeni', 'Căușeni', 'Drochia', 'Slobozia',
@@ -44,8 +34,6 @@ class Address extends \Faker\Provider\Address
         'Cantemir', 'Vatra', 'Biruința', 'Crasnoe', 'Cornești', 'Costești', 'Mărculești', 'Ghindești',
         'Tiraspolul Nou', 'Frunză', 'Bucovăț', 'Maiac',
     ];
-
-    // http://ro.wikipedia.org/wiki/Lista_statelor_lumii#Lista_statelor_lumii
     protected static $country = [
         'Afganistan', 'Africa de Sud', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua și Barbuda', 'Arabia Saudită', 'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaidjan',
         'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgia', 'Belize', 'Benin', 'Bhutan', 'Birmania', 'Bolivia', 'Bosnia și Herțegovina', 'Botswana', 'Brazilia', 'Brunei', 'Bulgaria',

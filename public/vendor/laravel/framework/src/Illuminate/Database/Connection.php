@@ -203,19 +203,11 @@ class Connection implements ConnectionInterface
     public function __construct($pdo, $database = '', $tablePrefix = '', array $config = [])
     {
         $this->pdo = $pdo;
-
-        // First we will setup the default properties. We keep track of the DB
-        // name we are connected to since it is needed when some reflective
-        // type commands are run such as checking whether a table exists.
         $this->database = $database;
 
         $this->tablePrefix = $tablePrefix;
 
         $this->config = $config;
-
-        // We need to initialize a query grammar and the query post processors
-        // which are both very important parts of the database abstractions
-        // so we initialize these to their default values while starting.
         $this->useDefaultQueryGrammar();
 
         $this->useDefaultPostProcessor();
@@ -258,7 +250,6 @@ class Connection implements ConnectionInterface
      */
     protected function getDefaultSchemaGrammar()
     {
-        //
     }
 
     /**
@@ -360,10 +351,6 @@ class Connection implements ConnectionInterface
             if ($this->pretending()) {
                 return [];
             }
-
-            // For select statements, we'll simply execute the query and return an array
-            // of the database result set. Each element in the array will be a single
-            // row from the database table, and will either be an array or objects.
             $statement = $this->prepared(
                 $this->getPdoForSelect($useReadPdo)->prepare($query)
             );
@@ -390,20 +377,12 @@ class Connection implements ConnectionInterface
             if ($this->pretending()) {
                 return [];
             }
-
-            // First we will create a statement for the query. Then, we will set the fetch
-            // mode and prepare the bindings for the query. Once that's done we will be
-            // ready to execute the query against the database and return the cursor.
             $statement = $this->prepared($this->getPdoForSelect($useReadPdo)
                               ->prepare($query));
 
             $this->bindValues(
                 $statement, $this->prepareBindings($bindings)
             );
-
-            // Next, we'll execute the query against the database and return the statement
-            // so we can return the cursor. The cursor will use a PHP generator to give
-            // back one row at a time without using a bunch of memory to render them.
             $statement->execute();
 
             return $statement;
@@ -515,10 +494,6 @@ class Connection implements ConnectionInterface
             if ($this->pretending()) {
                 return 0;
             }
-
-            // For update or delete statements, we want to get the number of rows affected
-            // by the statement and return that back to the developer. We'll first need
-            // to execute the statement and then we'll use PDO to fetch the affected.
             $statement = $this->getPdo()->prepare($query);
 
             $this->bindValues($statement, $this->prepareBindings($bindings));
@@ -564,10 +539,6 @@ class Connection implements ConnectionInterface
     {
         return $this->withFreshQueryLog(function () use ($callback) {
             $this->pretending = true;
-
-            // Basically to make the database connection "pretend", we will just return
-            // the default values for all the query methods, then we will return an
-            // array of queries that were "executed" within the Closure callback.
             $callback($this);
 
             $this->pretending = false;
@@ -585,17 +556,9 @@ class Connection implements ConnectionInterface
     protected function withFreshQueryLog($callback)
     {
         $loggingQueries = $this->loggingQueries;
-
-        // First we will back up the value of the logging queries property and then
-        // we'll be ready to run callbacks. This query log will also get cleared
-        // so we will have a new log of all the queries that are executed now.
         $this->enableQueryLog();
 
         $this->queryLog = [];
-
-        // Now we'll execute this callback and capture the result. Once it has been
-        // executed we will restore the value of query logging and give back the
-        // value of the callback so the original callers can have the results.
         $result = $callback();
 
         $this->loggingQueries = $loggingQueries;
@@ -636,9 +599,6 @@ class Connection implements ConnectionInterface
         $grammar = $this->getQueryGrammar();
 
         foreach ($bindings as $key => $value) {
-            // We need to transform all instances of DateTimeInterface into the actual
-            // date string. Each query grammar maintains its own date string format
-            // so we'll just ask the grammar for the format to get from the date.
             if ($value instanceof DateTimeInterface) {
                 $bindings[$key] = $value->format($grammar->getDateFormat());
             } elseif (is_bool($value)) {
@@ -668,10 +628,6 @@ class Connection implements ConnectionInterface
         $this->reconnectIfMissingConnection();
 
         $start = microtime(true);
-
-        // Here we will run this query. If an exception occurs we'll determine if it was
-        // caused by a connection that has been lost. If that is the cause, we'll try
-        // to re-establish connection and re-run the query with a fresh connection.
         try {
             $result = $this->runQueryCallback($query, $bindings, $callback);
         } catch (QueryException $e) {
@@ -679,10 +635,6 @@ class Connection implements ConnectionInterface
                 $e, $query, $bindings, $callback
             );
         }
-
-        // Once we have run the query we will calculate the time that it took to run and
-        // then log the query, bindings, and execution time so we will report them on
-        // the event that the developer needs them. We'll log time in milliseconds.
         $this->logQuery(
             $query, $bindings, $this->getElapsedTime($start)
         );
@@ -702,16 +654,9 @@ class Connection implements ConnectionInterface
      */
     protected function runQueryCallback($query, $bindings, Closure $callback)
     {
-        // To execute the statement, we'll simply call the callback, which will actually
-        // run the SQL against the PDO connection. Then we can calculate the time it
-        // took to execute and log the query SQL, bindings and time in our memory.
         try {
             return $callback($query, $bindings);
         }
-
-        // If an exception occurs when attempting to run a query, we'll format the error
-        // message to include the bindings with SQL, which will make this exception a
-        // lot more helpful to the developer instead of just the database's errors.
         catch (Exception $e) {
             throw new QueryException(
                 $query, $this->prepareBindings($bindings), $e
@@ -992,8 +937,6 @@ class Connection implements ConnectionInterface
     public function getDoctrineSchemaManager()
     {
         $connection = $this->getDoctrineConnection();
-
-        // Doctrine v2 expects one parameter while v3 expects two. 2nd will be ignored on v2...
         return $this->getDoctrineDriver()->getSchemaManager(
             $connection,
             $connection->getDatabasePlatform()

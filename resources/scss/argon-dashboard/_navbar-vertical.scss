@@ -1,6 +1,3 @@
-//
-// Vertical navbar + Sidenav
-//
 
 @use "sass:math";
 
@@ -10,21 +7,17 @@
     max-width: 100%;
     max-height: 2rem;
   }
-  // Navbar navigaton
   .navbar-nav {
-    // Navbar link
     .nav-link {
       padding-left: $navbar-padding-x;
       padding-right: $navbar-padding-x;
       font-weight: $navbar-nav-link-font-weight;
       color: $font-color;
-      // Icon
       > i {
         min-width: $navbar-icon-min-width;
         font-size: 0.9375rem;
         line-height: ($font-size-base * $line-height-base);
       }
-      // Dropdown
       .dropdown-menu {
         border: none;
 
@@ -43,13 +36,11 @@
       }
     }
   }
-  // Navbar navigation
   .navbar-nav .nav-link {
     display: flex;
     align-items: center;
     white-space: nowrap;
   }
-  // Navbar heading
   .navbar-heading {
     padding-top: $nav-link-padding-y;
     padding-bottom: $nav-link-padding-y;
@@ -57,7 +48,6 @@
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
-  // Expanded navbar specific styles
   &.navbar-expand {
     @each $breakpoint, $dimension in $grid-breakpoints {
       &-#{$breakpoint} {
@@ -78,7 +68,6 @@
             overflow: auto;
             height: $navbar-vertical-inner;
           }
-          // Container
           > [class*="container"] {
             flex-direction: column;
             align-items: stretch;
@@ -90,15 +79,12 @@
               height: 100%;
             }
           }
-          // Fixes the vertical navbar to the left
           &.fixed-start {
             left: 0;
           }
-          // Fixed the vertical navbar to the right
           &.fixed-end {
             right: 0;
           }
-          // Navbar navigation
           .navbar-nav .nav-link {
             padding-top: $navbar-vertical-nav-link-padding-y;
             padding-bottom: $navbar-vertical-nav-link-padding-y;
@@ -150,7 +136,6 @@
             padding-right: 1rem;
             border-radius: $border-radius-sm;
           }
-          // Second level
           .navbar-nav .nav .nav-link {
             padding-top: calc($navbar-vertical-nav-link-padding-y / 1.5);
             padding-bottom: calc($navbar-vertical-nav-link-padding-y / 1.5);
@@ -167,7 +152,6 @@
 }
 
 .sidenav {
-  // Define colors
   @each $color, $value in $theme-colors {
     &[data-color="#{$color}"] {
       .navbar-nav > .nav-item > .nav-link.active {
@@ -185,15 +169,11 @@
     }
   }
 }
-// Sidenav + Main content transition
 
 .main-content,
 .sidenav {
   transition: $transition-base;
 }
-//
-// Sidenav
-//
 
 .sidenav {
   z-index: 999;
@@ -246,7 +226,6 @@
     }
   }
 }
-// Sidenav states
 
 .g-sidenav-show {
   .sidenav {
@@ -261,7 +240,6 @@
     }
   }
 }
-// Media fixes for iPhone 5 like resolutions
 @include media-breakpoint-down(xl) {
   .g-sidenav-show {
     &.rtl {
@@ -329,7 +307,6 @@
     margin-top: 7.1875rem !important;
   }
 }
-// Navbar Vertical Extend
 .navbar-vertical {
   .navbar-nav .nav-link[data-bs-toggle="collapse"] {
     &:after {
@@ -345,7 +322,6 @@
       color: rgba($dark-gradient-state,0.5);
       @include transition($transition-base);
     }
-    // Expanded
     &[aria-expanded="true"] {
       &:after {
         color: $dark-gradient-state;
@@ -379,7 +355,6 @@
                 color: $dark-gradient-state;
               }
             }
-            // Third level
             .nav-item {
               .nav-link {
                 &:before {
@@ -402,7 +377,6 @@
     }
   }
 }
-// Styles for minimized sidenav
 .navbar-vertical {
   .navbar-brand {
     .navbar-brand-img,
@@ -586,7 +560,6 @@
           height: 0;
         }
       }
-      // Hover style on sidenav minimized
       &:hover {
         max-width: $navbar-vertical-open-width !important;
 

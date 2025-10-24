@@ -146,16 +146,12 @@ class DebugClassLoader
             $test = realpath($dir.$test);
 
             if (false === $test || false === $i) {
-                // filesystem is case sensitive
                 self::$caseCheck = 0;
             } elseif (str_ends_with($test, $file)) {
-                // filesystem is case insensitive and realpath() normalizes the case of characters
                 self::$caseCheck = 1;
             } elseif ('Darwin' === \PHP_OS_FAMILY) {
-                // on MacOSX, HFS+ is case insensitive but realpath() doesn't normalize the case of characters
                 self::$caseCheck = 2;
             } else {
-                // filesystem case checks failed, fallback to disabling them
                 self::$caseCheck = 0;
             }
         }
@@ -171,7 +167,6 @@ class DebugClassLoader
      */
     public static function enable(): void
     {
-        // Ensures we don't hit https://bugs.php.net/42098
         class_exists(\Symfony\Component\ErrorHandler\ErrorHandler::class);
         class_exists(\Psr\Log\LogLevel::class);
 
@@ -279,7 +274,6 @@ class DebugClassLoader
             if ($this->isFinder && !isset($this->loaded[$class])) {
                 $this->loaded[$class] = true;
                 if (!$file = $this->classLoader[0]->findFile($class) ?: '') {
-                    // no-op
                 } elseif (\function_exists('opcache_is_script_cached') && @opcache_is_script_cached($file)) {
                     include $file;
 
@@ -357,8 +351,6 @@ class DebugClassLoader
         $deprecations = [];
 
         $className = str_contains($class, "@anonymous\0") ? (get_parent_class($class) ?: key(class_implements($class)) ?: 'class').'@anonymous' : $class;
-
-        // Don't trigger deprecations for classes in the same vendor
         if ($class !== $className) {
             $vendor = preg_match('/^namespace ([^;\\\\\s]++)[;\\\\]/m', @file_get_contents($refl->getFileName()), $vendor) ? $vendor[1].'\\' : '';
             $vendorLen = \strlen($vendor);
@@ -371,8 +363,6 @@ class DebugClassLoader
 
         $parent = get_parent_class($class) ?: null;
         self::$returnTypes[$class] = [];
-
-        // Detect annotations on the class
         if ($doc = $this->parsePhpDoc($refl)) {
             foreach (['final', 'deprecated', 'internal'] as $annotation) {
                 if (null !== $description = $doc[$annotation][0] ?? null) {
@@ -403,8 +393,6 @@ class DebugClassLoader
                 $deprecations[] = sprintf('The "%s" class is considered final%s It may change without further notice as of its next major version. You should not extend it from "%s".', $parent, self::$final[$parent], $className);
             }
         }
-
-        // Detect if the parent is annotated
         foreach ($parentAndOwnInterfaces + class_uses($class, false) as $use) {
             if (!isset(self::$checkedClasses[$use])) {
                 $this->checkClass($use);
@@ -431,7 +419,6 @@ class DebugClassLoader
                         && (!class_exists(InstalledVersions::class)
                             || 'symfony/symfony' !== InstalledVersions::getRootPackage()['name'])
                     ) {
-                        // skip "same vendor" @method deprecations for Symfony\* classes unless symfony/symfony is being tested
                         continue;
                     }
                     $hasCall = $refl->hasMethod('__call');
@@ -460,8 +447,6 @@ class DebugClassLoader
 
             return $deprecations;
         }
-
-        // Inherit @final, @internal, @param and @return annotations for methods
         self::$finalMethods[$class] = [];
         self::$internalMethods[$class] = [];
         self::$annotatedParameters[$class] = [];
@@ -513,8 +498,6 @@ class DebugClassLoader
                     $deprecations[] = sprintf('The "%s::%s()" method is considered internal%s It may change without further notice. You should not extend it from "%s".', $declaringClass, $method->name, $message, $className);
                 }
             }
-
-            // To read method annotations
             $doc = $this->parsePhpDoc($method);
 
             if (isset(self::$annotatedParameters[$class][$method->name])) {
@@ -700,7 +683,6 @@ class DebugClassLoader
         $dirFiles = self::$darwinCache[$kDir][1];
 
         if (!isset($dirFiles[$file]) && ') : eval()\'d code' === substr($file, -17)) {
-            // Get the file name from "file_name.php(123) : eval()'d code"
             $file = substr($file, 0, strrpos($file, '(', -17));
         }
 
@@ -812,7 +794,6 @@ class DebugClassLoader
             }
 
             if ('resource' === $n) {
-                // there is no native type for "resource"
                 return;
             }
 
@@ -832,7 +813,6 @@ class DebugClassLoader
             } elseif ($object && 'object' === $this->patchTypes['force']) {
                 $phpTypes = $docTypes = ['object'];
             } elseif ('8.0' > $this->patchTypes['php']) {
-                // ignore multi-types return declarations
                 return;
             }
         }
@@ -854,9 +834,6 @@ class DebugClassLoader
 
             return $lcType;
         }
-
-        // We could resolve "use" statements to return the FQDN
-        // but this would be too expensive for a runtime checker
 
         if ('[]' !== substr($type, -2)) {
             return $type;

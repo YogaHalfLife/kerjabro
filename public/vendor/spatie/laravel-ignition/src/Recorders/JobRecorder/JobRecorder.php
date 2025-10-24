@@ -152,8 +152,6 @@ class JobRecorder
             $chainedCommands
         );
     }
-
-    // Taken from Illuminate\Queue\CallQueuedHandler
     protected function resolveObjectFromCommand(string $command): object
     {
         if (Str::startsWith($command, 'O:')) {

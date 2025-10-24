@@ -93,7 +93,6 @@ final class Fields implements FieldsInterface
 
     public function getTimeLow(): Hexadecimal
     {
-        // Swap the bytes from little endian to network byte order.
         /** @var array $hex */
         $hex = unpack(
             'H*',
@@ -109,7 +108,6 @@ final class Fields implements FieldsInterface
 
     public function getTimeMid(): Hexadecimal
     {
-        // Swap the bytes from little endian to network byte order.
         /** @var array $hex */
         $hex = unpack(
             'H*',
@@ -124,7 +122,6 @@ final class Fields implements FieldsInterface
 
     public function getTimeHiAndVersion(): Hexadecimal
     {
-        // Swap the bytes from little endian to network byte order.
         /** @var array $hex */
         $hex = unpack(
             'H*',

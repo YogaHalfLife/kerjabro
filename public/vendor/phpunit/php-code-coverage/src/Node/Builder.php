@@ -213,7 +213,6 @@ final class Builder
         $max = count($paths);
 
         for ($i = 0; $i < $max; $i++) {
-            // strip phar:// prefixes
             if (strpos($paths[$i], 'phar://') === 0) {
                 $paths[$i] = substr($paths[$i], 7);
                 $paths[$i] = str_replace('/', DIRECTORY_SEPARATOR, $paths[$i]);

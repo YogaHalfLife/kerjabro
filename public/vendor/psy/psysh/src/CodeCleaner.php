@@ -103,13 +103,9 @@ class CodeCleaner
 
         $useStatementPass = new UseStatementPass();
         $namespacePass = new NamespacePass($this);
-
-        // Try to add implicit `use` statements and an implicit namespace,
-        // based on the file in which the `debug` call was made.
         $this->addImplicitDebugContext([$useStatementPass, $namespacePass]);
 
         return [
-            // Validation passes
             new AbstractClassPass(),
             new AssignThisVariablePass(),
             new CalledClassPass(),
@@ -127,8 +123,6 @@ class CodeCleaner
             new ReturnTypePass(),
             new EmptyArrayDimFetchPass(),
             new ValidConstructorPass(),
-
-            // Rewriting shenanigans
             $useStatementPass,        // must run before the namespace pass
             new ExitPass(),
             new ImplicitReturnPass(),
@@ -136,8 +130,6 @@ class CodeCleaner
             $namespacePass,           // must run after the implicit return pass
             new RequirePass(),
             new StrictTypesPass(),
-
-            // Namespace-aware validation (which depends on aforementioned shenanigans)
             new ValidClassNamePass(),
             new ValidFunctionNamePass(),
         ];
@@ -156,9 +148,6 @@ class CodeCleaner
     {
         $useStatementPass = new UseStatementPass();
         $namespacePass = new NamespacePass($this);
-
-        // Try to add implicit `use` statements and an implicit namespace,
-        // based on the file in which the `debug` call was made.
         $this->addImplicitDebugContext([$useStatementPass, $namespacePass]);
 
         return [
@@ -199,8 +188,6 @@ class CodeCleaner
             if ($stmts === false) {
                 return;
             }
-
-            // Set up a clean traverser for just these code cleaner passes
             $traverser = new NodeTraverser();
             foreach ($passes as $pass) {
                 $traverser->addVisitor($pass);
@@ -208,7 +195,6 @@ class CodeCleaner
 
             $traverser->traverse($stmts);
         } catch (\Throwable $e) {
-            // Don't care.
         }
     }
 
@@ -268,17 +254,11 @@ class CodeCleaner
         if ($stmts === false) {
             return false;
         }
-
-        // Catch fatal errors before they happen
         $stmts = $this->traverser->traverse($stmts);
-
-        // Work around https://github.com/nikic/PHP-Parser/issues/399
         $oldLocale = \setlocale(\LC_NUMERIC, 0);
         \setlocale(\LC_NUMERIC, 'C');
 
         $code = $this->printer->prettyPrint($stmts);
-
-        // Now put the locale back
         \setlocale(\LC_NUMERIC, $oldLocale);
 
         return $code;
@@ -345,7 +325,6 @@ class CodeCleaner
             }
 
             try {
-                // Unexpected EOF, try again with an implicit semicolon
                 return $this->parser->parse($code.';');
             } catch (\PhpParser\Error $e) {
                 return false;

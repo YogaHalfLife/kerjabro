@@ -46,8 +46,6 @@ class WildfireFormatter extends NormalizerFormatter
     public function __construct(?string $dateFormat = null)
     {
         parent::__construct($dateFormat);
-
-        // http headers do not like non-ISO-8559-1 characters
         $this->removeJsonEncodeOption(JSON_UNESCAPED_UNICODE);
     }
 
@@ -58,7 +56,6 @@ class WildfireFormatter extends NormalizerFormatter
      */
     public function format(array $record): string
     {
-        // Retrieve the line and file if set and remove them from the formatted extra
         $file = $line = '';
         if (isset($record['extra']['file'])) {
             $file = $record['extra']['file'];
@@ -93,8 +90,6 @@ class WildfireFormatter extends NormalizerFormatter
             $type  = $this->logLevels[$record['level']];
             $label = $record['channel'];
         }
-
-        // Create JSON object describing the appearance of the message in the console
         $json = $this->toJson([
             [
                 'Type'  => $type,
@@ -104,8 +99,6 @@ class WildfireFormatter extends NormalizerFormatter
             ],
             $message,
         ], $handleError);
-
-        // The message itself is a serialization of the above JSON object + it's length
         return sprintf(
             '%d|%s|',
             strlen($json),

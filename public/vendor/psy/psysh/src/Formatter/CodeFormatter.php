@@ -36,20 +36,15 @@ class CodeFormatter implements ReflectorFormatter
     const HIGHLIGHT_INLINE_HTML = 'inline_html';
 
     private static $tokenMap = [
-        // Not highlighted
         \T_OPEN_TAG           => self::HIGHLIGHT_DEFAULT,
         \T_OPEN_TAG_WITH_ECHO => self::HIGHLIGHT_DEFAULT,
         \T_CLOSE_TAG          => self::HIGHLIGHT_DEFAULT,
         \T_STRING             => self::HIGHLIGHT_DEFAULT,
         \T_VARIABLE           => self::HIGHLIGHT_DEFAULT,
         \T_NS_SEPARATOR       => self::HIGHLIGHT_DEFAULT,
-
-        // Visibility
         \T_PUBLIC    => self::HIGHLIGHT_PUBLIC,
         \T_PROTECTED => self::HIGHLIGHT_PROTECTED,
         \T_PRIVATE   => self::HIGHLIGHT_PRIVATE,
-
-        // Constants
         \T_DIR      => self::HIGHLIGHT_CONST,
         \T_FILE     => self::HIGHLIGHT_CONST,
         \T_METHOD_C => self::HIGHLIGHT_CONST,
@@ -58,18 +53,12 @@ class CodeFormatter implements ReflectorFormatter
         \T_CLASS_C  => self::HIGHLIGHT_CONST,
         \T_FUNC_C   => self::HIGHLIGHT_CONST,
         \T_TRAIT_C  => self::HIGHLIGHT_CONST,
-
-        // Types
         \T_DNUMBER                  => self::HIGHLIGHT_NUMBER,
         \T_LNUMBER                  => self::HIGHLIGHT_NUMBER,
         \T_ENCAPSED_AND_WHITESPACE  => self::HIGHLIGHT_STRING,
         \T_CONSTANT_ENCAPSED_STRING => self::HIGHLIGHT_STRING,
-
-        // Comments
         \T_COMMENT     => self::HIGHLIGHT_COMMENT,
         \T_DOC_COMMENT => self::HIGHLIGHT_COMMENT,
-
-        // @todo something better here?
         \T_INLINE_HTML => self::HIGHLIGHT_INLINE_HTML,
     ];
 
@@ -279,12 +268,8 @@ class CodeFormatter implements ReflectorFormatter
     private static function numberLines(\Generator $lines, int $markLine = null): \Generator
     {
         $lines = \iterator_to_array($lines);
-
-        // Figure out how much space to reserve for line numbers.
         \end($lines);
         $pad = \strlen(\key($lines));
-
-        // If $markLine is before or after our line range, don't bother reserving space for the marker.
         if ($markLine !== null) {
             if ($markLine > \key($lines)) {
                 $markLine = null;

@@ -46,15 +46,9 @@ class CalledClassPass extends CodeCleanerPass
         if ($node instanceof Class_ || $node instanceof Trait_) {
             $this->inClass = true;
         } elseif ($node instanceof FuncCall && !$this->inClass) {
-            // We'll give any args at all (besides null) a pass.
-            // Technically we should be checking whether the args are objects, but this will do for now.
-            //
-            // @todo switch this to actually validate args when we get context-aware code cleaner passes.
             if (!empty($node->args) && !$this->isNull($node->args[0])) {
                 return;
             }
-
-            // We'll ignore name expressions as well (things like `$foo()`)
             if (!($node->name instanceof Name)) {
                 return;
             }

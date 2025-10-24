@@ -296,7 +296,6 @@ abstract class CodeUnit
                     )
                 );
             }
-            // @codeCoverageIgnoreStart
         } catch (\ReflectionException $e) {
             throw new ReflectionException(
                 $e->getMessage(),
@@ -304,7 +303,6 @@ abstract class CodeUnit
                 $e
             );
         }
-        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -334,7 +332,6 @@ abstract class CodeUnit
                     )
                 );
             }
-            // @codeCoverageIgnoreStart
         } catch (\ReflectionException $e) {
             throw new ReflectionException(
                 $e->getMessage(),
@@ -342,7 +339,6 @@ abstract class CodeUnit
                 $e
             );
         }
-        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -363,8 +359,6 @@ abstract class CodeUnit
                     )
                 );
             }
-
-            // @codeCoverageIgnoreStart
             if (!$reflector->isUserDefined()) {
                 throw new InvalidCodeUnitException(
                     sprintf(
@@ -380,7 +374,6 @@ abstract class CodeUnit
                 $e
             );
         }
-        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -392,7 +385,6 @@ abstract class CodeUnit
     {
         try {
             return new ReflectionClass($className);
-            // @codeCoverageIgnoreStart
         } catch (\ReflectionException $e) {
             throw new ReflectionException(
                 $e->getMessage(),
@@ -400,7 +392,6 @@ abstract class CodeUnit
                 $e
             );
         }
-        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -412,7 +403,6 @@ abstract class CodeUnit
     {
         try {
             return new ReflectionMethod($className, $methodName);
-            // @codeCoverageIgnoreStart
         } catch (\ReflectionException $e) {
             throw new ReflectionException(
                 $e->getMessage(),
@@ -420,7 +410,6 @@ abstract class CodeUnit
                 $e
             );
         }
-        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -432,7 +421,6 @@ abstract class CodeUnit
     {
         try {
             return new ReflectionFunction($functionName);
-            // @codeCoverageIgnoreStart
         } catch (\ReflectionException $e) {
             throw new ReflectionException(
                 $e->getMessage(),
@@ -440,6 +428,5 @@ abstract class CodeUnit
                 $e
             );
         }
-        // @codeCoverageIgnoreEnd
     }
 }

@@ -112,8 +112,6 @@ class ConstExprEvaluator
         if ($expr instanceof Expr\Array_) {
             return $this->evaluateArray($expr);
         }
-
-        // Unary operators
         if ($expr instanceof Expr\UnaryPlus) {
             return +$this->evaluate($expr->expr);
         }
@@ -174,13 +172,9 @@ class ConstExprEvaluator
         if ($expr instanceof Expr\BinaryOp\Coalesce
             && $expr->left instanceof Expr\ArrayDimFetch
         ) {
-            // This needs to be special cased to respect BP_VAR_IS fetch semantics
             return $this->evaluate($expr->left->var)[$this->evaluate($expr->left->dim)]
                 ?? $this->evaluate($expr->right);
         }
-
-        // The evaluate() calls are repeated in each branch, because some of the operators are
-        // short-circuiting and evaluating the RHS in advance may be illegal in that case
         $l = $expr->left;
         $r = $expr->right;
         switch ($expr->getOperatorSigil()) {

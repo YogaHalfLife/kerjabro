@@ -94,7 +94,6 @@ class DumpRecorder
         $handler = $reflectionProperty->getValue();
 
         if (! $handler) {
-            // No handler registered yet, so we'll force VarDumper to create one.
             $reflectionMethod = new ReflectionMethod(VarDumper::class, 'register');
             $reflectionMethod->setAccessible(true);
             $reflectionMethod->invoke(null);
@@ -115,7 +114,6 @@ class DumpRecorder
         $seenVarDumper = false;
 
         foreach ($stacktrace as $frame) {
-            // Keep looping until we're past the VarDumper::dump() call in Symfony's helper functions file.
             if (Arr::get($frame, 'class') === VarDumper::class && Arr::get($frame, 'function') === 'dump') {
                 $seenVarDumper = true;
 
@@ -125,8 +123,6 @@ class DumpRecorder
             if (! $seenVarDumper) {
                 continue;
             }
-
-            // Return the next frame in the stack after the VarDumper::dump() call:
             return $frame;
         }
 

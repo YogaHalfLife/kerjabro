@@ -29,8 +29,6 @@ final class Helper
      */
     public static function numerify(string $string): string
     {
-        // instead of using randomDigit() several times, which is slow,
-        // count the number of hashes and generate once a large number
         $toReplace = [];
 
         if (($pos = strpos($string, '#')) !== false) {

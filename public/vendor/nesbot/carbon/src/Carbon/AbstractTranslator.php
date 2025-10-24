@@ -224,13 +224,11 @@ abstract class AbstractTranslator extends Translation\Translator
             : $this->getCatalogue($locale)->get((string) $id, $domain);
 
         if ($format instanceof Closure) {
-            // @codeCoverageIgnoreStart
             try {
                 $count = (new ReflectionFunction($format))->getNumberOfRequiredParameters();
             } catch (ReflectionException $exception) {
                 $count = 0;
             }
-            // @codeCoverageIgnoreEnd
 
             return $format(
                 ...array_values($parameters),
@@ -312,7 +310,6 @@ abstract class AbstractTranslator extends Translation\Translator
     public function setLocale($locale)
     {
         $locale = preg_replace_callback('/[-_]([a-z]{2,}|[0-9]{2,})/', function ($matches) {
-            // _2-letters or YUE is a region, _3+-letters is a variant
             $upper = strtoupper($matches[1]);
 
             if ($upper === 'YUE' || $upper === 'ISO' || \strlen($upper) < 3) {
@@ -351,8 +348,6 @@ abstract class AbstractTranslator extends Translation\Translator
         if (isset($this->aliases[$locale])) {
             $locale = $this->aliases[$locale];
         }
-
-        // If subtag (ex: en_CA) first load the macro (ex: en) to have a fallback
         if (str_contains($locale, '_') &&
             $this->loadMessagesFromFile($macroLocale = preg_replace('/^([^_]+).*$/', '$1', $locale))
         ) {

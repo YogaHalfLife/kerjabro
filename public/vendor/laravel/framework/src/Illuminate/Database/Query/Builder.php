@@ -338,9 +338,6 @@ class Builder implements BuilderContract
      */
     protected function createSub($query)
     {
-        // If the given query is a Closure, we will execute it while passing in a new
-        // query instance to the Closure. This will give the developer a chance to
-        // format and work with the query before we cast it to a raw SQL string.
         if ($query instanceof Closure) {
             $callback = $query;
 
@@ -468,10 +465,6 @@ class Builder implements BuilderContract
     public function join($table, $first, $operator = null, $second = null, $type = 'inner', $where = false)
     {
         $join = $this->newJoinClause($this, $type, $table);
-
-        // If the first "column" of the join is really a Closure instance the developer
-        // is trying to build a join with a complex "on" clause containing more than
-        // one condition, so we'll add the join and call a Closure with the query.
         if ($first instanceof Closure) {
             $first($join);
 
@@ -479,10 +472,6 @@ class Builder implements BuilderContract
 
             $this->addBinding($join->getBindings(), 'join');
         }
-
-        // If the column is simply a string, we can assume the join simply has a basic
-        // "on" clause with a single condition. So we will just build the join with
-        // this simple join clauses attached to it. There is not a join callback.
         else {
             $method = $where ? 'where' : 'on';
 
@@ -702,63 +691,32 @@ class Builder implements BuilderContract
      */
     public function where($column, $operator = null, $value = null, $boolean = 'and')
     {
-        // If the column is an array, we will assume it is an array of key-value pairs
-        // and can add them each as a where clause. We will maintain the boolean we
-        // received when the method was called and pass it into the nested where.
         if (is_array($column)) {
             return $this->addArrayOfWheres($column, $boolean);
         }
-
-        // Here we will make some assumptions about the operator. If only 2 values are
-        // passed to the method, we will assume that the operator is an equals sign
-        // and keep going. Otherwise, we'll require the operator to be passed in.
         [$value, $operator] = $this->prepareValueAndOperator(
             $value, $operator, func_num_args() === 2
         );
-
-        // If the column is actually a Closure instance, we will assume the developer
-        // wants to begin a nested where statement which is wrapped in parentheses.
-        // We will add that Closure to the query and return back out immediately.
         if ($column instanceof Closure && is_null($operator)) {
             return $this->whereNested($column, $boolean);
         }
-
-        // If the column is a Closure instance and there is an operator value, we will
-        // assume the developer wants to run a subquery and then compare the result
-        // of that subquery with the given value that was provided to the method.
         if ($this->isQueryable($column) && ! is_null($operator)) {
             [$sub, $bindings] = $this->createSub($column);
 
             return $this->addBinding($bindings, 'where')
                 ->where(new Expression('('.$sub.')'), $operator, $value, $boolean);
         }
-
-        // If the given operator is not found in the list of valid operators we will
-        // assume that the developer is just short-cutting the '=' operators and
-        // we will set the operators to '=' and set the values appropriately.
         if ($this->invalidOperator($operator)) {
             [$value, $operator] = [$operator, '='];
         }
-
-        // If the value is a Closure, it means the developer is performing an entire
-        // sub-select within the query and we will need to compile the sub-select
-        // within the where clause to get the appropriate query record results.
         if ($value instanceof Closure) {
             return $this->whereSub($column, $operator, $value, $boolean);
         }
-
-        // If the value is "null", we will just assume the developer wants to add a
-        // where null clause to the query. So, we will allow a short-cut here to
-        // that method for convenience so the developer doesn't have to check.
         if (is_null($value)) {
             return $this->whereNull($column, $boolean, $operator !== '=');
         }
 
         $type = 'Basic';
-
-        // If the column is making a JSON reference we'll check to see if the value
-        // is a boolean. If it is, we'll add the raw boolean string as an actual
-        // value to the query to ensure this is properly handled by the query.
         if (str_contains($column, '->') && is_bool($value)) {
             $value = new Expression($value ? 'true' : 'false');
 
@@ -770,10 +728,6 @@ class Builder implements BuilderContract
         if ($this->isBitwiseOperator($operator)) {
             $type = 'Bitwise';
         }
-
-        // Now that we are working with just a simple query we can put the elements
-        // in our array and add the query binding to our array of bindings that
-        // will be bound to each SQL statements when it is finally executed.
         $this->wheres[] = compact(
             'type', 'column', 'operator', 'value', 'boolean'
         );
@@ -921,23 +875,12 @@ class Builder implements BuilderContract
      */
     public function whereColumn($first, $operator = null, $second = null, $boolean = 'and')
     {
-        // If the column is an array, we will assume it is an array of key-value pairs
-        // and can add them each as a where clause. We will maintain the boolean we
-        // received when the method was called and pass it into the nested where.
         if (is_array($first)) {
             return $this->addArrayOfWheres($first, $boolean, 'whereColumn');
         }
-
-        // If the given operator is not found in the list of valid operators we will
-        // assume that the developer is just short-cutting the '=' operators and
-        // we will set the operators to '=' and set the values appropriately.
         if ($this->invalidOperator($operator)) {
             [$second, $operator] = [$operator, '='];
         }
-
-        // Finally, we will add this where clause into this array of clauses that we
-        // are building for the query. All of them will be compiled via a grammar
-        // once the query is about to be executed and run against the database.
         $type = 'Column';
 
         $this->wheres[] = compact(
@@ -1001,10 +944,6 @@ class Builder implements BuilderContract
     public function whereIn($column, $values, $boolean = 'and', $not = false)
     {
         $type = $not ? 'NotIn' : 'In';
-
-        // If the value is a query builder instance we will assume the developer wants to
-        // look for any values that exist within this given query. So, we will add the
-        // query accordingly so that this query is properly executed when it is run.
         if ($this->isQueryable($values)) {
             [$query, $bindings] = $this->createSub($values);
 
@@ -1012,19 +951,11 @@ class Builder implements BuilderContract
 
             $this->addBinding($bindings, 'where');
         }
-
-        // Next, if the value is Arrayable we need to cast it to its raw array form so we
-        // have the underlying array value instead of an Arrayable object which is not
-        // able to be added as a binding, etc. We will then add to the wheres array.
         if ($values instanceof Arrayable) {
             $values = $values->toArray();
         }
 
         $this->wheres[] = compact('type', 'column', 'values', 'boolean');
-
-        // Finally, we'll add a binding for each value unless that value is an expression
-        // in which case we will just skip over it since it will be the query as a raw
-        // string and not as a parameterized place-holder to be replaced by the PDO.
         $this->addBinding($this->cleanBindings($values), 'where');
 
         return $this;
@@ -1589,10 +1520,6 @@ class Builder implements BuilderContract
     protected function whereSub($column, $operator, Closure $callback, $boolean)
     {
         $type = 'Sub';
-
-        // Once we have the query instance we can simply execute it so it can add all
-        // of the sub-select's conditions to itself, and then we can cache it off
-        // in the array of where clauses for the "main" parent query instance.
         $callback($query = $this->forSubQuery());
 
         $this->wheres[] = compact(
@@ -1615,10 +1542,6 @@ class Builder implements BuilderContract
     public function whereExists(Closure $callback, $boolean = 'and', $not = false)
     {
         $query = $this->forSubQuery();
-
-        // Similar to the sub-select clause, we will create a new query instance so
-        // the developer may cleanly specify the entire exists query and we will
-        // compile the whole thing in the grammar and insert it into the SQL.
         $callback($query);
 
         return $this->addWhereExistsQuery($query, $boolean, $not);
@@ -1833,27 +1756,16 @@ class Builder implements BuilderContract
         $segments = preg_split(
             '/(And|Or)(?=[A-Z])/', $finder, -1, PREG_SPLIT_DELIM_CAPTURE
         );
-
-        // The connector variable will determine which connector will be used for the
-        // query condition. We will change it as we come across new boolean values
-        // in the dynamic method strings, which could contain a number of these.
         $connector = 'and';
 
         $index = 0;
 
         foreach ($segments as $segment) {
-            // If the segment is not a boolean connector, we can assume it is a column's name
-            // and we will add it to the query as a new constraint as a where clause, then
-            // we can keep iterating through the dynamic method string's segments again.
             if ($segment !== 'And' && $segment !== 'Or') {
                 $this->addDynamic($segment, $connector, $parameters, $index);
 
                 $index++;
             }
-
-            // Otherwise, we will store the connector so we know how the next where clause we
-            // find in the query should be connected to the previous ones, meaning we will
-            // have the proper boolean connector to connect the next where clause found.
             else {
                 $connector = $segment;
             }
@@ -1873,9 +1785,6 @@ class Builder implements BuilderContract
      */
     protected function addDynamic($segment, $connector, $parameters, $index)
     {
-        // Once we have parsed out the columns and formatted the boolean operators we
-        // are ready to add it to this query as a where clause just like any other
-        // clause on the query. Then we'll increment the parameter index values.
         $bool = strtolower($connector);
 
         $this->where(Str::snake($segment), '=', $parameters[$index], $bool);
@@ -1960,10 +1869,6 @@ class Builder implements BuilderContract
     public function having($column, $operator = null, $value = null, $boolean = 'and')
     {
         $type = 'Basic';
-
-        // Here we will make some assumptions about the operator. If only 2 values are
-        // passed to the method, we will assume that the operator is an equals sign
-        // and keep going. Otherwise, we'll require the operator to be passed in.
         [$value, $operator] = $this->prepareValueAndOperator(
             $value, $operator, func_num_args() === 2
         );
@@ -1971,10 +1876,6 @@ class Builder implements BuilderContract
         if ($column instanceof Closure && is_null($operator)) {
             return $this->havingNested($column, $boolean);
         }
-
-        // If the given operator is not found in the list of valid operators we will
-        // assume that the developer is just short-cutting the '=' operators and
-        // we will set the operators to '=' and set the values appropriately.
         if ($this->invalidOperator($operator)) {
             [$value, $operator] = [$operator, '='];
         }
@@ -2649,10 +2550,6 @@ class Builder implements BuilderContract
     public function getCountForPagination($columns = ['*'])
     {
         $results = $this->runPaginationCountQuery($columns);
-
-        // Once we have run the pagination count query, we will get the resulting count and
-        // take into account what type of query it was. When there is a group by we will
-        // just return the count of the entire results set since that will be correct.
         if (! isset($results[0])) {
             return 0;
         } elseif (is_object($results[0])) {
@@ -2758,9 +2655,6 @@ class Builder implements BuilderContract
      */
     public function pluck($column, $key = null)
     {
-        // First, we will need to select the results of the query accounting for the
-        // given columns / key. Once we have the results, we will be able to take
-        // the results and get the exact data that was requested for the query.
         $queryResult = $this->onceWithColumns(
             is_null($key) ? [$column] : [$column, $key],
             function () {
@@ -2773,10 +2667,6 @@ class Builder implements BuilderContract
         if (empty($queryResult)) {
             return collect();
         }
-
-        // If the columns are qualified with a table or have an alias, we cannot use
-        // those directly in the "pluck" operations since the results from the DB
-        // are only keyed by the column itself. We'll strip the table out here.
         $column = $this->stripTableForPluck($column);
 
         $key = $this->stripTableForPluck($key);
@@ -2877,10 +2767,6 @@ class Builder implements BuilderContract
         $results = $this->connection->select(
             $this->grammar->compileExists($this), $this->getBindings(), ! $this->useWritePdo
         );
-
-        // If the results have rows, we will get the row and see if the exists column is a
-        // boolean true. If there are no results for this query we will return false as
-        // there are no rows for this query at all, and we can return that info here.
         if (isset($results[0])) {
             $results = (array) $results[0];
 
@@ -3019,10 +2905,6 @@ class Builder implements BuilderContract
     public function numericAggregate($function, $columns = ['*'])
     {
         $result = $this->aggregate($function, $columns);
-
-        // If there is no result, we can obviously just return 0 here. Next, we will check
-        // if the result is an integer or float. If it is already one of these two data
-        // types we can just return the result as-is, otherwise we will convert this.
         if (! $result) {
             return 0;
         }
@@ -3030,10 +2912,6 @@ class Builder implements BuilderContract
         if (is_int($result) || is_float($result)) {
             return $result;
         }
-
-        // If the result doesn't contain a decimal place, we will assume it is an int then
-        // cast it to one. When it does we will cast it to a float since it needs to be
-        // cast to the expected data type for the developers out of pure convenience.
         return ! str_contains((string) $result, '.')
                 ? (int) $result : (float) $result;
     }
@@ -3090,9 +2968,6 @@ class Builder implements BuilderContract
      */
     public function insert(array $values)
     {
-        // Since every insert gets treated like a batch insert, we will make sure the
-        // bindings are structured in a way that is convenient when building these
-        // inserts statements by verifying these elements are actually an array.
         if (empty($values)) {
             return true;
         }
@@ -3100,10 +2975,6 @@ class Builder implements BuilderContract
         if (! is_array(reset($values))) {
             $values = [$values];
         }
-
-        // Here, we will sort the insert keys for every record so that each insert is
-        // in the same order for the record. We need to make sure this is the case
-        // so there are not any errors or problems when inserting these records.
         else {
             foreach ($values as $key => $value) {
                 ksort($value);
@@ -3113,10 +2984,6 @@ class Builder implements BuilderContract
         }
 
         $this->applyBeforeQueryCallbacks();
-
-        // Finally, we will run this query against the database connection and return
-        // the results. We will need to also flatten these bindings before running
-        // the query so they are all in one huge, flattened array for execution.
         return $this->connection->insert(
             $this->grammar->compileInsert($this, $values),
             $this->cleanBindings(Arr::flatten($values, 1))
@@ -3346,9 +3213,6 @@ class Builder implements BuilderContract
      */
     public function delete($id = null)
     {
-        // If an ID is passed to the method, we will set the where clause to check the
-        // ID to let developers to simply and quickly remove a single row from this
-        // database without manually specifying the "where" clauses on the query.
         if (! is_null($id)) {
             $this->where($this->from.'.id', '=', $id);
         }

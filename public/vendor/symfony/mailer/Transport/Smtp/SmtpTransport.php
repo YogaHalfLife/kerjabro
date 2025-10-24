@@ -139,7 +139,6 @@ class SmtpTransport extends AbstractTransport
                 try {
                     $this->executeCommand("RSET\r\n", [250]);
                 } catch (TransportExceptionInterface $_) {
-                    // ignore this exception as it probably means that the server error was final
                 }
             }
 
@@ -322,7 +321,6 @@ class SmtpTransport extends AbstractTransport
 
     private function checkRestartThreshold(): void
     {
-        // when using sendmail via non-interactive mode, the transport is never "started"
         if (!$this->started) {
             return;
         }

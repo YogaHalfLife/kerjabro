@@ -33,14 +33,10 @@ class Text extends \Faker\Provider\Text
         $words = $this->getConsecutiveWords($indexSize);
         $result = [];
         $resultLength = 0;
-        // take a random starting point
         $next = static::randomKey($words);
 
         while ($resultLength < $maxNbChars && isset($words[$next])) {
-            // fetch a random word to append
             $word = static::randomElement($words[$next]);
-
-            // calculate next index
             $currentWords = explode(' ', $next);
 
             $currentWords[] = $word;
@@ -50,15 +46,10 @@ class Text extends \Faker\Provider\Text
             if ($resultLength == 0 && !preg_match('/^[\x{0600}-\x{06FF}]/u', $word)) {
                 continue;
             }
-            // append the element
             $result[] = $word;
             $resultLength += strlen($word) + 1;
         }
-
-        // remove the element that caused the text to overflow
         array_pop($result);
-
-        // build result
         $result = implode(' ', $result);
 
         return $result . '.';

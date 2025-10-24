@@ -10,7 +10,6 @@ reported function name for a frame is skewed: it belongs to the previous frame. 
 This package provides a better way than `debug_backtrace` to work with a back trace. Here's an example:
 
 ```php
-// returns an array with `Spatie\Backtrace\Frame` instances
 $frames = Spatie\Backtrace\Backtrace::create()->frames(); 
 
 $firstFrame = $frames[0];

@@ -17,7 +17,6 @@ final class ApacheAdapter implements AdapterInterface
      */
     private function __construct()
     {
-        //
     }
 
     /**

@@ -247,9 +247,6 @@ abstract class AbstractCollection extends AbstractArray implements CollectionInt
                     sprintf('Collection with index %d must be of type %s', $index, static::class)
                 );
             }
-
-            // When using generics (Collection.php, Set.php, etc),
-            // we also need to make sure that the internal types match each other
             if ($collection->getType() !== $this->getType()) {
                 throw new CollectionMismatchException(
                     sprintf('Collection items in collection with index %d must be of type %s', $index, $this->getType())
@@ -287,9 +284,6 @@ abstract class AbstractCollection extends AbstractArray implements CollectionInt
         if (!$other instanceof static) {
             throw new CollectionMismatchException('Collection must be of type ' . static::class);
         }
-
-        // When using generics (Collection.php, Set.php, etc),
-        // we also need to make sure that the internal types match each other
         if ($other->getType() !== $this->getType()) {
             throw new CollectionMismatchException('Collection items must be of type ' . $this->getType());
         }
@@ -302,11 +296,6 @@ abstract class AbstractCollection extends AbstractArray implements CollectionInt
              * @param T $b
              */
             function ($a, $b): int {
-                // If the two values are object, we convert them to unique scalars.
-                // If the collection contains mixed values (unlikely) where some are objects
-                // and some are not, we leave them as they are.
-                // The comparator should still work and the result of $a < $b should
-                // be consistent but unpredictable since not documented.
                 if (is_object($a) && is_object($b)) {
                     $a = spl_object_id($a);
                     $b = spl_object_id($b);

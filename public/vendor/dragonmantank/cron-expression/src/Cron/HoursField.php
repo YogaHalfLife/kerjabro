@@ -47,8 +47,6 @@ class HoursField extends AbstractField
         if ($retval) {
             return $retval;
         }
-
-        // Are we on the edge of a transition
         $lastTransition = $this->getPastTransition($date);
         if (($lastTransition !== null) && ($lastTransition["ts"] > ((int) $date->format('U') - 3600))) {
             $dtLastOffset = clone $date;
@@ -81,8 +79,6 @@ class HoursField extends AbstractField
             || ($this->transitionsStart < ($currentTimestamp + 86400))
             || ($this->transitionsEnd > ($currentTimestamp - 86400))
         ) {
-            // We start a day before current time so we can differentiate between the first transition entry
-            // and a change that happens now
             $dtLimitStart = clone $date;
             $dtLimitStart = $dtLimitStart->modify("-12 months");
             $dtLimitEnd = clone $date;
@@ -123,10 +119,6 @@ class HoursField extends AbstractField
     public function increment(DateTimeInterface &$date, $invert = false, $parts = null): FieldInterface
     {
         $originalTimestamp = (int) $date->format('U');
-
-        // Change timezone to UTC temporarily. This will
-        // allow us to go back or forwards and hour even
-        // if DST will be changed between the hours.
         if (null === $parts || '*' === $parts) {
             if ($invert) {
                 $date = $date->sub(new \DateInterval('PT1H'));

@@ -31,7 +31,6 @@ class UdpSocket
         $this->port = $port;
         $domain = AF_INET;
         $protocol = SOL_UDP;
-        // Check if we are using unix sockets.
         if ($port === 0) {
             $domain = AF_UNIX;
             $protocol = IPPROTO_IP;

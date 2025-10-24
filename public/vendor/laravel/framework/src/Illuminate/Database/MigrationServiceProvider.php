@@ -72,9 +72,6 @@ class MigrationServiceProvider extends ServiceProvider implements DeferrableProv
      */
     protected function registerMigrator()
     {
-        // The migrator is responsible for actually running and rollback the migration
-        // files in the application. We'll pass in our database connection resolver
-        // so the migrator can resolve any of these connections when it needs to.
         $this->app->singleton('migrator', function ($app) {
             $repository = $app['migration.repository'];
 
@@ -151,9 +148,6 @@ class MigrationServiceProvider extends ServiceProvider implements DeferrableProv
     protected function registerMigrateMakeCommand()
     {
         $this->app->singleton(MigrateMakeCommand::class, function ($app) {
-            // Once we have the migration creator registered, we will create the command
-            // and inject the creator. The creator is responsible for the actual file
-            // creation of the migrations, and may be extended by these developers.
             $creator = $app['migration.creator'];
 
             $composer = $app['composer'];

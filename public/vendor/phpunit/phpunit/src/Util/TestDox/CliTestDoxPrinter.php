@@ -183,18 +183,13 @@ class CliTestDoxPrinter extends TestDoxPrinter
 
     protected function writeTestResult(array $prevResult, array $result): void
     {
-        // spacer line for new suite headers and after verbose messages
         if ($prevResult['testName'] !== '' &&
             (!empty($prevResult['message']) || $prevResult['className'] !== $result['className'])) {
             $this->write(PHP_EOL);
         }
-
-        // suite header
         if ($prevResult['className'] !== $result['className']) {
             $this->write($this->colorizeTextBox('underlined', $result['className']) . PHP_EOL);
         }
-
-        // test result line
         if ($this->colors && $result['className'] === PhptTestCase::class) {
             $testName = Color::colorizePath($result['testName'], $prevResult['testName'], true);
         } else {
@@ -210,8 +205,6 @@ class CliTestDoxPrinter extends TestDoxPrinter
         );
 
         $this->write($line);
-
-        // additional information when verbose
         $this->write($result['message']);
     }
 

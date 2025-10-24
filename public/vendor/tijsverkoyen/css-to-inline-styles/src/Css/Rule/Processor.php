@@ -152,8 +152,6 @@ class Processor
     {
         $e1Specificity = $e1->getSpecificity();
         $value = $e1Specificity->compareTo($e2->getSpecificity());
-
-        // if the specificity is the same, use the order in which the element appeared
         if ($value === 0) {
             $value = $e1->getOrder() - $e2->getOrder();
         }

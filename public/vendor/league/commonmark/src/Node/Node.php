@@ -238,15 +238,11 @@ abstract class Node
      */
     public function __clone()
     {
-        // Cloned nodes are detached from their parents, siblings, and children
         $this->parent   = null;
         $this->previous = null;
         $this->next     = null;
-        // But save a copy of the children since we'll need that in a moment
         $children = $this->children();
         $this->detachChildren();
-
-        // The original children get cloned and re-added
         foreach ($children as $child) {
             $this->appendChild(clone $child);
         }

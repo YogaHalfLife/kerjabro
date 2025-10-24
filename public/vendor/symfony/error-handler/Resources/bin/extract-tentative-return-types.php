@@ -10,11 +10,6 @@
  * file that was distributed with this source code.
  */
 
-// Run from the root of the php-src repository, this script generates
-// a table with all the methods that have a tentative return type.
-//
-// Usage: find -name *.stub.php | sort | /path/to/extract-tentative-return-types.php > /path/to/TentativeTypes.php
-
 echo <<<EOPHP
 <?php
 

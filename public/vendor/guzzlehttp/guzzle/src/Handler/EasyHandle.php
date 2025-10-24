@@ -86,8 +86,6 @@ final class EasyHandle
                 }
             }
         }
-
-        // Attach a response to the easy handle with the parsed headers.
         $this->response = new Response(
             $status,
             $headers,

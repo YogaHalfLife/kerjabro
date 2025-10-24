@@ -107,13 +107,9 @@ class UnixPipes extends AbstractPipes
         $read = $e = [];
         $r = $this->pipes;
         unset($r[0]);
-
-        // let's have a look if something changed in streams
         set_error_handler([$this, 'handleError']);
         if (($r || $w) && false === stream_select($r, $w, $e, 0, $blocking ? Process::TIMEOUT_PRECISION * 1E6 : 0)) {
             restore_error_handler();
-            // if a system call has been interrupted, forget about it, let's try again
-            // otherwise, an error occurred, let's reset pipes
             if (!$this->hasSystemCallBeenInterrupted()) {
                 $this->pipes = [];
             }
@@ -123,8 +119,6 @@ class UnixPipes extends AbstractPipes
         restore_error_handler();
 
         foreach ($r as $pipe) {
-            // prior PHP 5.4 the array passed to stream_select is modified and
-            // lose key association, we have to find back the key
             $read[$type = array_search($pipe, $this->pipes, true)] = '';
 
             do {

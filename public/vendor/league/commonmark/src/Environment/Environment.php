@@ -112,9 +112,6 @@ final class Environment implements EnvironmentInterface, EnvironmentBuilderInter
         $this->inlineParsers       = new PrioritizedList();
         $this->listenerData        = new PrioritizedList();
         $this->delimiterProcessors = new DelimiterProcessorCollection();
-
-        // Performance optimization: always include a block "parser" that aborts parsing if a line starts with a letter
-        // and is therefore unlikely to match any lines as a block start.
         $this->addBlockStartParser(new SkipLinesStartingWithLettersParser(), 249);
     }
 
@@ -209,8 +206,6 @@ final class Environment implements EnvironmentInterface, EnvironmentBuilderInter
         if (! $this->extensionsInitialized) {
             $this->initializeExtensions();
         }
-
-        // If renderers are defined for this specific class, return them immediately
         if (isset($this->renderersByClass[$nodeClass])) {
             return $this->renderersByClass[$nodeClass];
         }
@@ -220,8 +215,6 @@ final class Environment implements EnvironmentInterface, EnvironmentBuilderInter
             if (! isset($this->renderersByClass[$parent])) {
                 continue;
             }
-
-            // "Cache" this result to avoid future loops
             return $this->renderersByClass[$nodeClass] = $this->renderersByClass[$parent];
         }
 
@@ -257,10 +250,7 @@ final class Environment implements EnvironmentInterface, EnvironmentBuilderInter
 
     private function initializeExtensions(): void
     {
-        // Initialize the slug normalizer
         $this->getSlugNormalizer();
-
-        // Ask all extensions to register their components
         while (\count($this->uninitializedExtensions) > 0) {
             foreach ($this->uninitializedExtensions as $i => $extension) {
                 $extension->register($this);
@@ -269,8 +259,6 @@ final class Environment implements EnvironmentInterface, EnvironmentBuilderInter
         }
 
         $this->extensionsInitialized = true;
-
-        // Create the special delimiter parser if any processors were registered
         if ($this->delimiterProcessors->count() > 0) {
             $this->inlineParsers->add(new DelimiterParser($this->delimiterProcessors), PHP_INT_MIN);
         }

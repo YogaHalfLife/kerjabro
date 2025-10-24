@@ -34,6 +34,5 @@ class PassthruPager extends StreamOutput implements OutputPager
      */
     public function close()
     {
-        // nothing to do here
     }
 }

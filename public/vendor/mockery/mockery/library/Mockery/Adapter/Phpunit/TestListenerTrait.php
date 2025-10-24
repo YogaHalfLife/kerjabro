@@ -38,22 +38,14 @@ class TestListenerTrait
     public function endTest(Test $test, $time)
     {
         if (!$test instanceof TestCase) {
-            // We need the getTestResultObject and getStatus methods which are
-            // not part of the interface.
             return;
         }
 
         if ($test->getStatus() !== BaseTestRunner::STATUS_PASSED) {
-            // If the test didn't pass there is no guarantee that
-            // verifyMockObjects and assertPostConditions have been called.
-            // And even if it did, the point here is to prevent false
-            // negatives, not to make failing tests fail for more reasons.
             return;
         }
 
         try {
-            // The self() call is used as a sentinel. Anything that throws if
-            // the container is closed already will do.
             \Mockery::self();
         } catch (\LogicException $_) {
             return;

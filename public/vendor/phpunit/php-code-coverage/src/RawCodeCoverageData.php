@@ -69,8 +69,6 @@ final class RawCodeCoverageData
 
         foreach ($rawCoverage as $file => $fileCoverageData) {
             if (!isset($fileCoverageData['functions'])) {
-                // Current file does not have functions, so line coverage
-                // is stored in $fileCoverageData, not in $fileCoverageData['lines']
                 $lineCoverage[$file] = $fileCoverageData;
 
                 continue;

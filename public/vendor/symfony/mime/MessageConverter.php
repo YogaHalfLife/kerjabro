@@ -31,8 +31,6 @@ final class MessageConverter
         if ($message instanceof Email) {
             return $message;
         }
-
-        // try to convert to a "simple" Email instance
         $body = $message->getBody();
         if ($body instanceof TextPart) {
             return self::createEmailFromTextPart($message, $body);

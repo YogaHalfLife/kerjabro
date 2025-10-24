@@ -79,17 +79,13 @@ final class TableStartParser implements BlockStartParserInterface
                     $cursor->advanceBy(1);
                     $pipes++;
                     if ($pipes > 1) {
-                        // More than one adjacent pipe not allowed
                         return [];
                     }
-
-                    // Need at least one pipe, even for a one-column table
                     $valid = true;
                     break;
                 case '-':
                 case ':':
                     if ($pipes === 0 && \count($columns) > 0) {
-                        // Need a pipe after the first column (first column doesn't need to start with one)
                         return [];
                     }
 
@@ -101,7 +97,6 @@ final class TableStartParser implements BlockStartParserInterface
                     }
 
                     if ($cursor->match('/^-+/') === null) {
-                        // Need at least one dash
                         return [];
                     }
 
@@ -111,16 +106,13 @@ final class TableStartParser implements BlockStartParserInterface
                     }
 
                     $columns[] = self::getAlignment($left, $right);
-                    // Next, need another pipe
                     $pipes = 0;
                     break;
                 case ' ':
                 case "\t":
-                    // White space is allowed between pipes and columns
                     $cursor->advanceToNextNonSpaceOrTab();
                     break;
                 default:
-                    // Any other character is invalid
                     return [];
             }
         }

@@ -16,11 +16,9 @@ class DashboardController extends Controller
         $user    = Auth::user();
         $isAdmin = $user && $user->username === 'admin';
 
-        // Ringkasan angka
         $totalDivisi  = MasterDivisi::count();
         $totalPegawai = MasterPegawai::count();
-
-        // === Bulan ini (pakai rentang tanggal) ===
+        
         $startMonth = Carbon::now()->startOfMonth();
         $endMonth   = Carbon::now()->endOfMonth();
 
@@ -28,8 +26,7 @@ class DashboardController extends Controller
             ->whereBetween('bulan', [$startMonth->toDateString(), $endMonth->toDateString()]);
 
         $totalPekerjaanBulanIni = (clone $qBase)->count();
-
-        // Pekerjaan saya
+        
         $totalPekerjaanSaya = (function () use ($isAdmin, $user, $qBase) {
             if ($isAdmin) {
                 return (clone $qBase)->count();
@@ -39,12 +36,10 @@ class DashboardController extends Controller
 
             return $peg ? (clone $qBase)->where('pegawai_id', $peg->id)->count() : 0;
         })();
-
-        // === Grafik 12 bulan terakhir ===
+        
         $start = Carbon::now()->startOfMonth()->subMonths(11);
         $end   = Carbon::now()->endOfMonth();
-
-        // Group by bulan (YYYY-mm) dari kolom tanggal
+        
         $rows = TransPekerjaan::select(
             DB::raw("DATE_FORMAT(bulan, '%Y-%m') as ym"),
             DB::raw('COUNT(*) as total')
@@ -63,8 +58,7 @@ class DashboardController extends Controller
             $labels[] = $m->translatedFormat('M Y'); // contoh: Okt 2025
             $values[] = (int) ($rows[$ym]->total ?? 0);
         }
-
-        // Aktivitas terbaru
+        
         $recent = TransPekerjaan::with(['pegawai', 'divisi', 'fotos' => fn($q) => $q->orderBy('sort')])
             ->latest('created_at')
             ->take(5)

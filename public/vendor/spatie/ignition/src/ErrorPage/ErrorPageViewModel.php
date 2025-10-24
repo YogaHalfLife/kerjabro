@@ -112,7 +112,6 @@ class ErrorPageViewModel
 
     public function updateConfigEndpoint(): string
     {
-        // TODO: Should be based on Ignition config
         return  '/_ignition/update-config';
     }
 }

@@ -36,13 +36,9 @@ class FunctionContextPass extends CodeCleanerPass
 
             return;
         }
-
-        // node is inside function context
         if ($this->functionDepth !== 0) {
             return;
         }
-
-        // It causes fatal error.
         if ($node instanceof Yield_) {
             $msg = 'The "yield" expression can only be used inside a function';
             throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getLine());

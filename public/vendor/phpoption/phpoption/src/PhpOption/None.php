@@ -77,7 +77,6 @@ final class None extends Option
 
     public function ifDefined($callable)
     {
-        // Just do nothing in that case.
     }
 
     public function forAll($callable)

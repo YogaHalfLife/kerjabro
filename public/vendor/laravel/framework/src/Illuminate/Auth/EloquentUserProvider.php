@@ -110,10 +110,6 @@ class EloquentUserProvider implements UserProvider
             str_contains($this->firstCredentialKey($credentials), 'password'))) {
             return;
         }
-
-        // First we will add each credential element to the query as a where clause.
-        // Then we can execute the query and, if we found a user, return it in a
-        // Eloquent User "model" that will be utilized by the Guard instances.
         $query = $this->newModelQuery();
 
         foreach ($credentials as $key => $value) {

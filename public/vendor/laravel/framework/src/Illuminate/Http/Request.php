@@ -607,7 +607,6 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
     public function getUserResolver()
     {
         return $this->userResolver ?: function () {
-            //
         };
     }
 
@@ -632,7 +631,6 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
     public function getRouteResolver()
     {
         return $this->routeResolver ?: function () {
-            //
         };
     }
 

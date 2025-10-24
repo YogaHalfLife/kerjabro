@@ -62,6 +62,5 @@ trait Prunable
      */
     protected function pruning()
     {
-        //
     }
 }

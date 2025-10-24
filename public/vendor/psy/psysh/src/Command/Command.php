@@ -252,8 +252,6 @@ abstract class Command extends BaseCommand
         }
 
         $style = new TableStyle();
-
-        // Symfony 4.1 deprecated single-argument style setters.
         if (\method_exists($style, 'setVerticalBorderChars')) {
             $style->setVerticalBorderChars(' ');
             $style->setHorizontalBorderChars('');

@@ -40,10 +40,6 @@ trait QueriesRelationships
         if ($relation instanceof MorphTo) {
             return $this->hasMorph($relation, ['*'], $operator, $count, $boolean, $callback);
         }
-
-        // If we only need to check for the existence of the relation, then we can optimize
-        // the subquery to only run a "where exists" clause instead of this full "count"
-        // clause. This will make these queries run much faster compared with a count.
         $method = $this->canUseExistsForExistenceCheck($operator, $count)
                         ? 'getRelationExistenceQuery'
                         : 'getRelationExistenceCountQuery';
@@ -51,10 +47,6 @@ trait QueriesRelationships
         $hasQuery = $relation->{$method}(
             $relation->getRelated()->newQueryWithoutRelationships(), $this
         );
-
-        // Next we will call any given callback as an "anonymous" scope so they can get the
-        // proper logical grouping of the where clauses if needed by this Eloquent query
-        // builder. Then, we will be ready to finalize and return this query instance.
         if ($callback) {
             $hasQuery->callScope($callback);
         }
@@ -88,9 +80,6 @@ trait QueriesRelationships
         }
 
         $closure = function ($q) use (&$closure, &$relations, $operator, $count, $callback) {
-            // In order to nest "has", we need to add count relation constraints on the
-            // callback Closure. We'll do this by simply passing the Closure its own
-            // reference to itself so it calls itself recursively on each segment.
             count($relations) > 1
                 ? $q->whereHas(array_shift($relations), $closure)
                 : $q->has(array_shift($relations), $operator, $count, 'and', $callback);
@@ -529,9 +518,6 @@ trait QueriesRelationships
         $relations = is_array($relations) ? $relations : [$relations];
 
         foreach ($this->parseWithRelations($relations) as $name => $constraints) {
-            // First we will determine if the name has been aliased using an "as" clause on the name
-            // and if it has we will extract the actual relationship name and the desired name of
-            // the resulting column. This allows multiple aggregates on the same relationships.
             $segments = explode(' ', $name);
 
             unset($alias);
@@ -555,10 +541,6 @@ trait QueriesRelationships
             } else {
                 $expression = $column;
             }
-
-            // Here, we will grab the relationship sub-query and prepare to add it to the main query
-            // as a sub-select. First, we'll get the "has" query and use that to get the relation
-            // sub-query. We'll format this relationship name and append this column if needed.
             $query = $relation->getRelationExistenceQuery(
                 $relation->getRelated()->newQuery(), $this, new Expression($expression)
             )->setBindings([], 'select');
@@ -566,10 +548,6 @@ trait QueriesRelationships
             $query->callScope($constraints);
 
             $query = $query->mergeConstraintsFrom($relation->getQuery())->toBase();
-
-            // If the query contains certain elements like orderings / more than one column selected
-            // then we will remove those elements from the query so that it will execute properly
-            // when given to the database. Otherwise, we may receive SQL errors or poor syntax.
             $query->orders = null;
             $query->setBindings([], 'order');
 
@@ -577,10 +555,6 @@ trait QueriesRelationships
                 $query->columns = [$query->columns[0]];
                 $query->bindings['select'] = [];
             }
-
-            // Finally, we will make the proper column alias to the query and run this sub-select on
-            // the query builder. Then, we will return the builder instance back to the developer
-            // for further constraint chaining that needs to take place on the query as needed.
             $alias ??= Str::snake(
                 preg_replace('/[^[:alnum:][:space:]_]/u', '', "$name $function $column")
             );
@@ -699,10 +673,6 @@ trait QueriesRelationships
     public function mergeConstraintsFrom(Builder $from)
     {
         $whereBindings = $from->getQuery()->getRawBindings()['where'] ?? [];
-
-        // Here we have some other query that we want to merge the where constraints from. We will
-        // copy over any where constraints on the query as well as remove any global scopes the
-        // query might have removed. Then we will return ourselves with the finished merging.
         return $this->withoutGlobalScopes(
             $from->removedScopes()
         )->mergeWheres(

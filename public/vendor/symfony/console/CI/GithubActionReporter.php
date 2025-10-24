@@ -84,11 +84,9 @@ class GithubActionReporter
 
     private function log(string $type, string $message, string $file = null, int $line = null, int $col = null): void
     {
-        // Some values must be encoded.
         $message = strtr($message, self::ESCAPED_DATA);
 
         if (!$file) {
-            // No file provided, output the message solely:
             $this->output->writeln(sprintf('::%s::%s', $type, $message));
 
             return;

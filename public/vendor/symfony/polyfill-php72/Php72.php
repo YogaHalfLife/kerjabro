@@ -52,7 +52,6 @@ final class Php72
 
                 case "\xF0":
                     ++$i;
-                    // no break
 
                 case "\xE0":
                     $s[$j] = '?';
@@ -94,8 +93,6 @@ final class Php72
         if (null === $hash = spl_object_hash($object)) {
             return;
         }
-
-        // On 32-bit systems, PHP_INT_SIZE is 4,
         return self::$hashMask ^ hexdec(substr($hash, 16 - (\PHP_INT_SIZE * 2 - 1), (\PHP_INT_SIZE * 2 - 1)));
     }
 
@@ -114,13 +111,9 @@ final class Php72
 
             return false;
         }
-
-        // We cannot actually disable vt100 support if it is set
         if (false === $enable || !self::stream_isatty($stream)) {
             return false;
         }
-
-        // The native function does not apply to stdin
         $meta = array_map('strtolower', $meta);
         $stdin = 'php://stdin' === $meta['uri'] || 'php://fd/0' === $meta['uri'];
 
@@ -141,7 +134,6 @@ final class Php72
 
         if ('\\' === \DIRECTORY_SEPARATOR) {
             $stat = @fstat($stream);
-            // Check if formatted mode is S_IFCHR
             return $stat ? 0020000 === ($stat['mode'] & 0170000) : false;
         }
 
@@ -152,8 +144,6 @@ final class Php72
     {
         $obj = (object) [];
         self::$hashMask = -1;
-
-        // check if we are nested in an output buffering handler to prevent a fatal error with ob_start() below
         $obFuncs = ['ob_clean', 'ob_end_clean', 'ob_flush', 'ob_end_flush', 'ob_get_contents', 'ob_get_flush'];
         foreach (debug_backtrace(\PHP_VERSION_ID >= 50400 ? \DEBUG_BACKTRACE_IGNORE_ARGS : false) as $frame) {
             if (isset($frame['function'][0]) && !isset($frame['class']) && 'o' === $frame['function'][0] && \in_array($frame['function'], $obFuncs)) {

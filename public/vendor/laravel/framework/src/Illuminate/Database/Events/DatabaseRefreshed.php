@@ -6,5 +6,4 @@ use Illuminate\Contracts\Database\Events\MigrationEvent as MigrationEventContrac
 
 class DatabaseRefreshed implements MigrationEventContract
 {
-    //
 }

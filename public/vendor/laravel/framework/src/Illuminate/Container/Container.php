@@ -249,17 +249,9 @@ class Container implements ArrayAccess, ContainerContract
     public function bind($abstract, $concrete = null, $shared = false)
     {
         $this->dropStaleInstances($abstract);
-
-        // If no concrete type was given, we will simply set the concrete type to the
-        // abstract type. After that, the concrete type to be registered as shared
-        // without being forced to state their classes in both of the parameters.
         if (is_null($concrete)) {
             $concrete = $abstract;
         }
-
-        // If the factory is not a Closure, it means it is just a class name which is
-        // bound into this container to the abstract type and we will just wrap it
-        // up inside its own Closure to give us more convenience when extending.
         if (! $concrete instanceof Closure) {
             if (! is_string($concrete)) {
                 throw new TypeError(self::class.'::bind(): Argument #2 ($concrete) must be of type Closure|string|null');
@@ -269,10 +261,6 @@ class Container implements ArrayAccess, ContainerContract
         }
 
         $this->bindings[$abstract] = compact('concrete', 'shared');
-
-        // If the abstract type was already resolved in this container we'll fire the
-        // rebound listener so that any objects which have already gotten resolved
-        // can have their copy of the object updated via the listener callbacks.
         if ($this->resolved($abstract)) {
             $this->rebound($abstract);
         }
@@ -472,10 +460,6 @@ class Container implements ArrayAccess, ContainerContract
         $isBound = $this->bound($abstract);
 
         unset($this->aliases[$abstract]);
-
-        // We'll check to determine if this type has been bound before, and if it has
-        // we will fire the rebound callbacks registered with the container and it
-        // can be updated with consuming classes that have gotten resolved here.
         $this->instances[$abstract] = $instance;
 
         if ($isBound) {
@@ -726,10 +710,6 @@ class Container implements ArrayAccess, ContainerContract
     protected function resolve($abstract, $parameters = [], $raiseEvents = true)
     {
         $abstract = $this->getAlias($abstract);
-
-        // First we'll fire any event handlers which handle the "before" resolving of
-        // specific types. This gives some hooks the chance to add various extends
-        // calls to change the resolution of objects that they're interested in.
         if ($raiseEvents) {
             $this->fireBeforeResolvingCallbacks($abstract, $parameters);
         }
@@ -737,10 +717,6 @@ class Container implements ArrayAccess, ContainerContract
         $concrete = $this->getContextualConcrete($abstract);
 
         $needsContextualBuild = ! empty($parameters) || ! is_null($concrete);
-
-        // If an instance of the type is currently being managed as a singleton we'll
-        // just return an existing instance instead of instantiating new instances
-        // so the developer can keep using the same objects instance every time.
         if (isset($this->instances[$abstract]) && ! $needsContextualBuild) {
             return $this->instances[$abstract];
         }
@@ -750,26 +726,14 @@ class Container implements ArrayAccess, ContainerContract
         if (is_null($concrete)) {
             $concrete = $this->getConcrete($abstract);
         }
-
-        // We're ready to instantiate an instance of the concrete type registered for
-        // the binding. This will instantiate the types, as well as resolve any of
-        // its "nested" dependencies recursively until all have gotten resolved.
         if ($this->isBuildable($concrete, $abstract)) {
             $object = $this->build($concrete);
         } else {
             $object = $this->make($concrete);
         }
-
-        // If we defined any extenders for this type, we'll need to spin through them
-        // and apply them to the object being built. This allows for the extension
-        // of services, such as changing configuration or decorating the object.
         foreach ($this->getExtenders($abstract) as $extender) {
             $object = $extender($object, $this);
         }
-
-        // If the requested type is registered as a singleton we'll want to cache off
-        // the instances in "memory" so we can return it later without creating an
-        // entirely new instance of an object on each subsequent request for it.
         if ($this->isShared($abstract) && ! $needsContextualBuild) {
             $this->instances[$abstract] = $object;
         }
@@ -777,10 +741,6 @@ class Container implements ArrayAccess, ContainerContract
         if ($raiseEvents) {
             $this->fireResolvingCallbacks($abstract, $object);
         }
-
-        // Before returning, we will also set the resolved flag to "true" and pop off
-        // the parameter overrides for this build. After those two things are done
-        // we will be ready to return back the fully constructed class instance.
         $this->resolved[$abstract] = true;
 
         array_pop($this->with);
@@ -796,9 +756,6 @@ class Container implements ArrayAccess, ContainerContract
      */
     protected function getConcrete($abstract)
     {
-        // If we don't have a registered resolver or concrete for the type, we'll just
-        // assume each type is a concrete name and will attempt to resolve it as is
-        // since the container should be able to resolve concretes automatically.
         if (isset($this->bindings[$abstract])) {
             return $this->bindings[$abstract]['concrete'];
         }
@@ -817,10 +774,6 @@ class Container implements ArrayAccess, ContainerContract
         if (! is_null($binding = $this->findInContextualBindings($abstract))) {
             return $binding;
         }
-
-        // Next we need to see if a contextual binding might be bound under an alias of the
-        // given abstract type. So, we will need to check if any aliases exist with this
-        // type and then spin through them and check for contextual bindings on these.
         if (empty($this->abstractAliases[$abstract])) {
             return;
         }
@@ -866,9 +819,6 @@ class Container implements ArrayAccess, ContainerContract
      */
     public function build($concrete)
     {
-        // If the concrete type is actually a Closure, we will just execute it and
-        // hand back the results of the functions, which allows functions to be
-        // used as resolvers for more fine-tuned resolution of these objects.
         if ($concrete instanceof Closure) {
             return $concrete($this, $this->getLastParameterOverride());
         }
@@ -878,10 +828,6 @@ class Container implements ArrayAccess, ContainerContract
         } catch (ReflectionException $e) {
             throw new BindingResolutionException("Target class [$concrete] does not exist.", 0, $e);
         }
-
-        // If the type is not instantiable, the developer is attempting to resolve
-        // an abstract type such as an Interface or Abstract Class and there is
-        // no binding registered for the abstractions so we need to bail out.
         if (! $reflector->isInstantiable()) {
             return $this->notInstantiable($concrete);
         }
@@ -889,10 +835,6 @@ class Container implements ArrayAccess, ContainerContract
         $this->buildStack[] = $concrete;
 
         $constructor = $reflector->getConstructor();
-
-        // If there are no constructors, that means there are no dependencies then
-        // we can just resolve the instances of the objects right away, without
-        // resolving any other types or dependencies out of these containers.
         if (is_null($constructor)) {
             array_pop($this->buildStack);
 
@@ -900,10 +842,6 @@ class Container implements ArrayAccess, ContainerContract
         }
 
         $dependencies = $constructor->getParameters();
-
-        // Once we have all the constructor's parameters we can create each of the
-        // dependency instances and then use the reflection instances to make a
-        // new instance of this class, injecting the created dependencies in.
         try {
             $instances = $this->resolveDependencies($dependencies);
         } catch (BindingResolutionException $e) {
@@ -930,18 +868,11 @@ class Container implements ArrayAccess, ContainerContract
         $results = [];
 
         foreach ($dependencies as $dependency) {
-            // If the dependency has an override for this particular build we will use
-            // that instead as the value. Otherwise, we will continue with this run
-            // of resolutions and let reflection attempt to determine the result.
             if ($this->hasParameterOverride($dependency)) {
                 $results[] = $this->getParameterOverride($dependency);
 
                 continue;
             }
-
-            // If the class is null, it means the dependency is a string or some other
-            // primitive type which we can not resolve since it is not a class and
-            // we will just bomb out with an error since we have no-where to go.
             $result = is_null(Util::getParameterClassName($dependency))
                             ? $this->resolvePrimitive($dependency)
                             : $this->resolveClass($dependency);
@@ -1026,10 +957,6 @@ class Container implements ArrayAccess, ContainerContract
                         ? $this->resolveVariadicClass($parameter)
                         : $this->make(Util::getParameterClassName($parameter));
         }
-
-        // If we can not resolve the class instance, we will check to see if the value
-        // is optional, and if it is we will return the optional parameter value as
-        // the value of the dependency, similarly to how we do this with scalars.
         catch (BindingResolutionException $e) {
             if ($parameter->isDefaultValueAvailable()) {
                 array_pop($this->with);

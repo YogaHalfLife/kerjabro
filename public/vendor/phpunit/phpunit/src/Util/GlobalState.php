@@ -69,11 +69,7 @@ final class GlobalState
         if (defined('__PHPUNIT_PHAR__')) {
             $prefix = 'phar://' . __PHPUNIT_PHAR__ . '/';
         }
-
-        // Do not process bootstrap script
         array_shift($files);
-
-        // If bootstrap script was a Composer bin proxy, skip the second entry as well
         if (substr(strtr($files[0], '\\', '/'), -24) === '/phpunit/phpunit/phpunit') {
             array_shift($files);
         }
@@ -87,8 +83,6 @@ final class GlobalState
             if ($prefix !== false && strpos($file, $prefix) === 0) {
                 continue;
             }
-
-            // Skip virtual file system protocols
             if (preg_match('/^(vfs|phpvfs[a-z0-9]+):/', $file)) {
                 continue;
             }

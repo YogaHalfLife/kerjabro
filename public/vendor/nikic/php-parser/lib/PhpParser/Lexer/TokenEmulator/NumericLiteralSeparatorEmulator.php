@@ -27,8 +27,6 @@ final class NumericLiteralSeparatorEmulator extends TokenEmulator
 
     public function emulate(string $code, array $tokens): array
     {
-        // We need to manually iterate and manage a count because we'll change
-        // the tokens array on the way
         $codeOffset = 0;
         for ($i = 0, $c = count($tokens); $i < $c; ++$i) {
             $token = $tokens[$i];
@@ -45,7 +43,6 @@ final class NumericLiteralSeparatorEmulator extends TokenEmulator
             $match = $matches[0];
             $matchLen = \strlen($match);
             if ($matchLen === $tokenLen) {
-                // Original token already holds the full number.
                 $codeOffset += $tokenLen;
                 continue;
             }
@@ -62,7 +59,6 @@ final class NumericLiteralSeparatorEmulator extends TokenEmulator
 
                 $numTokens++;
                 if ($matchLen < $len + $nextTokenLen) {
-                    // Split trailing characters into a partial token.
                     assert(is_array($nextToken), "Partial token should be an array token");
                     $partialText = substr($nextTokenText, $matchLen - $len);
                     $newTokens[] = [$nextToken[0], $partialText, $nextToken[2]];
@@ -99,7 +95,6 @@ final class NumericLiteralSeparatorEmulator extends TokenEmulator
 
     public function reverseEmulate(string $code, array $tokens): array
     {
-        // Numeric separators were not legal code previously, don't bother.
         return $tokens;
     }
 }

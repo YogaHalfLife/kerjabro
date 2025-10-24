@@ -194,25 +194,14 @@ trait HasRelationships
      */
     public function belongsTo($related, $foreignKey = null, $ownerKey = null, $relation = null)
     {
-        // If no relation name was given, we will use this debug backtrace to extract
-        // the calling method's name and use that as the relationship name as most
-        // of the time this will be what we desire to use for the relationships.
         if (is_null($relation)) {
             $relation = $this->guessBelongsToRelation();
         }
 
         $instance = $this->newRelatedInstance($related);
-
-        // If no foreign key was supplied, we can use a backtrace to guess the proper
-        // foreign key name by using the name of the relationship function, which
-        // when combined with an "_id" should conventionally match the columns.
         if (is_null($foreignKey)) {
             $foreignKey = Str::snake($relation).'_'.$instance->getKeyName();
         }
-
-        // Once we have the foreign key names we'll just create a new Eloquent query
-        // for the related models and return the relationship instance which will
-        // actually be responsible for retrieving and hydrating every relation.
         $ownerKey = $ownerKey ?: $instance->getKeyName();
 
         return $this->newBelongsTo(
@@ -246,18 +235,11 @@ trait HasRelationships
      */
     public function morphTo($name = null, $type = null, $id = null, $ownerKey = null)
     {
-        // If no name is provided, we will use the backtrace to get the function name
-        // since that is most likely the name of the polymorphic interface. We can
-        // use that to get both the class and foreign key that will be utilized.
         $name = $name ?: $this->guessBelongsToRelation();
 
         [$type, $id] = $this->getMorphs(
             Str::snake($name), $type, $id
         );
-
-        // If the type value is null it is probably safe to assume we're eager loading
-        // the relationship. In this case we'll just pass in a dummy query where we
-        // need to remove any eager loads that may already be defined on a model.
         return is_null($class = $this->getAttributeFromArray($type)) || $class === ''
                     ? $this->morphEagerTo($name, $type, $id, $ownerKey)
                     : $this->morphInstanceTo($class, $name, $type, $id, $ownerKey);
@@ -434,10 +416,6 @@ trait HasRelationships
     public function morphMany($related, $name, $type = null, $id = null, $localKey = null)
     {
         $instance = $this->newRelatedInstance($related);
-
-        // Here we will gather up the morph type and ID for the relationship so that we
-        // can properly query the intermediate table of a relation. Finally, we will
-        // get the table and create the relationship instances for the developers.
         [$type, $id] = $this->getMorphs($name, $type, $id);
 
         $table = $instance->getTable();
@@ -477,25 +455,14 @@ trait HasRelationships
     public function belongsToMany($related, $table = null, $foreignPivotKey = null, $relatedPivotKey = null,
                                   $parentKey = null, $relatedKey = null, $relation = null)
     {
-        // If no relationship name was passed, we will pull backtraces to get the
-        // name of the calling function. We will use that function name as the
-        // title of this relation since that is a great convention to apply.
         if (is_null($relation)) {
             $relation = $this->guessBelongsToManyRelation();
         }
-
-        // First, we'll need to determine the foreign key and "other key" for the
-        // relationship. Once we have determined the keys we'll make the query
-        // instances as well as the relationship instances we need for this.
         $instance = $this->newRelatedInstance($related);
 
         $foreignPivotKey = $foreignPivotKey ?: $this->getForeignKey();
 
         $relatedPivotKey = $relatedPivotKey ?: $instance->getForeignKey();
-
-        // If no table name was provided, we can guess it by concatenating the two
-        // models using underscores in alphabetical order. The two model names
-        // are transformed to snake case from their default CamelCase also.
         if (is_null($table)) {
             $table = $this->joiningTable($related, $instance);
         }
@@ -544,19 +511,11 @@ trait HasRelationships
                                 $relatedKey = null, $inverse = false)
     {
         $caller = $this->guessBelongsToManyRelation();
-
-        // First, we will need to determine the foreign key and "other key" for the
-        // relationship. Once we have determined the keys we will make the query
-        // instances, as well as the relationship instances we need for these.
         $instance = $this->newRelatedInstance($related);
 
         $foreignPivotKey = $foreignPivotKey ?: $name.'_id';
 
         $relatedPivotKey = $relatedPivotKey ?: $instance->getForeignKey();
-
-        // Now we're ready to create a new query builder for the related model and
-        // the relationship instances for this relation. This relation will set
-        // appropriate query constraints then entirely manage the hydrations.
         if (! $table) {
             $words = preg_split('/(_)/u', $name, -1, PREG_SPLIT_DELIM_CAPTURE);
 
@@ -611,10 +570,6 @@ trait HasRelationships
                                   $relatedPivotKey = null, $parentKey = null, $relatedKey = null)
     {
         $foreignPivotKey = $foreignPivotKey ?: $this->getForeignKey();
-
-        // For the inverse of the polymorphic many-to-many relations, we will change
-        // the way we determine the foreign and other keys, as it is the opposite
-        // of the morph-to-many method since we're figuring out these inverses.
         $relatedPivotKey = $relatedPivotKey ?: $name.'_id';
 
         return $this->morphToMany(
@@ -649,18 +604,11 @@ trait HasRelationships
      */
     public function joiningTable($related, $instance = null)
     {
-        // The joining table name, by convention, is simply the snake cased models
-        // sorted alphabetically and concatenated with an underscore, so we can
-        // just sort the models and join them together to get the table name.
         $segments = [
             $instance ? $instance->joiningTableSegment()
                       : Str::snake(class_basename($related)),
             $this->joiningTableSegment(),
         ];
-
-        // Now that we have the model names in an array we can just sort them and
-        // use the implode function to join them together with an underscores,
-        // which is typically used by convention within the database system.
         sort($segments);
 
         return strtolower(implode('_', $segments));

@@ -21,7 +21,6 @@ class Validators
 
 	/** @var array<string,?callable> */
 	protected static $validators = [
-		// PHP types
 		'array' => 'is_array',
 		'bool' => 'is_bool',
 		'boolean' => 'is_bool',
@@ -33,8 +32,6 @@ class Validators
 		'resource' => 'is_resource',
 		'scalar' => 'is_scalar',
 		'string' => 'is_string',
-
-		// pseudo-types
 		'callable' => [self::class, 'isCallable'],
 		'iterable' => 'is_iterable',
 		'list' => [Arrays::class, 'isList'],
@@ -43,8 +40,6 @@ class Validators
 		'number' => [self::class, 'isNumber'],
 		'numeric' => [self::class, 'isNumeric'],
 		'numericint' => [self::class, 'isNumericInt'],
-
-		// string patterns
 		'alnum' => 'ctype_alnum',
 		'alpha' => 'ctype_alpha',
 		'digit' => 'ctype_digit',
@@ -54,14 +49,10 @@ class Validators
 		'unicode' => [self::class, 'isUnicode'],
 		'upper' => 'ctype_upper',
 		'xdigit' => 'ctype_xdigit',
-
-		// syntax validation
 		'email' => [self::class, 'isEmail'],
 		'identifier' => [self::class, 'isPhpIdentifier'],
 		'uri' => [self::class, 'isUri'],
 		'url' => [self::class, 'isUrl'],
-
-		// environment validation
 		'class' => 'class_exists',
 		'interface' => 'interface_exists',
 		'directory' => 'is_dir',

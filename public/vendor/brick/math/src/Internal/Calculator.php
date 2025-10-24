@@ -417,14 +417,11 @@ abstract class Calculator
      */
     final public function fromArbitraryBase(string $number, string $alphabet, int $base) : string
     {
-        // remove leading "zeros"
         $number = \ltrim($number, $alphabet[0]);
 
         if ($number === '') {
             return '0';
         }
-
-        // optimize for "one"
         if ($number === $alphabet[1]) {
             return '1';
         }
@@ -660,11 +657,8 @@ abstract class Calculator
                 $value = $aBin ^ $bBin;
                 $negative = ($aNeg xor $bNeg);
                 break;
-
-            // @codeCoverageIgnoreStart
             default:
                 throw new \InvalidArgumentException('Invalid bitwise operator.');
-            // @codeCoverageIgnoreEnd
         }
 
         if ($negative) {

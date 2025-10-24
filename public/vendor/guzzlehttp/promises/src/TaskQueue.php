@@ -21,7 +21,6 @@ class TaskQueue implements TaskQueueInterface
         if ($withShutdown) {
             register_shutdown_function(function () {
                 if ($this->enableShutdown) {
-                    // Only run the tasks if an E_ERROR didn't occur.
                     $err = error_get_last();
                     if (!$err || ($err['type'] ^ E_ERROR)) {
                         $this->run();

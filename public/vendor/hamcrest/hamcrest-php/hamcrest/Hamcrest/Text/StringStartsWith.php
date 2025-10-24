@@ -26,8 +26,6 @@ class StringStartsWith extends SubstringMatcher
         return new self($substring);
     }
 
-    // -- Protected Methods
-
     protected function evalSubstringOf($string)
     {
         return (substr($string, 0, strlen($this->_substring)) === $this->_substring);

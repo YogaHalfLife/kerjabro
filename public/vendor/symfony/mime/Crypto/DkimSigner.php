@@ -156,7 +156,6 @@ final class DkimSigner
                     case "\r":
                         break;
                     case "\n":
-                        // previous char is always \r
                         if ($relaxed) {
                             $isSpaceSequence = false;
                         }
@@ -173,7 +172,6 @@ final class DkimSigner
                             $isSpaceSequence = true;
                             break;
                         }
-                        // no break
                     default:
                         if ($emptyCounter > 0) {
                             $canon .= str_repeat("\r\n", $emptyCounter);
@@ -200,8 +198,6 @@ final class DkimSigner
             $length += \strlen($canon);
             hash_update($hash, $canon);
         }
-
-        // Add trailing Line return if last line is non empty
         if ('' !== $currentLine) {
             hash_update($hash, "\r\n");
             $length += \strlen("\r\n");

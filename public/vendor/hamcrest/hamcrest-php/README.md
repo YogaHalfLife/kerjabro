@@ -54,16 +54,9 @@ Alternatively, you can use the global proxy-functions:
 
 ```php
 $result = true;
-// with an identifier
 assertThat("result should be true", $result, equalTo(true));
-
-// without an identifier
 assertThat($result, equalTo(true));
-
-// evaluate a boolean expression
 assertThat($result === true);
-
-// with syntactic sugar is()
 assertThat(true, is(true));
 ```
 
@@ -206,10 +199,6 @@ assertThat([2, 4, 6], either(hasValue(2))->orElse(hasValue(4)));
 ```php 
 $expected = "Dog";
 $found = null;
-// this assertion would result error message as Expected: is not null but: was null
-//assertThat("Expected {$expected}, got {$found}", $found, is(notNullValue()));
-// and this assertion would result error message as Expected: Dog but: was null
-//assertThat($found, describedAs($expected, notNullValue()));
 ```
 
 * `everyItem` - A matcher to apply to every element in an array.

@@ -76,7 +76,6 @@ class Populator
 
     protected function getConnection()
     {
-        // use the first connection available
         $class = key($this->entities);
 
         if (!$class) {

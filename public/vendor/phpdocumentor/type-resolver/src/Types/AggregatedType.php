@@ -77,7 +77,6 @@ abstract class AggregatedType implements Type, IteratorAggregate
     public function contains(Type $type): bool
     {
         foreach ($this->types as $typePart) {
-            // if the type is duplicate; do not add it
             if ((string) $typePart === (string) $type) {
                 return true;
             }
@@ -114,8 +113,6 @@ abstract class AggregatedType implements Type, IteratorAggregate
 
             return;
         }
-
-        // if the type is duplicate; do not add it
         if ($this->contains($type)) {
             return;
         }

@@ -46,12 +46,8 @@ class RandomNodeProvider implements NodeProviderInterface
                 $exception
             );
         }
-
-        // Split the node bytes for math on 32-bit systems.
         $nodeMsb = substr($nodeBytes, 0, 3);
         $nodeLsb = substr($nodeBytes, 3);
-
-        // Set the multicast bit; see RFC 4122, section 4.5.
         $nodeMsb = hex2bin(
             str_pad(
                 dechex(hexdec(bin2hex($nodeMsb)) | 0x010000),
@@ -60,8 +56,6 @@ class RandomNodeProvider implements NodeProviderInterface
                 STR_PAD_LEFT
             )
         );
-
-        // Recombine the node bytes.
         $node = $nodeMsb . $nodeLsb;
 
         return new Hexadecimal(str_pad(bin2hex($node), 12, '0', STR_PAD_LEFT));

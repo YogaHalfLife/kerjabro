@@ -140,8 +140,6 @@ final class ProcessedCodeCoverageData
 
                 continue;
             }
-
-            // we should compare the lines if any of two contains data
             $compareLineNumbers = array_unique(
                 array_merge(
                     array_keys($this->lineCoverage[$file]),

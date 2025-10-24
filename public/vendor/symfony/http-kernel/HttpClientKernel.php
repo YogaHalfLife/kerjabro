@@ -20,8 +20,6 @@ use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 use Symfony\Component\Mime\Part\TextPart;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-
-// Help opcache.preload discover always-needed symbols
 class_exists(ResponseHeaderBag::class);
 
 /**

@@ -52,32 +52,14 @@ Exporting simple types:
 use SebastianBergmann\Exporter\Exporter;
 
 $exporter = new Exporter;
-
-// 46
 print $exporter->export(46);
-
-// 4.0
 print $exporter->export(4.0);
-
-// 'hello, world!'
 print $exporter->export('hello, world!');
-
-// false
 print $exporter->export(false);
-
-// NAN
 print $exporter->export(acos(8));
-
-// -INF
 print $exporter->export(log(0));
-
-// null
 print $exporter->export(null);
-
-// resource(13) of type (stream)
 print $exporter->export(fopen('php://stderr', 'w'));
-
-// Binary String: 0x000102030405
 print $exporter->export(chr(0) . chr(1) . chr(2) . chr(3) . chr(4) . chr(5));
 ```
 
@@ -136,20 +118,10 @@ Compact exports:
 use SebastianBergmann\Exporter\Exporter;
 
 $exporter = new Exporter;
-
-// Array ()
 print $exporter->shortenedExport(array());
-
-// Array (...)
 print $exporter->shortenedExport(array(1,2,3,4,5));
-
-// stdClass Object ()
 print $exporter->shortenedExport(new stdClass);
-
-// Exception Object (...)
 print $exporter->shortenedExport(new Exception);
-
-// this\nis\na\nsuper\nlong\nstring\nt...\nspace
 print $exporter->shortenedExport(
 <<<LONG_STRING
 this

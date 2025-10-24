@@ -45,14 +45,10 @@ trait TranslationTrait
     private function filterCatalogue(MessageCatalogue $catalogue, string $domain): MessageCatalogue
     {
         $filteredCatalogue = new MessageCatalogue($catalogue->getLocale());
-
-        // extract intl-icu messages only
         $intlDomain = $domain.MessageCatalogueInterface::INTL_DOMAIN_SUFFIX;
         if ($intlMessages = $catalogue->all($intlDomain)) {
             $filteredCatalogue->add($intlMessages, $intlDomain);
         }
-
-        // extract all messages and subtract intl-icu messages
         if ($messages = array_diff($catalogue->all($domain), $intlMessages)) {
             $filteredCatalogue->add($messages, $domain);
         }

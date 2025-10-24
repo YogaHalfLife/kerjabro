@@ -44,17 +44,11 @@ class ImplicitReturnPass extends CodeCleanerPass
      */
     private function addImplicitReturn(array $nodes): array
     {
-        // If nodes is empty, it can't have a return value.
         if (empty($nodes)) {
             return [new Return_(NoReturnValue::create())];
         }
 
         $last = \end($nodes);
-
-        // Special case a few types of statements to add an implicit return
-        // value (even though they technically don't have any return value)
-        // because showing a return value in these instances is useful and not
-        // very surprising.
         if ($last instanceof If_) {
             $last->stmts = $this->addImplicitReturn($last->stmts);
 
@@ -67,7 +61,6 @@ class ImplicitReturnPass extends CodeCleanerPass
             }
         } elseif ($last instanceof Switch_) {
             foreach ($last->cases as $case) {
-                // only add an implicit return to cases which end in break
                 $caseLast = \end($case->stmts);
                 if ($caseLast instanceof Break_) {
                     $case->stmts = $this->addImplicitReturn(\array_slice($case->stmts, 0, -1));
@@ -75,14 +68,11 @@ class ImplicitReturnPass extends CodeCleanerPass
                 }
             }
         } elseif ($last instanceof Expr && !($last instanceof Exit_)) {
-            // @codeCoverageIgnoreStart
             $nodes[\count($nodes) - 1] = new Return_($last, [
                 'startLine' => $last->getLine(),
                 'endLine'   => $last->getLine(),
             ]);
-        // @codeCoverageIgnoreEnd
         } elseif ($last instanceof Expression && !($last->expr instanceof Exit_)) {
-            // For PHP Parser 4.x
             $nodes[\count($nodes) - 1] = new Return_($last->expr, [
                 'startLine' => $last->getLine(),
                 'endLine'   => $last->getLine(),
@@ -90,17 +80,6 @@ class ImplicitReturnPass extends CodeCleanerPass
         } elseif ($last instanceof Namespace_) {
             $last->stmts = $this->addImplicitReturn($last->stmts);
         }
-
-        // Return a "no return value" for all non-expression statements, so that
-        // PsySH can suppress the `null` that `eval()` returns otherwise.
-        //
-        // Note that statements special cased above (if/elseif/else, switch)
-        // _might_ implicitly return a value before this catch-all return is
-        // reached.
-        //
-        // We're not adding a fallback return after namespace statements,
-        // because code outside namespace statements doesn't really work, and
-        // there's already an implicit return in the namespace statement anyway.
         if (self::isNonExpressionStmt($last)) {
             $nodes[] = new Return_(NoReturnValue::create());
         }

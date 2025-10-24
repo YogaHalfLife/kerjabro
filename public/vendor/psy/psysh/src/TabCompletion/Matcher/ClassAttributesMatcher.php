@@ -30,7 +30,6 @@ class ClassAttributesMatcher extends AbstractMatcher
 
         $firstToken = \array_pop($tokens);
         if (self::tokenIs($firstToken, self::T_STRING)) {
-            // second token is the nekudotayim operator
             \array_pop($tokens);
         }
 

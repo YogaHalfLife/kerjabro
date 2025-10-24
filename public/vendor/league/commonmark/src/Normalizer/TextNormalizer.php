@@ -29,8 +29,6 @@ final class TextNormalizer implements TextNormalizerInterface
      */
     public function normalize(string $text, array $context = []): string
     {
-        // Collapse internal whitespace to single space and remove
-        // leading/trailing whitespace
         $text = \preg_replace('/[ \t\r\n]+/', ' ', \trim($text));
         \assert(\is_string($text));
 

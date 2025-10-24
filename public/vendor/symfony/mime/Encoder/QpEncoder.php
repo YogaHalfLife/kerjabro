@@ -128,10 +128,6 @@ class QpEncoder implements EncoderInterface
         $currentLine = &$lines[$lNo++];
         $size = $lineLen = 0;
         $charStream = new CharacterStream($string, $charset);
-
-        // Fetching more than 4 chars at one is slower, as is fetching fewer bytes
-        // Conveniently 4 chars is the UTF-8 safe number since UTF-8 has up to 6
-        // bytes per char and (6 * 4 * 3 = 72 chars per line) * =NN is 3 bytes
         while (null !== $bytes = $charStream->readBytes(4)) {
             $enc = $this->encodeByteSequence($bytes, $size);
 
@@ -150,7 +146,6 @@ class QpEncoder implements EncoderInterface
             if (false === $i) {
                 $lineLen += $size;
             } else {
-                // 6 is the length of '=0D=0A'.
                 $lineLen = $size - strrpos($enc, '=0D=0A') - 6;
             }
         }

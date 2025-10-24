@@ -4,8 +4,6 @@
  Copyright (c) 2009-2010 hamcrest.org
  */
 
-// This file is generated from the static method @factory doctags.
-
 if (!function_exists('assertThat')) {
     /**
      * Make an assertion and throw {@link Hamcrest_AssertionError} if it fails.

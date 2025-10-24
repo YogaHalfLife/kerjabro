@@ -15,7 +15,6 @@ use PhpParser\PrettyPrinterAbstract;
 
 class Standard extends PrettyPrinterAbstract
 {
-    // Special nodes
 
     protected function pParam(Node\Param $node) {
         return $this->pAttrGroups($node->attrGroups, true)
@@ -70,8 +69,6 @@ class Standard extends PrettyPrinterAbstract
         return '#[' . $this->pCommaSeparated($node->attrs) . ']';
     }
 
-    // Names
-
     protected function pName(Name $node) {
         return implode('\\', $node->parts);
     }
@@ -83,8 +80,6 @@ class Standard extends PrettyPrinterAbstract
     protected function pName_Relative(Name\Relative $node) {
         return 'namespace\\' . implode('\\', $node->parts);
     }
-
-    // Magic Constants
 
     protected function pScalar_MagicConst_Class(MagicConst\Class_ $node) {
         return '__CLASS__';
@@ -117,8 +112,6 @@ class Standard extends PrettyPrinterAbstract
     protected function pScalar_MagicConst_Trait(MagicConst\Trait_ $node) {
         return '__TRAIT__';
     }
-
-    // Scalars
 
     protected function pScalar_String(Scalar\String_ $node) {
         $kind = $node->getAttribute('kind', Scalar\String_::KIND_SINGLE_QUOTED);
@@ -174,8 +167,6 @@ class Standard extends PrettyPrinterAbstract
 
     protected function pScalar_LNumber(Scalar\LNumber $node) {
         if ($node->value === -\PHP_INT_MAX-1) {
-            // PHP_INT_MIN cannot be represented as a literal,
-            // because the sign is not part of the literal
             return '(-' . \PHP_INT_MAX . '-1)';
         }
 
@@ -212,27 +203,17 @@ class Standard extends PrettyPrinterAbstract
                 return '\NAN';
             }
         }
-
-        // Try to find a short full-precision representation
         $stringValue = sprintf('%.16G', $node->value);
         if ($node->value !== (double) $stringValue) {
             $stringValue = sprintf('%.17G', $node->value);
         }
-
-        // %G is locale dependent and there exists no locale-independent alternative. We don't want
-        // mess with switching locales here, so let's assume that a comma is the only non-standard
-        // decimal separator we may encounter...
         $stringValue = str_replace(',', '.', $stringValue);
-
-        // ensure that number is really printed as float
         return preg_match('/^-?[0-9]+$/', $stringValue) ? $stringValue . '.0' : $stringValue;
     }
 
     protected function pScalar_EncapsedStringPart(Scalar\EncapsedStringPart $node) {
         throw new \LogicException('Cannot directly print EncapsedStringPart');
     }
-
-    // Assignments
 
     protected function pExpr_Assign(Expr\Assign $node) {
         return $this->pInfixOp(Expr\Assign::class, $node->var, ' = ', $node->expr);
@@ -293,8 +274,6 @@ class Standard extends PrettyPrinterAbstract
     protected function pExpr_AssignOp_Coalesce(AssignOp\Coalesce $node) {
         return $this->pInfixOp(AssignOp\Coalesce::class, $node->var, ' ??= ', $node->expr);
     }
-
-    // Binary expressions
 
     protected function pExpr_BinaryOp_Plus(BinaryOp\Plus $node) {
         return $this->pInfixOp(BinaryOp\Plus::class, $node->left, ' + ', $node->right);
@@ -411,8 +390,6 @@ class Standard extends PrettyPrinterAbstract
              . $this->pNewVariable($node->class);
     }
 
-    // Unary expressions
-
     protected function pExpr_BooleanNot(Expr\BooleanNot $node) {
         return $this->pPrefixOp(Expr\BooleanNot::class, '!', $node->expr);
     }
@@ -423,7 +400,6 @@ class Standard extends PrettyPrinterAbstract
 
     protected function pExpr_UnaryMinus(Expr\UnaryMinus $node) {
         if ($node->expr instanceof Expr\UnaryMinus || $node->expr instanceof Expr\PreDec) {
-            // Enforce -(-$expr) instead of --$expr
             return '-(' . $this->p($node->expr) . ')';
         }
         return $this->pPrefixOp(Expr\UnaryMinus::class, '-', $node->expr);
@@ -431,7 +407,6 @@ class Standard extends PrettyPrinterAbstract
 
     protected function pExpr_UnaryPlus(Expr\UnaryPlus $node) {
         if ($node->expr instanceof Expr\UnaryPlus || $node->expr instanceof Expr\PreInc) {
-            // Enforce +(+$expr) instead of ++$expr
             return '+(' . $this->p($node->expr) . ')';
         }
         return $this->pPrefixOp(Expr\UnaryPlus::class, '+', $node->expr);
@@ -464,8 +439,6 @@ class Standard extends PrettyPrinterAbstract
     protected function pExpr_Print(Expr\Print_ $node) {
         return $this->pPrefixOp(Expr\Print_::class, 'print ', $node->expr);
     }
-
-    // Casts
 
     protected function pExpr_Cast_Int(Cast\Int_ $node) {
         return $this->pPrefixOp(Cast\Int_::class, '(int) ', $node->expr);
@@ -502,8 +475,6 @@ class Standard extends PrettyPrinterAbstract
     protected function pExpr_Cast_Unset(Cast\Unset_ $node) {
         return $this->pPrefixOp(Cast\Unset_::class, '(unset) ', $node->expr);
     }
-
-    // Function calls and similar constructs
 
     protected function pExpr_FuncCall(Expr\FuncCall $node) {
         return $this->pCallLhs($node->name)
@@ -556,8 +527,6 @@ class Standard extends PrettyPrinterAbstract
     protected function pExpr_List(Expr\List_ $node) {
         return 'list(' . $this->pCommaSeparated($node->items) . ')';
     }
-
-    // Other
 
     protected function pExpr_Error(Expr\Error $node) {
         throw new \LogicException('Cannot pretty-print AST with Error nodes');
@@ -667,8 +636,6 @@ class Standard extends PrettyPrinterAbstract
     }
 
     protected function pExpr_Ternary(Expr\Ternary $node) {
-        // a bit of cheating: we treat the ternary as a binary op where the ?...: part is the operator.
-        // this is okay because the part between ? and : never needs parentheses.
         return $this->pInfixOp(Expr\Ternary::class,
             $node->cond, ' ?' . (null !== $node->if ? ' ' . $this->p($node->if) . ' ' : '') . ': ', $node->else
         );
@@ -688,15 +655,12 @@ class Standard extends PrettyPrinterAbstract
         if ($node->value === null) {
             return 'yield';
         } else {
-            // this is a bit ugly, but currently there is no way to detect whether the parentheses are necessary
             return '(yield '
                  . ($node->key !== null ? $this->p($node->key) . ' => ' : '')
                  . $this->p($node->value)
                  . ')';
         }
     }
-
-    // Declarations
 
     protected function pStmt_Namespace(Stmt\Namespace_ $node) {
         if ($this->canUseSemicolonNamespaces) {
@@ -830,8 +794,6 @@ class Standard extends PrettyPrinterAbstract
         return $node->key . '=' . $this->p($node->value);
     }
 
-    // Control flow
-
     protected function pStmt_If(Stmt\If_ $node) {
         return 'if (' . $this->p($node->cond) . ') {'
              . $this->pStmts($node->stmts) . $this->nl . '}'
@@ -923,8 +885,6 @@ class Standard extends PrettyPrinterAbstract
         return 'goto ' . $node->name . ';';
     }
 
-    // Other
-
     protected function pStmt_Expression(Stmt\Expression $node) {
         return $this->p($node->expr) . ';';
     }
@@ -963,8 +923,6 @@ class Standard extends PrettyPrinterAbstract
         return '';
     }
 
-    // Helpers
-
     protected function pClassCommon(Stmt\Class_ $node, $afterClassToken) {
         return $this->pAttrGroups($node->attrGroups, $node->name === null)
             . $this->pModifiers($node->flags)
@@ -1001,14 +959,10 @@ class Standard extends PrettyPrinterAbstract
 
     protected function escapeString($string, $quote) {
         if (null === $quote) {
-            // For doc strings, don't escape newlines
             $escaped = addcslashes($string, "\t\f\v$\\");
         } else {
             $escaped = addcslashes($string, "\n\r\t\f\v$" . $quote . "\\");
         }
-
-        // Escape control characters and non-UTF-8 characters.
-        // Regex based on https://stackoverflow.com/a/11709412/385378.
         $regex = '/(
               [\x00-\x08\x0E-\x1F] # Control characters
             | [\xC0-\xC1] # Invalid UTF-8 Bytes
@@ -1068,7 +1022,6 @@ class Standard extends PrettyPrinterAbstract
     }
 
     protected function pNewVariable(Node $node) {
-        // TODO: This is not fully accurate.
         return $this->pDereferenceLhs($node);
     }
 

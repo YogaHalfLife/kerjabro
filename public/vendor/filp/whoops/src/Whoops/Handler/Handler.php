@@ -19,7 +19,6 @@ abstract class Handler implements HandlerInterface
      to message the handler walker.
      */
     const DONE         = 0x10; // returning this is optional, only exists for
-                               // semantic purposes
     /**
      * The Handler has handled the Throwable in some way, and wishes to skip any other Handler.
      * Execution will continue.

@@ -92,7 +92,6 @@ trait InteractsWithExceptionHandling
              */
             public function report(Throwable $e)
             {
-                //
             }
 
             /**

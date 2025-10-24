@@ -325,10 +325,6 @@ class FilesystemAdapter implements CloudFilesystemContract
         $options = is_string($options)
                      ? ['visibility' => $options]
                      : (array) $options;
-
-        // If the given contents is actually a file or uploaded file instance than we will
-        // automatically store the file using a stream. This provides a convenient path
-        // for the developer to store streams without managing them manually in code.
         if ($contents instanceof File ||
             $contents instanceof UploadedFile) {
             return $this->putFile($path, $contents, $options);
@@ -380,10 +376,6 @@ class FilesystemAdapter implements CloudFilesystemContract
     public function putFileAs($path, $file, $name, $options = [])
     {
         $stream = fopen(is_string($file) ? $file : $file->getRealPath(), 'r');
-
-        // Next, we will format the path of the file and store the file using a stream since
-        // they provide better performance than alternatives. Once we write the file this
-        // stream will get closed automatically by us so the developer doesn't have to.
         $result = $this->put(
             $path = trim($path.'/'.$name, '/'), $stream, $options
         );
@@ -636,18 +628,11 @@ class FilesystemAdapter implements CloudFilesystemContract
      */
     protected function getLocalUrl($path)
     {
-        // If an explicit base URL has been set on the disk configuration then we will use
-        // it as the base URL instead of the default path. This allows the developer to
-        // have full control over the base path for this filesystem's generated URLs.
         if (isset($this->config['url'])) {
             return $this->concatPathToUrl($this->config['url'], $path);
         }
 
         $path = '/storage/'.$path;
-
-        // If the path contains "storage/public", it probably means the developer is using
-        // the default disk to generate the path instead of the "public" disk like they
-        // are really supposed to use. We will remove the public from this path here.
         if (str_contains($path, '/storage/public/')) {
             return Str::replaceFirst('/public/', '/', $path);
         }

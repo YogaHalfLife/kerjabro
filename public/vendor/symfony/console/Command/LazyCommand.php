@@ -185,8 +185,6 @@ final class LazyCommand extends Command
             ->setAliases($this->getAliases())
             ->setHidden($this->isHidden())
             ->setDescription($this->getDescription());
-
-        // Will throw if the command is not correctly initialized.
         $command->getDefinition();
 
         return $command;

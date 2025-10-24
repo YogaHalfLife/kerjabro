@@ -167,7 +167,6 @@
 
 .choices__list--single {
   display: inline-block;
-  // padding: 4px 16px 4px 4px;
   width: 100%;
 }
 
@@ -370,9 +369,6 @@
 
 /*=====  End of Choices  ======*/
 
-
-///////////// Creative Tim Changes
-
 .is-open .choices__inner{
   border-radius: $choices-border-radius;
 }
@@ -440,7 +436,3 @@
     background-color: $value;
   }
 }
-
-
-
-/////////////

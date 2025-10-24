@@ -38,10 +38,7 @@ trait Units
     public function addRealUnit($unit, $value = 1)
     {
         switch ($unit) {
-            // @call addRealUnit
             case 'micro':
-
-            // @call addRealUnit
             case 'microsecond':
                 /* @var CarbonInterface $this */
                 $diff = $this->microsecond + $value;
@@ -53,74 +50,49 @@ trait Units
                 $tz = $this->tz;
 
                 return $this->tz('UTC')->modify("@$time.$microtime")->tz($tz);
-
-            // @call addRealUnit
             case 'milli':
-            // @call addRealUnit
             case 'millisecond':
                 return $this->addRealUnit('microsecond', $value * static::MICROSECONDS_PER_MILLISECOND);
 
                 break;
-
-            // @call addRealUnit
             case 'second':
                 break;
-
-            // @call addRealUnit
             case 'minute':
                 $value *= static::SECONDS_PER_MINUTE;
 
                 break;
-
-            // @call addRealUnit
             case 'hour':
                 $value *= static::MINUTES_PER_HOUR * static::SECONDS_PER_MINUTE;
 
                 break;
-
-            // @call addRealUnit
             case 'day':
                 $value *= static::HOURS_PER_DAY * static::MINUTES_PER_HOUR * static::SECONDS_PER_MINUTE;
 
                 break;
-
-            // @call addRealUnit
             case 'week':
                 $value *= static::DAYS_PER_WEEK * static::HOURS_PER_DAY * static::MINUTES_PER_HOUR * static::SECONDS_PER_MINUTE;
 
                 break;
-
-            // @call addRealUnit
             case 'month':
                 $value *= 30 * static::HOURS_PER_DAY * static::MINUTES_PER_HOUR * static::SECONDS_PER_MINUTE;
 
                 break;
-
-            // @call addRealUnit
             case 'quarter':
                 $value *= static::MONTHS_PER_QUARTER * 30 * static::HOURS_PER_DAY * static::MINUTES_PER_HOUR * static::SECONDS_PER_MINUTE;
 
                 break;
-
-            // @call addRealUnit
             case 'year':
                 $value *= 365 * static::HOURS_PER_DAY * static::MINUTES_PER_HOUR * static::SECONDS_PER_MINUTE;
 
                 break;
-
-            // @call addRealUnit
             case 'decade':
                 $value *= static::YEARS_PER_DECADE * 365 * static::HOURS_PER_DAY * static::MINUTES_PER_HOUR * static::SECONDS_PER_MINUTE;
 
                 break;
-
-            // @call addRealUnit
             case 'century':
                 $value *= static::YEARS_PER_CENTURY * 365 * static::HOURS_PER_DAY * static::MINUTES_PER_HOUR * static::SECONDS_PER_MINUTE;
 
                 break;
-
-            // @call addRealUnit
             case 'millennium':
                 $value *= static::YEARS_PER_MILLENNIUM * 365 * static::HOURS_PER_DAY * static::MINUTES_PER_HOUR * static::SECONDS_PER_MINUTE;
 
@@ -153,17 +125,11 @@ trait Units
     public static function isModifiableUnit($unit)
     {
         static $modifiableUnits = [
-            // @call addUnit
             'millennium',
-            // @call addUnit
             'century',
-            // @call addUnit
             'decade',
-            // @call addUnit
             'quarter',
-            // @call addUnit
             'week',
-            // @call addUnit
             'weekday',
         ];
 
@@ -291,8 +257,6 @@ trait Units
             $unit = 'microsecond';
             $value *= static::MICROSECONDS_PER_MILLISECOND;
         }
-
-        // Work-around for bug https://bugs.php.net/bug.php?id=75642
         if ($unit === 'micro' || $unit === 'microsecond') {
             $microseconds = $this->micro + $value;
             $second = (int) floor($microseconds / static::MICROSECONDS_PER_SECOND);

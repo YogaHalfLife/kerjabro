@@ -55,7 +55,6 @@ class MySqlSchemaState extends SchemaState
         $process = $this->executeDumpProcess($this->makeProcess(
             $this->baseDumpCommand().' '.$this->migrationTable.' --no-create-info --skip-extended-insert --skip-routines --compact'
         ), null, array_merge($this->baseVariables($this->connection->getConfig()), [
-            //
         ]));
 
         $this->files->append($path, $process->getOutput());

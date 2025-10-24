@@ -9,7 +9,6 @@ class NullBroadcaster extends Broadcaster
      */
     public function auth($request)
     {
-        //
     }
 
     /**
@@ -17,7 +16,6 @@ class NullBroadcaster extends Broadcaster
      */
     public function validAuthenticationResponse($request, $result)
     {
-        //
     }
 
     /**
@@ -25,6 +23,5 @@ class NullBroadcaster extends Broadcaster
      */
     public function broadcast(array $channels, $event, array $payload = [])
     {
-        //
     }
 }

@@ -43,9 +43,7 @@ if (false === getenv('SYMFONY_PATCH_TYPE_DECLARATIONS')) {
 }
 
 if (is_file($autoload = __DIR__.'/../../../../autoload.php')) {
-    // noop
 } elseif (is_file($autoload = __DIR__.'/../../../../../../../autoload.php')) {
-    // noop
 } else {
     echo PHP_EOL.'  /!\ Cannot find the Composer autoloader, did you forget to run "composer install"?'.PHP_EOL;
     exit(1);

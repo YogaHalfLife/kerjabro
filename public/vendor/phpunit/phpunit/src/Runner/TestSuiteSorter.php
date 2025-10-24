@@ -297,15 +297,12 @@ final class TestSuiteSorter
         $priorityB = $this->defectSortOrder[$b->sortId()] ?? 0;
 
         if ($priorityB <=> $priorityA) {
-            // Sort defect weight descending
             return $priorityB <=> $priorityA;
         }
 
         if ($priorityA || $priorityB) {
             return $this->cmpDuration($a, $b);
         }
-
-        // do not change execution order
         return 0;
     }
 

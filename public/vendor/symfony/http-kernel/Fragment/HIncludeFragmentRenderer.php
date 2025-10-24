@@ -62,8 +62,6 @@ class HIncludeFragmentRenderer extends RoutableFragmentRenderer
         if ($uri instanceof ControllerReference) {
             $uri = (new FragmentUriGenerator($this->fragmentPath, $this->signer))->generate($uri, $request);
         }
-
-        // We need to replace ampersands in the URI with the encoded form in order to return valid html/xml content.
         $uri = str_replace('&', '&amp;', $uri);
 
         $template = $options['default'] ?? $this->globalDefaultTemplate;

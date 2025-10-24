@@ -446,19 +446,14 @@ class Person extends \Faker\Provider\Person
         $month = (int) (date('n', $randTimestamp));
         $day = (int) (date('j', $randTimestamp));
         $suffix = self::numberBetween(0, 999);
-
-        // women has +50 to month
         if ($gender == static::GENDER_FEMALE) {
             $month += 50;
         }
-        // from year 2004 everyone has +20 to month when birth numbers in one day are exhausted
         if ($year >= 2004 && $this->generator->boolean(10)) {
             $month += 20;
         }
 
         $birthNumber = sprintf('%02d%02d%02d%03d', $year % 100, $month, $day, $suffix);
-
-        // from year 1954 birth number includes CRC
         if ($year >= 1954) {
             $crc = intval($birthNumber, 10) % 11;
 
@@ -467,8 +462,6 @@ class Person extends \Faker\Provider\Person
             }
             $birthNumber .= sprintf('%d', $crc);
         }
-
-        // add slash
         if ($this->generator->boolean($slashProbability)) {
             $birthNumber = substr($birthNumber, 0, 6) . '/' . substr($birthNumber, 6);
         }

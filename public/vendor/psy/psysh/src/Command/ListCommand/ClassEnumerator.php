@@ -24,7 +24,6 @@ class ClassEnumerator extends Enumerator
      */
     protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null): array
     {
-        // if we have a reflector, ensure that it's a namespace reflector
         if (($target !== null || $reflector !== null) && !$reflector instanceof ReflectionNamespace) {
             return [];
         }
@@ -34,8 +33,6 @@ class ClassEnumerator extends Enumerator
         $prefix = $reflector === null ? null : \strtolower($reflector->getName()).'\\';
 
         $ret = [];
-
-        // only list classes, interfaces and traits if we are specifically asked
 
         if ($input->getOption('classes')) {
             $ret = \array_merge($ret, $this->filterClasses('Classes', \get_declared_classes(), $internal, $user, $prefix));
@@ -113,8 +110,6 @@ class ClassEnumerator extends Enumerator
     protected function prepareClasses(array $classes): array
     {
         \natcasesort($classes);
-
-        // My kingdom for a generator.
         $ret = [];
 
         foreach ($classes as $name) {

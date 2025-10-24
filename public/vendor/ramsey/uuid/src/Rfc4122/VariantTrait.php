@@ -60,12 +60,6 @@ trait VariantTrait
 
         /** @var array $parts */
         $parts = unpack('n*', $this->getBytes());
-
-        // $parts[5] is a 16-bit, unsigned integer containing the variant bits
-        // of the UUID. We convert this integer into a string containing a
-        // binary representation, padded to 16 characters. We analyze the first
-        // three characters (three most-significant bits) to determine the
-        // variant.
         $binary = str_pad(
             decbin((int) $parts[5]),
             16,

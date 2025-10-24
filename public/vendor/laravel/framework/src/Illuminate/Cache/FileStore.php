@@ -137,8 +137,6 @@ class FileStore implements Store, LockProvider
 
         if (! $this->files->exists($directory)) {
             $this->files->makeDirectory($directory, 0777, true, true);
-
-            // We're creating two levels of directories (e.g. 7e/24), so we check them both...
             $this->ensurePermissionsAreCorrect($directory);
             $this->ensurePermissionsAreCorrect(dirname($directory));
         }
@@ -246,10 +244,6 @@ class FileStore implements Store, LockProvider
     protected function getPayload($key)
     {
         $path = $this->path($key);
-
-        // If the file doesn't exist, we obviously cannot return the cache so we will
-        // just return null. Otherwise, we'll get the contents of the file and get
-        // the expiration UNIX timestamps from the start of the file's contents.
         try {
             $expire = substr(
                 $contents = $this->files->get($path, true), 0, 10
@@ -257,10 +251,6 @@ class FileStore implements Store, LockProvider
         } catch (Exception $e) {
             return $this->emptyPayload();
         }
-
-        // If the current time is greater than expiration timestamps we will delete
-        // the file and return null. This helps clean up the old files and keeps
-        // this directory much cleaner for us as old files aren't hanging out.
         if ($this->currentTime() >= $expire) {
             $this->forget($key);
 
@@ -274,10 +264,6 @@ class FileStore implements Store, LockProvider
 
             return $this->emptyPayload();
         }
-
-        // Next, we'll extract the number of seconds that are remaining for a cache
-        // so that we can properly retain the time for things like the increment
-        // operation that may be performed on this cache on a later operation.
         $time = $expire - $this->currentTime();
 
         return compact('data', 'time');

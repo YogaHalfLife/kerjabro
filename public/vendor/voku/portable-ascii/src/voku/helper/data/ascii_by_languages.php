@@ -1,9 +1,6 @@
 <?php
 
-// https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
-
 return [
-    // Dutch (Flemish)
     'nl' => [
         'Á' => 'A',
         'á' => 'a',
@@ -49,7 +46,6 @@ return [
         'ý' => 'y',
         'Ÿ' => 'Y',
     ],
-    // Italian
     'it' => [
         'à' => 'a',
         'À' => 'A',
@@ -64,7 +60,6 @@ return [
         'ù' => 'u',
         'Ù' => 'U',
     ],
-    // Macedonian
     'mk' => [
         'А' => 'A',
         'Б' => 'B',
@@ -129,7 +124,6 @@ return [
         'џ' => 'dj',
         'ш' => 'sh',
     ],
-    // Portuguese (Brazil)
     'pt' => [
         'æ' => 'ae',
         'ǽ' => 'ae',
@@ -291,7 +285,6 @@ return [
         'ÿ' => 'y',
         'ŷ' => 'y',
     ],
-    // Greek(lish) (Elláda)
     'el__greeklish' => [
         'ΑΥ' => 'AU',
         'ΑΎ' => 'AU',
@@ -405,7 +398,6 @@ return [
         'ϋ'  => 'y',
         'ζ'  => 'z',
     ],
-    // Greek (Elláda)
     'el' => [
         'ΑΥ' => 'AU',
         'Αυ' => 'Au',
@@ -519,7 +511,6 @@ return [
         'ϐ'  => 'v',
         'ϑ'  => 'th',
     ],
-    // Hindi
     'hi' => [
         'अ'  => 'a',
         'आ'  => 'aa',
@@ -586,7 +577,6 @@ return [
         'य़' => 'Yi',
         'ज़' => 'Za',
     ],
-    // Armenian
     'hy' => [
         'Ա' => 'A',
         'Բ' => 'B',
@@ -666,7 +656,6 @@ return [
         'օ' => 'o',
         'ֆ' => 'f',
     ],
-    // Swedish
     'sv' => [
         'Ä' => 'A',
         'ä' => 'a',
@@ -675,7 +664,6 @@ return [
         'Ö' => 'O',
         'ö' => 'o',
     ],
-    // Turkmen
     'tk' => [
         'Ç' => 'C',
         'Ä' => 'A',
@@ -694,7 +682,6 @@ return [
         'ü' => 'u',
         'ý' => 'y',
     ],
-    // Turkish
     'tr' => [
         'ň' => 'n',
         'Ň' => 'N',
@@ -717,7 +704,6 @@ return [
         'ž' => 'z',
         'Ž' => 'Z',
     ],
-    // Bulgarian
     'bg' => [
         'ьо' => 'yo',
         'А'  => 'A',
@@ -781,7 +767,6 @@ return [
         'ю'  => 'yu',
         'я'  => 'ya',
     ],
-    // Hungarian
     'hu' => [
         'Á' => 'A',
         'Ē' => 'E',
@@ -804,7 +789,6 @@ return [
         'ü' => 'u',
         'ű' => 'u',
     ],
-    // Myanmar (Burmese)
     'my' => [
         'န်ုပ်' => 'nub',
         'ောင်'  => 'aung',
@@ -921,7 +905,6 @@ return [
         'ဠ'     => 'la',
         '၇'     => '7',
     ],
-    // Croatian (Hrvatska)
     'hr' => [
         'DŽ' => 'DZ',
         'Dž' => 'Dz',
@@ -948,14 +931,12 @@ return [
         'š'  => 's',
         'Š'  => 'S',
     ],
-    // Finnish
     'fi' => [
         'Ä' => 'A',
         'Ö' => 'O',
         'ä' => 'a',
         'ö' => 'o',
     ],
-    // Georgian (Kartvelian)
     'ka' => [
         'ა' => 'a',
         'ბ' => 'b',
@@ -991,7 +972,6 @@ return [
         'ჯ' => 'j',
         'ჰ' => 'h',
     ],
-    // Russian
     'ru' => [
         'А' => 'A',
         'а' => 'a',
@@ -1060,8 +1040,6 @@ return [
         'Я' => 'Ya',
         'я' => 'ya',
     ],
-    // Russian - GOST 7.79-2000(B)
-    // -> https://en.m.wikipedia.org/wiki/Romanization_of_Russian#content-collapsible-block-1
     'ru__gost_2000_b' => [
         'А' => 'A',
         'а' => 'a',
@@ -1162,8 +1140,6 @@ return [
         'Ѱ' => '',
         'ѱ' => '',
     ],
-    // Russian - Passport (2013), ICAO
-    // -> https://en.m.wikipedia.org/wiki/Romanization_of_Russian#content-collapsible-block-1
     'ru__passport_2013' => [
         'А' => 'A',
         'а' => 'a',
@@ -1264,8 +1240,6 @@ return [
         'Ѱ' => '',
         'ѱ' => '',
     ],
-    // Ukrainian
-    // -> https://zakon.rada.gov.ua/laws/show/55-2010-%D0%BF?lang=en
     'uk' => [
         'Г' => 'H',
         'г' => 'h',
@@ -1292,7 +1266,6 @@ return [
         'Щ' => 'Shch',
         'щ' => 'shch',
     ],
-    // Kazakh
     'kk' => [
         'Ә' => 'A',
         'Ғ' => 'G',
@@ -1311,7 +1284,6 @@ return [
         'ү' => 'u',
         'һ' => 'h',
     ],
-    // Czech
     'cs' => [
         'á' => 'a',
         'Á' => 'A',
@@ -1344,7 +1316,6 @@ return [
         'ž' => 'z',
         'Ž' => 'Z',
     ],
-    // Danish
     'da' => [
         'Æ' => 'Ae',
         'æ' => 'ae',
@@ -1355,7 +1326,6 @@ return [
         'É' => 'E',
         'é' => 'e',
     ],
-    // Polish
     'pl' => [
         'ą' => 'a',
         'ć' => 'c',
@@ -1376,7 +1346,6 @@ return [
         'Ź' => 'Z',
         'Ż' => 'Z',
     ],
-    // Romanian
     'ro' => [
         'ă' => 'a',
         'â' => 'a',
@@ -1393,7 +1362,6 @@ return [
         'Ţ' => 'T',
         'Ț' => 'T',
     ],
-    // Esperanto
     'eo' => [
         'ĉ' => 'cx',
         'ĝ' => 'gx',
@@ -1408,7 +1376,6 @@ return [
         'Ŝ' => 'SX',
         'Ŭ' => 'UX',
     ],
-    // Estonian
     'et' => [
         'Š' => 'S',
         'Ž' => 'Z',
@@ -1423,7 +1390,6 @@ return [
         'ö' => 'o',
         'ü' => 'u',
     ],
-    // Latvian
     'lv' => [
         'ā' => 'a',
         'č' => 'c',
@@ -1448,7 +1414,6 @@ return [
         'Ū' => 'u',
         'Ž' => 'Z',
     ],
-    // Lithuanian
     'lt' => [
         'ą' => 'a',
         'č' => 'c',
@@ -1469,7 +1434,6 @@ return [
         'Ū' => 'U',
         'Ž' => 'Z',
     ],
-    // Norwegian
     'no' => [
         'Æ' => 'AE',
         'æ' => 'ae',
@@ -1478,7 +1442,6 @@ return [
         'Å' => 'AA',
         'å' => 'aa',
     ],
-    // Vietnamese
     'vi' => [
         'Á' => 'A',
         'À' => 'A',
@@ -1615,7 +1578,6 @@ return [
         'Đ' => 'D',
         'đ' => 'd',
     ],
-    // Persian (Farsi)
     'fa' => [
         'ا' => 'a',
         'ب' => 'b',
@@ -1662,7 +1624,6 @@ return [
         '٨' => '8',
         '٩' => '9',
     ],
-    // Arabic
     'ar' => [
         'أ' => 'a',
         'ب' => 'b',
@@ -1709,7 +1670,6 @@ return [
         '٨' => '8',
         '٩' => '9',
     ],
-    // Serbian
     'sr' => [
         'đ' => 'dj',
         'ž' => 'z',
@@ -1782,7 +1742,6 @@ return [
         'Џ' => 'Dz',
         'Ш' => 'S',
     ],
-    // Serbian - Cyrillic
     'sr__cyr' => [
         'а' => 'a',
         'б' => 'b',
@@ -1845,7 +1804,6 @@ return [
         'Џ' => 'Dz',
         'Ш' => 'S',
     ],
-    // Serbian - Latin
     'sr__lat' => [
         'đ' => 'dj',
         'ž' => 'z',
@@ -1858,7 +1816,6 @@ return [
         'Č' => 'C',
         'Š' => 'S',
     ],
-    // Azerbaijani
     'az' => [
         'ç' => 'c',
         'ə' => 'e',
@@ -1875,7 +1832,6 @@ return [
         'Ş' => 'S',
         'Ü' => 'U',
     ],
-    // Slovak
     'sk' => [
         'á' => 'a',
         'ä' => 'a',
@@ -1912,7 +1868,6 @@ return [
         'Ý' => 'Y',
         'Ž' => 'Z',
     ],
-    // French
     'fr' => [
         'Æ' => 'AE',
         'æ' => 'ae',
@@ -1951,7 +1906,6 @@ return [
         'ü' => 'u',
         'Ü' => 'U',
     ],
-    // Austrian (French)
     'fr_at' => [
         'ß' => 'sz',
         'ẞ' => 'SZ',
@@ -1992,7 +1946,6 @@ return [
         'ü' => 'u',
         'Ü' => 'U',
     ],
-    // Switzerland (French)
     'fr_ch' => [
         'ß' => 'ss',
         'ẞ' => 'SS',
@@ -2033,7 +1986,6 @@ return [
         'ü' => 'u',
         'Ü' => 'U',
     ],
-    // German
     'de' => [
         'Ä' => 'Ae',
         'Ö' => 'Oe',
@@ -2044,7 +1996,6 @@ return [
         'ß' => 'ss',
         'ẞ' => 'SS',
     ],
-    // Austrian (German)
     'de_at' => [
         'Ä' => 'Ae',
         'Ö' => 'Oe',
@@ -2055,7 +2006,6 @@ return [
         'ß' => 'sz',
         'ẞ' => 'SZ',
     ],
-    // Switzerland (German)
     'de_ch' => [
         'Ä' => 'Ae',
         'Ö' => 'Oe',
@@ -2066,7 +2016,6 @@ return [
         'ß' => 'ss',
         'ẞ' => 'SS',
     ],
-    // Bengali (Bangla)
     'bn' => [
         'ভ্ল'   => 'vl',
         'পশ'    => 'psh',
@@ -2296,12 +2245,8 @@ return [
         'ঁ'     => 'nn',
         '্‌'    => '',
     ],
-    // English
     'en' => [
     ],
-    // Latin (+ Cyrillic ?) chars
-    //
-    // -> Mix of languages, but we need to keep this here, so that different languages can handle there own behavior.
     'latin' => [
         '˚'   => '0',
         '¹'   => '1',
@@ -2856,7 +2801,6 @@ return [
         'Z̃'  => 'Z',
         'z̃'  => 'z',
     ],
-    // whitespace chars
     ' ' => [
         "\xc2\xa0"     => ' ', // 'NO-BREAK SPACE'
         "\xe1\x9a\x80" => ' ', // 'OGHAM SPACE MARK'
@@ -2879,7 +2823,6 @@ return [
         "\xe3\x80\x80" => ' ', // 'IDEOGRAPHIC SPACE'
         "\xef\xbe\xa0" => ' ', // 'HALFWIDTH HANGUL FILLER'
     ],
-    // commonly used in Word documents
     'msword' => [
         "\xc2\xab"     => '<<', // « (U+00AB) in UTF-8
         "\xc2\xbb"     => '>>', // » (U+00BB) in UTF-8
@@ -2897,9 +2840,6 @@ return [
         "\xe2\x80\x94" => '-', // — (U+2014) in UTF-8
         "\xe2\x80\xa6" => '...', // … (U+2026) in UTF-8
     ],
-    // Currency
-    //
-    // url => https://en.wikipedia.org/wiki/Currency_symbol
     'currency_short' => [
         '€'  => 'EUR',
         '$'  => '$',

@@ -35,7 +35,6 @@ class TraceableEventDispatcher extends BaseTraceableEventDispatcher
                 break;
             case KernelEvents::VIEW:
             case KernelEvents::RESPONSE:
-                // stop only if a controller has been executed
                 if ($this->stopwatch->isStarted('controller')) {
                     $this->stopwatch->stop('controller');
                 }
@@ -45,11 +44,6 @@ class TraceableEventDispatcher extends BaseTraceableEventDispatcher
                 if (null === $sectionId) {
                     break;
                 }
-                // There is a very special case when using built-in AppCache class as kernel wrapper, in the case
-                // of an ESI request leading to a `stale` response [B]  inside a `fresh` cached response [A].
-                // In this case, `$token` contains the [B] debug token, but the  open `stopwatch` section ID
-                // is equal to the [A] debug token. Trying to reopen section with the [B] token throws an exception
-                // which must be caught.
                 try {
                     $this->stopwatch->openSection($sectionId);
                 } catch (\LogicException $e) {
@@ -75,8 +69,6 @@ class TraceableEventDispatcher extends BaseTraceableEventDispatcher
                 $this->stopwatch->stopSection($sectionId);
                 break;
             case KernelEvents::TERMINATE:
-                // In the special case described in the `preDispatch` method above, the `$token` section
-                // does not exist, then closing it throws an exception which must be caught.
                 $sectionId = $event->getRequest()->attributes->get('_stopwatch_token');
                 if (null === $sectionId) {
                     break;

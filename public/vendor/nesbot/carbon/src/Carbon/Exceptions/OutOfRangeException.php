@@ -14,9 +14,6 @@ namespace Carbon\Exceptions;
 use Exception;
 use InvalidArgumentException as BaseInvalidArgumentException;
 
-// This will extends OutOfRangeException instead of InvalidArgumentException since 3.0.0
-// use OutOfRangeException as BaseOutOfRangeException;
-
 class OutOfRangeException extends BaseInvalidArgumentException implements InvalidArgumentException
 {
     /**

@@ -30,10 +30,6 @@ class Manager
     public function __construct(Container $container = null)
     {
         $this->setupContainer($container ?: new Container);
-
-        // Once we have the container setup, we will setup the default configuration
-        // options in the container "config" binding. This will make the database
-        // manager work correctly out of the box without extreme configuration.
         $this->setupDefaultConfiguration();
 
         $this->setupManager();
@@ -133,10 +129,6 @@ class Manager
     public function bootEloquent()
     {
         Eloquent::setConnectionResolver($this->manager);
-
-        // If we have an event dispatcher instance, we will go ahead and register it
-        // with the Eloquent ORM, allowing for model callbacks while creating and
-        // updating "model" instances; however, it is not necessary to operate.
         if ($dispatcher = $this->getEventDispatcher()) {
             Eloquent::setEventDispatcher($dispatcher);
         }

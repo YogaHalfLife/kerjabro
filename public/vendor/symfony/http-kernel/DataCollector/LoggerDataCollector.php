@@ -67,7 +67,6 @@ class LoggerDataCollector extends DataCollector implements LateDataCollectorInte
         if (isset($this->logger)) {
             $containerDeprecationLogs = $this->getContainerDeprecationLogs();
             $this->data = $this->computeErrorsCount($containerDeprecationLogs);
-            // get compiler logs later (only when they are needed) to improve performance
             $this->data['compiler_logs'] = [];
             $this->data['compiler_logs_filepath'] = $this->containerPathPrefix.'Compiler.log';
             $this->data['logs'] = $this->sanitizeLogs(array_merge($this->logger->getLogs($this->currentRequest), $containerDeprecationLogs));
@@ -117,8 +116,6 @@ class LoggerDataCollector extends DataCollector implements LateDataCollectorInte
                 'context' => $rawLogData['context'],
             ];
         }
-
-        // sort logs from oldest to newest
         usort($logs, static function ($logA, $logB) {
             return $logA['timestamp'] <=> $logB['timestamp'];
         });

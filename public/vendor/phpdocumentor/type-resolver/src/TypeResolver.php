@@ -159,8 +159,6 @@ final class TypeResolver
         if ($context === null) {
             $context = new Context('');
         }
-
-        // split the type string into tokens `|`, `?`, `<`, `>`, `,`, `(`, `)`, `[]`, '<', '>' and type names
         $tokens = preg_split(
             '/(\\||\\?|<|>|&|, ?|\\(|\\)|\\[\\]+)/',
             $type,
@@ -358,16 +356,11 @@ final class TypeResolver
 
             case $this->isPartialStructuralElementName($type):
                 return $this->resolveTypedObject($type, $context);
-
-            // @codeCoverageIgnoreStart
             default:
-                // I haven't got the foggiest how the logic would come here but added this as a defense.
                 throw new RuntimeException(
                     'Unable to resolve type "' . $type . '", there is no known method to resolve it'
                 );
         }
-
-        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -604,8 +597,6 @@ final class TypeResolver
         $isArray    = ((string) $classType === 'array');
         $isIterable = ((string) $classType === 'iterable');
         $isList     = ((string) $classType === 'list');
-
-        // allow only "array", "iterable" or class name before "<"
         if (
             !$isArray && !$isIterable && !$isList
             && (!$classType instanceof Object_ || $classType->getFqsen() === null)
@@ -622,11 +613,8 @@ final class TypeResolver
 
         $token = $tokens->current();
         if ($token !== null && trim($token) === ',' && !$isList) {
-            // if we have a comma, then we just parsed the key type, not the value type
             $keyType = $valueType;
             if ($isArray) {
-                // check the key type for an "array" collection. We allow only
-                // strings or integers.
                 if (
                     !$keyType instanceof ArrayKey &&
                     !$keyType instanceof String_ &&
@@ -654,7 +642,6 @@ final class TypeResolver
             }
 
             $tokens->next();
-            // now let's parse the value type
             $valueType = $this->parseTypes($tokens, $context, self::PARSER_IN_COLLECTION_EXPRESSION);
         }
 

@@ -157,9 +157,6 @@ abstract class ParserAbstract implements Parser
 
         $this->lexer->startLexing($code, $this->errorHandler);
         $result = $this->doParse();
-
-        // Clear out some of the interior state, so we don't hold onto unnecessary
-        // memory between uses of the parser
         $this->startAttributeStack = [];
         $this->endAttributeStack = [];
         $this->semStack = [];
@@ -169,46 +166,26 @@ abstract class ParserAbstract implements Parser
     }
 
     protected function doParse() {
-        // We start off with no lookahead-token
         $symbol = self::SYMBOL_NONE;
-
-        // The attributes for a node are taken from the first and last token of the node.
-        // From the first token only the startAttributes are taken and from the last only
-        // the endAttributes. Both are merged using the array union operator (+).
         $startAttributes = [];
         $endAttributes = [];
         $this->endAttributes = $endAttributes;
-
-        // Keep stack of start and end attributes
         $this->startAttributeStack = [];
         $this->endAttributeStack = [$endAttributes];
-
-        // Start off in the initial state and keep a stack of previous states
         $state = 0;
         $stateStack = [$state];
-
-        // Semantic value stack (contains values of tokens and semantic action results)
         $this->semStack = [];
-
-        // Current position in the stack(s)
         $stackPos = 0;
 
         $this->errorState = 0;
 
         for (;;) {
-            //$this->traceNewState($state, $symbol);
 
             if ($this->actionBase[$state] === 0) {
                 $rule = $this->actionDefault[$state];
             } else {
                 if ($symbol === self::SYMBOL_NONE) {
-                    // Fetch the next token id from the lexer and fetch additional info by-ref.
-                    // The end attributes are fetched into a temporary variable and only set once the token is really
-                    // shifted (not during read). Otherwise you would sometimes get off-by-one errors, when a rule is
-                    // reduced after a token was read but not yet shifted.
                     $tokenId = $this->lexer->getNextToken($tokenValue, $startAttributes, $endAttributes);
-
-                    // map the lexer token id to the internally used symbols
                     $symbol = $tokenId >= 0 && $tokenId < $this->tokenToSymbolMapSize
                         ? $this->tokenToSymbol[$tokenId]
                         : $this->invalidSymbol;
@@ -219,11 +196,7 @@ abstract class ParserAbstract implements Parser
                             $tokenId, $tokenValue
                         ));
                     }
-
-                    // Allow productions to access the start attributes of the lookahead token.
                     $this->lookaheadStartAttributes = $startAttributes;
-
-                    //$this->traceRead($symbol);
                 }
 
                 $idx = $this->actionBase[$state] + $symbol;
@@ -241,7 +214,6 @@ abstract class ParserAbstract implements Parser
                      */
                     if ($action > 0) {
                         /* shift */
-                        //$this->traceShift($symbol);
 
                         ++$stackPos;
                         $stateStack[$stackPos] = $state = $action;
@@ -272,11 +244,9 @@ abstract class ParserAbstract implements Parser
             for (;;) {
                 if ($rule === 0) {
                     /* accept */
-                    //$this->traceAccept();
                     return $this->semValue;
                 } elseif ($rule !== $this->unexpectedTokenRule) {
                     /* reduce */
-                    //$this->traceReduce($rule);
 
                     try {
                         $this->reduceCallbacks[$rule]($stackPos);
@@ -286,7 +256,6 @@ abstract class ParserAbstract implements Parser
                         }
 
                         $this->emitError($e);
-                        // Can't recover from this type of error
                         return null;
                     }
 
@@ -307,7 +276,6 @@ abstract class ParserAbstract implements Parser
                     $this->semStack[$stackPos] = $this->semValue;
                     $this->endAttributeStack[$stackPos] = $lastEndAttributes;
                     if ($ruleLength === 0) {
-                        // Empty productions use the start attributes of the lookahead token.
                         $this->startAttributeStack[$stackPos] = $this->lookaheadStartAttributes;
                     }
                 } else {
@@ -316,12 +284,9 @@ abstract class ParserAbstract implements Parser
                         case 0:
                             $msg = $this->getErrorMessage($symbol, $state);
                             $this->emitError(new Error($msg, $startAttributes + $endAttributes));
-                            // Break missing intentionally
                         case 1:
                         case 2:
                             $this->errorState = 3;
-
-                            // Pop until error-expecting state uncovered
                             while (!(
                                 (($idx = $this->actionBase[$state] + $this->errorSymbol) >= 0
                                     && $idx < $this->actionTableSize && $this->actionCheck[$idx] === $this->errorSymbol)
@@ -330,19 +295,12 @@ abstract class ParserAbstract implements Parser
                                     && $idx < $this->actionTableSize && $this->actionCheck[$idx] === $this->errorSymbol)
                             ) || ($action = $this->action[$idx]) === $this->defaultAction) { // Not totally sure about this
                                 if ($stackPos <= 0) {
-                                    // Could not recover from error
                                     return null;
                                 }
                                 $state = $stateStack[--$stackPos];
-                                //$this->tracePop($state);
                             }
-
-                            //$this->traceShift($this->errorSymbol);
                             ++$stackPos;
                             $stateStack[$stackPos] = $state = $action;
-
-                            // We treat the error symbol as being empty, so we reset the end attributes
-                            // to the end attributes of the last non-error symbol
                             $this->startAttributeStack[$stackPos] = $this->lookaheadStartAttributes;
                             $this->endAttributeStack[$stackPos] = $this->endAttributeStack[$stackPos - 1];
                             $this->endAttributes = $this->endAttributeStack[$stackPos - 1];
@@ -350,11 +308,8 @@ abstract class ParserAbstract implements Parser
 
                         case 3:
                             if ($symbol === 0) {
-                                // Reached EOF without recovering from error
                                 return null;
                             }
-
-                            //$this->traceDiscard($symbol);
                             $symbol = self::SYMBOL_NONE;
                             break 2;
                     }
@@ -477,10 +432,8 @@ abstract class ParserAbstract implements Parser
         $hasErrored = false;
         $style = $this->getNamespacingStyle($stmts);
         if (null === $style) {
-            // not namespaced, nothing to do
             return $stmts;
         } elseif ('brace' === $style) {
-            // For braced namespaces we only have to check that there are no invalid statements between the namespaces
             $afterFirstNamespace = false;
             foreach ($stmts as $stmt) {
                 if ($stmt instanceof Node\Stmt\Namespace_) {
@@ -495,7 +448,6 @@ abstract class ParserAbstract implements Parser
             }
             return $stmts;
         } else {
-            // For semicolon namespaces we have to move the statements after a namespace declaration into ->stmts
             $resultStmts = [];
             $targetStmts =& $resultStmts;
             $lastNs = null;
@@ -509,13 +461,11 @@ abstract class ParserAbstract implements Parser
                         $targetStmts =& $stmt->stmts;
                         $resultStmts[] = $stmt;
                     } else {
-                        // This handles the invalid case of mixed style namespaces
                         $resultStmts[] = $stmt;
                         $targetStmts =& $resultStmts;
                     }
                     $lastNs = $stmt;
                 } elseif ($stmt instanceof Node\Stmt\HaltCompiler) {
-                    // __halt_compiler() is not moved into the namespace
                     $resultStmts[] = $stmt;
                 } else {
                     $targetStmts[] = $stmt;
@@ -529,14 +479,9 @@ abstract class ParserAbstract implements Parser
     }
 
     private function fixupNamespaceAttributes(Node\Stmt\Namespace_ $stmt) {
-        // We moved the statements into the namespace node, as such the end of the namespace node
-        // needs to be extended to the end of the statements.
         if (empty($stmt->stmts)) {
             return;
         }
-
-        // We only move the builtin end attributes here. This is the best we can do with the
-        // knowledge we have.
         $endAttributes = ['endLine', 'endFilePos', 'endTokenPos'];
         $lastStmt = $stmt->stmts[count($stmt->stmts) - 1];
         foreach ($endAttributes as $endAttribute) {
@@ -572,7 +517,6 @@ abstract class ParserAbstract implements Parser
                         'Cannot mix bracketed namespace declarations with unbracketed namespace declarations',
                         $stmt->getLine() // Avoid marking the entire namespace as an error
                     ));
-                    // Treat like semicolon style for namespace normalization
                     return 'semicolon';
                 }
                 continue;
@@ -624,8 +568,6 @@ abstract class ParserAbstract implements Parser
 
             /** @var Expr\StaticPropertyFetch $staticProp */
             $staticProp = $tmp->var;
-
-            // Set start attributes to attributes of innermost node
             $tmp = $prop;
             $this->fixupStartAttributes($tmp, $staticProp->name);
             while ($tmp->var instanceof Node\Expr\ArrayDimFetch) {
@@ -708,7 +650,6 @@ abstract class ParserAbstract implements Parser
             return LNumber::fromString($str, $attributes, $allowInvalidOctal);
         } catch (Error $error) {
             $this->emitError($error);
-            // Use dummy value
             return new LNumber(0, $attributes);
         }
     }
@@ -793,8 +734,6 @@ abstract class ParserAbstract implements Parser
                 'Invalid indentation - tabs and spaces cannot be mixed',
                 $endTokenAttributes
             ));
-
-            // Proceed processing as if this doc string is not indented
             $indentation = '';
         }
 
@@ -819,7 +758,6 @@ abstract class ParserAbstract implements Parser
         } else {
             assert(count($contents) > 0);
             if (!$contents[0] instanceof Node\Scalar\EncapsedStringPart) {
-                // If there is no leading encapsed string part, pretend there is an empty one
                 $this->stripIndentation(
                     '', $indentLen, $indentChar, true, false, $contents[0]->getAttributes()
                 );
@@ -876,7 +814,6 @@ abstract class ParserAbstract implements Parser
     }
 
     protected function checkModifier($a, $b, $modifierPos) {
-        // Jumping through some hoops here because verifyModifier() is also used elsewhere
         try {
             Class_::verifyModifier($a, $b);
         } catch (Error $error) {

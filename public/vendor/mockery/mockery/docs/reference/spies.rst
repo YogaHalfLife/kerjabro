@@ -21,35 +21,21 @@ we have to tell our mocks what to expect before we act on the sut, then assert
 that those expectations where met:
 
 .. code-block:: php
-
-    // arrange
     $mock = \Mockery::mock('MyDependency');
     $sut = new MyClass($mock);
-
-    // expect
     $mock->shouldReceive('foo')
         ->once()
         ->with('bar');
-
-    // act
     $sut->callFoo();
-
-    // assert
     \Mockery::close();
 
 Spies allow us to skip the expect part and move the assertion to after we have
 acted on the SUT, usually making our tests more readable:
 
 .. code-block:: php
-
-    // arrange
     $spy = \Mockery::spy('MyDependency');
     $sut = new MyClass($spy);
-
-    // act
     $sut->callFoo();
-
-    // assert
     $spy->shouldHaveReceived()
         ->foo()
         ->with('bar');

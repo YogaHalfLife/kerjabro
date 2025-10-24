@@ -60,7 +60,6 @@ final class VcsIgnoredFilterIterator extends \FilterIterator
 
         foreach ($this->parentsDirectoryDownward($fileRealPath) as $parentDirectory) {
             if ($this->isIgnored($parentDirectory)) {
-                // rules in ignored directories are ignored, no need to check further.
                 break;
             }
 
@@ -97,8 +96,6 @@ final class VcsIgnoredFilterIterator extends \FilterIterator
 
         while (true) {
             $newParentDirectory = \dirname($parentDirectory);
-
-            // dirname('/') = '/'
             if ($newParentDirectory === $parentDirectory) {
                 break;
             }

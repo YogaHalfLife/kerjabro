@@ -36,7 +36,6 @@ final class ThematicBreakParser extends AbstractBlockContinueParser
 
     public function tryContinue(Cursor $cursor, BlockContinueParserInterface $activeBlockParser): ?BlockContinue
     {
-        // a horizontal rule can never container > 1 line, so fail to match
         return BlockContinue::none();
     }
 }

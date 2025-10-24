@@ -1,8 +1,3 @@
-//
-// Avatar
-//
-
-// General styles
 
 .avatar {
 	color: $white;
@@ -40,16 +35,11 @@
 
   }
 }
-
-// Style for the Testimonials Carousel
 .active {
   .avatar.avatar-scale-up {
     transform: scale(1.2);
   }
 }
-
-
-// Avatar size variations
 
 .avatar-xxl {
 	width: $avatar-xxl-width !important;
@@ -98,12 +88,6 @@
     margin-top: -($avatar-xs-height * 0.5);
   }
 }
-
-//
-// Avatar group
-//
-
-// General styles
 
 .avatar-group {
 	.avatar {

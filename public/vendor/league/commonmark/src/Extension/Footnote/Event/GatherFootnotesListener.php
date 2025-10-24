@@ -37,14 +37,10 @@ final class GatherFootnotesListener implements ConfigurationAwareInterface
             if (! $node instanceof Footnote) {
                 continue;
             }
-
-            // Look for existing reference with footnote label
             $ref = $document->getReferenceMap()->get($node->getReference()->getLabel());
             if ($ref !== null) {
-                // Use numeric title to get footnotes order
                 $footnotes[(int) $ref->getTitle()] = $node;
             } else {
-                // Footnote call is missing, append footnote at the end
                 $footnotes[\PHP_INT_MAX] = $node;
             }
 
@@ -53,8 +49,6 @@ final class GatherFootnotesListener implements ConfigurationAwareInterface
                 $this->createBackrefs($node, $document->data->get($key));
             }
         }
-
-        // Only add a footnote container if there are any
         if (\count($footnotes) === 0) {
             return;
         }
@@ -83,10 +77,8 @@ final class GatherFootnotesListener implements ConfigurationAwareInterface
      */
     private function createBackrefs(Footnote $node, array $backrefs): void
     {
-        // Backrefs should be added to the child paragraph
         $target = $node->lastChild();
         if ($target === null) {
-            // This should never happen, but you never know
             $target = $node;
         }
 

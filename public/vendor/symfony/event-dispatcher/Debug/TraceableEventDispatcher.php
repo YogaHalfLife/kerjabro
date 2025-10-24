@@ -105,8 +105,6 @@ class TraceableEventDispatcher implements EventDispatcherInterface, ResetInterfa
      */
     public function getListenerPriority(string $eventName, callable|array $listener): ?int
     {
-        // we might have wrapped listeners for the event (if called while dispatching)
-        // in that case get the priority by wrapper
         if (isset($this->wrappedListeners[$eventName])) {
             foreach ($this->wrappedListeners[$eventName] as $index => $wrappedListener) {
                 if ($wrappedListener->getWrappedListener() === $listener) {
@@ -192,8 +190,6 @@ class TraceableEventDispatcher implements EventDispatcherInterface, ResetInterfa
             if (null !== $this->logger) {
                 $this->logger->info('An exception was thrown while getting the uncalled listeners.', ['exception' => $e]);
             }
-
-            // unable to retrieve the uncalled listeners
             return [];
         }
 
@@ -298,7 +294,6 @@ class TraceableEventDispatcher implements EventDispatcherInterface, ResetInterfa
             if (!$listener instanceof WrappedListener) { // #12845: a new listener was added during dispatch.
                 continue;
             }
-            // Unwrap listener
             $priority = $this->getListenerPriority($eventName, $listener);
             $this->dispatcher->removeListener($eventName, $listener);
             $this->dispatcher->addListener($eventName, $listener->getWrappedListener(), $priority);

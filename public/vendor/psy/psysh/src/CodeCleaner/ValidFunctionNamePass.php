@@ -44,9 +44,6 @@ class ValidFunctionNamePass extends NamespaceAwarePass
             $this->conditionalScopes++;
         } elseif ($node instanceof Function_) {
             $name = $this->getFullyQualifiedName($node->name);
-
-            // @todo add an "else" here which adds a runtime check for instances where we can't tell
-            // whether a function is being redefined by static analysis alone.
             if ($this->conditionalScopes === 0) {
                 if (\function_exists($name) ||
                     isset($this->currentScope[\strtolower($name)])) {

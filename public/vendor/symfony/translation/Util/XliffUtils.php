@@ -47,8 +47,6 @@ class XliffUtils
                 return substr($namespace, 34);
             }
         }
-
-        // Falls back to v1.2
         return '1.2';
     }
 

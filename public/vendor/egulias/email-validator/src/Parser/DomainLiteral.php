@@ -65,9 +65,6 @@ class DomainLiteral extends PartParser
             $addressLiteral .= $this->lexer->token['value'];
 
         } while ($this->lexer->moveNext());
-
-
-        //Encapsulate
         $addressLiteral = str_replace('[', '', $addressLiteral);
         $isAddressLiteralIPv4 = $this->checkIPV4Tag($addressLiteral);
 
@@ -101,7 +98,6 @@ class DomainLiteral extends PartParser
         }
 
         $IPv6       = substr($addressLiteral, 5);
-        //Daniel Marschall's new IPv6 testing strategy
         $matchesIP  = explode(':', $IPv6);
         $groupCount = count($matchesIP);
         $colons     = strpos($IPv6, '::');
@@ -111,7 +107,6 @@ class DomainLiteral extends PartParser
         }
 
         if ($colons === false) {
-            // We need exactly the right number of groups
             if ($groupCount !== $maxGroups) {
                 $this->warnings[IPV6GroupCount::CODE] = new IPV6GroupCount();
             }
@@ -124,8 +119,6 @@ class DomainLiteral extends PartParser
         }
 
         if ($colons === 0 || $colons === (strlen($IPv6) - 2)) {
-            // RFC 4291 allows :: at the start or end of an address
-            //with 7 other groups in addition
             ++$maxGroups;
         }
 
@@ -143,13 +136,9 @@ class DomainLiteral extends PartParser
             '/\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/',
             $addressLiteralIPv4,
             $matchesIP);
-
-        // Extract IPv4 part from the end of the address-literal (if there is one)
         if ($IPv4Match > 0) {
             $index = (int) strrpos($addressLiteralIPv4, $matchesIP[0]);
-            //There's a match but it is at the start
             if ($index > 0) {
-                // Convert IPv4 part to IPv6 format for further testing
                 return substr($addressLiteralIPv4, 0, $index) . '0:0';
             }
         }
@@ -170,11 +159,8 @@ class DomainLiteral extends PartParser
             $addressLiteral,
             $matchesIP);
 
-        // Extract IPv4 part from the end of the address-literal (if there is one)
-
         if ($IPv4Match > 0) {
             $index = strrpos($addressLiteral, $matchesIP[0]);
-            //There's a match but it is at the start
             if ($index === 0) {
                 $this->warnings[AddressLiteral::CODE] = new AddressLiteral();
                 return false;

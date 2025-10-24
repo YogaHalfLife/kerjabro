@@ -106,15 +106,11 @@ class Reflector
         }
 
         $typeInformation = self::getTypeInformation($type, $method->getDeclaringClass());
-
-        // return the first primitive type hint
         foreach ($typeInformation as $info) {
             if ($info['isPrimitive']) {
                 return $info['typeHint'];
             }
         }
-
-        // if no primitive type, return the first type
         foreach ($typeInformation as $info) {
             return $info['typeHint'];
         }
@@ -147,7 +143,6 @@ class Reflector
      */
     private static function getTypeInformation(\ReflectionType $type, \ReflectionClass $declaringClass)
     {
-        // PHP 8 union types can be recursively processed
         if ($type instanceof \ReflectionUnionType) {
             $types = [];
 
@@ -163,11 +158,7 @@ class Reflector
 
             return $types;
         }
-
-        // $type must be an instance of \ReflectionNamedType
         $typeHint = $type->getName();
-
-        // builtins can be returned as is
         if ($type->isBuiltin()) {
             return [
                 [
@@ -176,8 +167,6 @@ class Reflector
                 ],
             ];
         }
-
-        // 'static' can be returned as is
         if ($typeHint === 'static') {
             return [
                 [
@@ -186,18 +175,12 @@ class Reflector
                 ],
             ];
         }
-
-        // 'self' needs to be resolved to the name of the declaring class
         if ($typeHint === 'self') {
             $typeHint = $declaringClass->getName();
         }
-
-        // 'parent' needs to be resolved to the name of the parent class
         if ($typeHint === 'parent') {
             $typeHint = $declaringClass->getParentClass()->getName();
         }
-
-        // class names need prefixing with a slash
         return [
             [
                 'typeHint' => sprintf('\\%s', $typeHint),

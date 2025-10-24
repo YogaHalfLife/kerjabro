@@ -74,8 +74,6 @@ class Esi extends AbstractSurrogate
         if (!\in_array($parts[0], $this->contentTypes)) {
             return $response;
         }
-
-        // we don't use a proper XML parser here as we can have ESI tags in a plain text response
         $content = $response->getContent();
         $content = preg_replace('#<esi\:remove>.*?</esi\:remove>#s', '', $content);
         $content = preg_replace('#<esi\:comment[^>]+>#s', '', $content);
@@ -108,8 +106,6 @@ class Esi extends AbstractSurrogate
 
         $response->setContent($content);
         $response->headers->set('X-Body-Eval', 'ESI');
-
-        // remove ESI/1.0 from the Surrogate-Control header
         $this->removeFromControl($response);
 
         return $response;

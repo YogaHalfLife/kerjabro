@@ -344,7 +344,6 @@ class MailFake implements Factory, Mailer, MailQueue
      */
     public function raw($text, $callback)
     {
-        //
     }
 
     /**

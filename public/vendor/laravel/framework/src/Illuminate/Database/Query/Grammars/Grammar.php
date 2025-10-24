@@ -55,19 +55,11 @@ class Grammar extends BaseGrammar
         if (($query->unions || $query->havings) && $query->aggregate) {
             return $this->compileUnionAggregate($query);
         }
-
-        // If the query does not have any columns set, we'll set the columns to the
-        // * character to just get all of the columns from the database. Then we
-        // can build the query and concatenate all the pieces together as one.
         $original = $query->columns;
 
         if (is_null($query->columns)) {
             $query->columns = ['*'];
         }
-
-        // To compile the query, we'll spin through each component of the query and
-        // see if that component exists. If it does we'll just call the compiler
-        // function for the component which is responsible for making the SQL.
         $sql = trim($this->concatenate(
             $this->compileComponents($query))
         );
@@ -112,10 +104,6 @@ class Grammar extends BaseGrammar
     protected function compileAggregate(Builder $query, $aggregate)
     {
         $column = $this->columnize($aggregate['columns']);
-
-        // If the query has a "distinct" constraint and we're not asking for all columns
-        // we need to prepend "distinct" onto the column name so that the query takes
-        // it into account when it performs the aggregating operations on the data.
         if (is_array($query->distinct)) {
             $column = 'distinct '.$this->columnize($query->distinct);
         } elseif ($query->distinct && $column !== '*') {
@@ -134,9 +122,6 @@ class Grammar extends BaseGrammar
      */
     protected function compileColumns(Builder $query, $columns)
     {
-        // If the query is actually performing an aggregating select, we will let that
-        // compiler handle the building of the select clauses, as it will need some
-        // more syntax that is best handled by that function to keep things neat.
         if (! is_null($query->aggregate)) {
             return;
         }
@@ -190,16 +175,9 @@ class Grammar extends BaseGrammar
      */
     public function compileWheres(Builder $query)
     {
-        // Each type of where clause has its own compiler function, which is responsible
-        // for actually creating the where clauses SQL. This helps keep the code nice
-        // and maintainable since each clause has a very small method that it uses.
         if (is_null($query->wheres)) {
             return '';
         }
-
-        // If we actually have some where clauses, we will strip off the first boolean
-        // operator, which is added by the query builders for convenience so we can
-        // avoid checking for the first clauses in each of the compilers methods.
         if (count($sql = $this->compileWheresToArray($query)) > 0) {
             return $this->concatenateWhereClauses($query, $sql);
         }
@@ -498,9 +476,6 @@ class Grammar extends BaseGrammar
      */
     protected function whereNested(Builder $query, $where)
     {
-        // Here we will calculate what portion of the string we need to remove. If this
-        // is a join clause query, we need to remove the "on" portion of the SQL and
-        // if it is a normal query we need to take the leading "where" of queries.
         $offset = $query instanceof JoinClause ? 3 : 6;
 
         return '('.substr($this->compileWheres($where['query']), $offset).')';
@@ -696,9 +671,6 @@ class Grammar extends BaseGrammar
      */
     protected function compileHaving(array $having)
     {
-        // If the having clause is "raw", we can just return the clause straight away
-        // without doing any more processing on it. Otherwise, we will compile the
-        // clause into SQL based on the components that make it up from builder.
         if ($having['type'] === 'Raw') {
             return $having['sql'];
         } elseif ($having['type'] === 'between') {
@@ -957,9 +929,6 @@ class Grammar extends BaseGrammar
      */
     public function compileInsert(Builder $query, array $values)
     {
-        // Essentially we will force every insert to be treated as a batch insert which
-        // simply makes creating the SQL easier for us since we can utilize the same
-        // basic routine regardless of an amount of records given to us to insert.
         $table = $this->wrapTable($query->from);
 
         if (empty($values)) {
@@ -971,10 +940,6 @@ class Grammar extends BaseGrammar
         }
 
         $columns = $this->columnize(array_keys(reset($values)));
-
-        // We need to build a list of parameter place-holders of values that are bound
-        // to the query. Each insert should have the exact same number of parameter
-        // bindings so we will loop through the record and parameterize them all.
         $parameters = collect($values)->map(function ($record) {
             return '('.$this->parameterize($record).')';
         })->implode(', ');

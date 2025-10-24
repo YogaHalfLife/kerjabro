@@ -70,8 +70,6 @@ class SudoVisitor extends NodeVisitorAbstract
             $args = $node->args;
             \array_unshift($args, new Arg(\is_string($name) ? new String_($name) : $name));
             \array_unshift($args, new Arg($node->var));
-
-            // not using prepareCall because the $node->args we started with are already Arg instances
             return new StaticCall(new FullyQualifiedName(Sudo::class), self::METHOD_CALL, $args);
         } elseif ($node instanceof StaticPropertyFetch) {
             $class = $node->class instanceof Name ? $node->class->toString() : $node->class;
@@ -99,8 +97,6 @@ class SudoVisitor extends NodeVisitorAbstract
             $name = $node->name instanceof Identifier ? $node->name->toString() : $node->name;
             \array_unshift($args, new Arg(\is_string($name) ? new String_($name) : $name));
             \array_unshift($args, new Arg(\is_string($class) ? new String_($class) : $class));
-
-            // not using prepareCall because the $node->args we started with are already Arg instances
             return new StaticCall(new FullyQualifiedName(Sudo::class), self::STATIC_CALL, $args);
         } elseif ($node instanceof ClassConstFetch) {
             $class = $node->class instanceof Name ? $node->class->toString() : $node->class;

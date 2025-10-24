@@ -122,7 +122,6 @@ class Company extends \Faker\Provider\Company
     public static function inn10($area_code = '')
     {
         if ($area_code === '' || (int) $area_code === 0) {
-            //Simple generation code for areas in Russian without check for valid
             $area_code = self::numberBetween(1, 91);
         } else {
             $area_code = (int) $area_code;

@@ -127,7 +127,6 @@ class Normalizer
 
         while ($i < $len) {
             if ($s[$i] < "\x80") {
-                // ASCII chars
 
                 if ($tail) {
                     $lastUchr .= $tail;
@@ -152,7 +151,6 @@ class Normalizer
             if ($lastUchr < "\xE1\x84\x80" || "\xE1\x84\x92" < $lastUchr
                 || $uchr < "\xE1\x85\xA1" || "\xE1\x85\xB5" < $uchr
                 || $lastUcls) {
-                // Table lookup and combining chars composition
 
                 $ucls = $combClass[$uchr] ?? 0;
 
@@ -170,7 +168,6 @@ class Normalizer
                     $lastUchr = $uchr;
                 }
             } else {
-                // Hangul chars
 
                 $L = \ord($lastUchr[2]) - 0x80;
                 $V = \ord($uchr[2]) - 0xA1;
@@ -212,7 +209,6 @@ class Normalizer
 
         while ($i < $len) {
             if ($s[$i] < "\x80") {
-                // ASCII chars
 
                 if ($c) {
                     ksort($c);
@@ -231,7 +227,6 @@ class Normalizer
             $i += $ulen;
 
             if ($uchr < "\xEA\xB0\x80" || "\xED\x9E\xA3" < $uchr) {
-                // Table lookup
 
                 if ($uchr !== $j = $compatMap[$uchr] ?? ($decompMap[$uchr] ?? $uchr)) {
                     $uchr = $j;
@@ -240,7 +235,6 @@ class Normalizer
                     $ulen = $uchr[0] < "\x80" ? 1 : $ulenMask[$uchr[0] & "\xF0"];
 
                     if ($ulen != $j) {
-                        // Put trailing chars in $s
 
                         $j -= $ulen;
                         $i -= $j;
@@ -259,7 +253,6 @@ class Normalizer
                     }
                 }
                 if (isset($combClass[$uchr])) {
-                    // Combining chars, for sorting
 
                     if (!isset($c[$combClass[$uchr]])) {
                         $c[$combClass[$uchr]] = '';
@@ -268,7 +261,6 @@ class Normalizer
                     continue;
                 }
             } else {
-                // Hangul chars
 
                 $uchr = unpack('C*', $uchr);
                 $j = (($uchr[1] - 224) << 12) + (($uchr[2] - 128) << 6) + $uchr[3] - 0xAC80;

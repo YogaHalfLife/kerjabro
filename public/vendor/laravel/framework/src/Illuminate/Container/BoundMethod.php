@@ -51,10 +51,6 @@ class BoundMethod
     protected static function callClass($container, $target, array $parameters = [], $defaultMethod = null)
     {
         $segments = explode('@', $target);
-
-        // We will assume an @ sign is used to delimit the class name from the method
-        // name. We will split on this @ sign and then build a callable array that
-        // we can pass right back into the "call" method for dependency binding.
         $method = count($segments) === 2
                         ? $segments[1] : $defaultMethod;
 
@@ -80,10 +76,6 @@ class BoundMethod
         if (! is_array($callback)) {
             return Util::unwrapIfClosure($default);
         }
-
-        // Here we need to turn the array callable into a Class@method string we can use to
-        // examine the container and see if there are any method bindings for this given
-        // method. If there are, we can call this method binding callback immediately.
         $method = static::normalizeMethod($callback);
 
         if ($container->hasMethodBinding($method)) {

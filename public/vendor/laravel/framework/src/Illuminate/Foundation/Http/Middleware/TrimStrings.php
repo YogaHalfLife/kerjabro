@@ -19,7 +19,6 @@ class TrimStrings extends TransformsRequest
      * @var array
      */
     protected $except = [
-        //
     ];
 
     /**

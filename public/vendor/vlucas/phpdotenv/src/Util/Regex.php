@@ -21,7 +21,6 @@ final class Regex
      */
     private function __construct()
     {
-        //
     }
 
     /**

@@ -16,7 +16,6 @@ class NullStore extends TaggableStore implements LockProvider
      */
     public function get($key)
     {
-        //
     }
 
     /**

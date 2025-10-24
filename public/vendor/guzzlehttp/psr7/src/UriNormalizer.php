@@ -215,6 +215,5 @@ final class UriNormalizer
 
     private function __construct()
     {
-        // cannot be instantiated
     }
 }

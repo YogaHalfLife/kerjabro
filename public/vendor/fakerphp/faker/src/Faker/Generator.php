@@ -704,8 +704,6 @@ class Generator
 
             return $this->formatters[$format];
         }
-
-        // "Faker\Core\Barcode->ean13"
         if (preg_match('|^([a-zA-Z0-9\\\]+)->([a-zA-Z0-9]+)$|', $format, $matches)) {
             $this->formatters[$format] = [$this->ext($matches[1]), $matches[2]];
 

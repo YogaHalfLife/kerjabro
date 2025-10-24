@@ -190,8 +190,6 @@ class Lorem extends Base
 
         while (empty($text)) {
             $size = 0;
-
-            // until $maxNbChars is reached
             while ($size < $maxNbChars) {
                 $word = ($size ? ' ' : '') . static::$type();
                 $text[] = $word;
@@ -203,10 +201,7 @@ class Lorem extends Base
         }
 
         if ($type === 'word') {
-            // capitalize first letter
             $text[0] = ucwords($text[0]);
-
-            // end sentence with full stop
             $text[count($text) - 1] .= '.';
         }
 

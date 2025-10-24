@@ -125,8 +125,6 @@ HELP
         } else {
             $reflector = null;
         }
-
-        // @todo something cleaner than this :-/
         if ($output instanceof ShellOutput && $input->getOption('long')) {
             $output->startPaging();
         }
@@ -138,8 +136,6 @@ HELP
         if ($output instanceof ShellOutput && $input->getOption('long')) {
             $output->stopPaging();
         }
-
-        // Set some magic local variables
         if ($reflector !== null) {
             $this->setCommandScopeVariables($reflector);
         }
@@ -241,7 +237,6 @@ HELP
     private function validateInput(InputInterface $input)
     {
         if (!$input->getArgument('target')) {
-            // if no target is passed, there can be no properties or methods
             foreach (['properties', 'methods', 'no-inherit'] as $option) {
                 if ($input->getOption($option)) {
                     throw new RuntimeException('--'.$option.' does not make sense without a specified target');
@@ -253,25 +248,18 @@ HELP
                     return;
                 }
             }
-
-            // default to --vars if no other options are passed
             $input->setOption('vars', true);
         } else {
-            // if a target is passed, classes, functions, etc don't make sense
             foreach (['vars', 'globals'] as $option) {
                 if ($input->getOption($option)) {
                     throw new RuntimeException('--'.$option.' does not make sense with a specified target');
                 }
             }
-
-            // @todo ensure that 'functions', 'classes', 'interfaces', 'traits' only accept namespace target?
             foreach (['constants', 'properties', 'methods', 'functions', 'classes', 'interfaces', 'traits'] as $option) {
                 if ($input->getOption($option)) {
                     return;
                 }
             }
-
-            // default to --constants --properties --methods if no other options are passed
             $input->setOption('constants', true);
             $input->setOption('properties', true);
             $input->setOption('methods', true);

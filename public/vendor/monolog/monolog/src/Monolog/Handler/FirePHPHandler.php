@@ -90,8 +90,6 @@ class FirePHPHandler extends AbstractProcessingHandler
      */
     protected function createRecordHeader(array $record): array
     {
-        // Wildfire is extensible to support multiple protocols & plugins in a single request,
-        // but we're not taking advantage of that (yet), so we're using "1" for simplicity's sake.
         return $this->createHeader(
             [1, 1, 1, self::$messageIndex++],
             $record['formatted']
@@ -116,7 +114,6 @@ class FirePHPHandler extends AbstractProcessingHandler
      */
     protected function getInitHeaders(): array
     {
-        // Initial payload consists of required headers for Wildfire
         return array_merge(
             $this->createHeader(['Protocol', 1], static::PROTOCOL_URI),
             $this->createHeader([1, 'Structure', 1], static::STRUCTURE_URI),
@@ -145,8 +142,6 @@ class FirePHPHandler extends AbstractProcessingHandler
         if (!self::$sendHeaders || !$this->isWebRequest()) {
             return;
         }
-
-        // WildFire-specific headers must be sent prior to any messages
         if (!self::$initialized) {
             self::$initialized = true;
 

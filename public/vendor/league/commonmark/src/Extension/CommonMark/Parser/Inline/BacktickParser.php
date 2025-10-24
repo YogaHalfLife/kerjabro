@@ -60,8 +60,6 @@ final class BacktickParser implements InlineParserInterface
 
             return true;
         }
-
-        // If we got here, we didn't match a closing backtick sequence
         $cursor->restoreState($previousState);
         $inlineContext->getContainer()->appendChild(new Text($ticks));
 

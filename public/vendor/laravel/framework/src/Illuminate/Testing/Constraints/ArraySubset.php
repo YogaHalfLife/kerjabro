@@ -57,8 +57,6 @@ if (class_exists(Version::class) && (int) Version::series()[0] >= 9) {
          */
         public function evaluate($other, string $description = '', bool $returnResult = false): ?bool
         {
-            // type cast $other & $this->subset as an array to allow
-            // support in standard array functions.
             $other = $this->toArray($other);
             $this->subset = $this->toArray($this->subset);
 
@@ -138,8 +136,6 @@ if (class_exists(Version::class) && (int) Version::series()[0] >= 9) {
             if ($other instanceof Traversable) {
                 return iterator_to_array($other);
             }
-
-            // Keep BC even if we know that array would not be the expected one
             return (array) $other;
         }
     }
@@ -192,8 +188,6 @@ if (class_exists(Version::class) && (int) Version::series()[0] >= 9) {
          */
         public function evaluate($other, string $description = '', bool $returnResult = false)
         {
-            // type cast $other & $this->subset as an array to allow
-            // support in standard array functions.
             $other = $this->toArray($other);
             $this->subset = $this->toArray($this->subset);
 
@@ -271,8 +265,6 @@ if (class_exists(Version::class) && (int) Version::series()[0] >= 9) {
             if ($other instanceof Traversable) {
                 return iterator_to_array($other);
             }
-
-            // Keep BC even if we know that array would not be the expected one
             return (array) $other;
         }
     }

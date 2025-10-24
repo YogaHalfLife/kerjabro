@@ -183,7 +183,6 @@ class JsonResource implements ArrayAccess, JsonSerializable, Responsable, UrlRou
      */
     public function withResponse($request, $response)
     {
-        //
     }
 
     /**

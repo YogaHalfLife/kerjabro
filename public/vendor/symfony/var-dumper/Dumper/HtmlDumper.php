@@ -955,7 +955,6 @@ EOHTML
             if ($this->extraDisplayOptions) {
                 $args[] = json_encode($this->extraDisplayOptions, \JSON_FORCE_OBJECT);
             }
-            // Replace is for BC
             $this->line .= sprintf(str_replace('"%s"', '%s', $this->dumpSuffix), implode(', ', $args));
         }
         $this->lastDepth = $depth;

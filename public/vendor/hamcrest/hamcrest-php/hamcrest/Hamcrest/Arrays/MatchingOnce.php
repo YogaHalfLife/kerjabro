@@ -38,8 +38,6 @@ class MatchingOnce
         return false;
     }
 
-    // -- Private Methods
-
     private function _isNotSurplus($item)
     {
         if (empty($this->_elementMatchers)) {

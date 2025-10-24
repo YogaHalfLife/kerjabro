@@ -175,7 +175,6 @@ final class Mbstring
         $cnt = floor(\count($convmap) / 4) * 4;
 
         for ($i = 0; $i < $cnt; $i += 4) {
-            // collector_decode_htmlnumericentity ignores $convmap[$i + 3]
             $convmap[$i] += $convmap[$i + 2];
             $convmap[$i + 1] += $convmap[$i + 2];
         }
@@ -469,7 +468,6 @@ final class Mbstring
                     if (strncmp($enc, 'ISO-8859-', 9)) {
                         return false;
                     }
-                    // no break
                 case 'ASCII':
                 case 'UTF8':
                 case 'UTF-8':

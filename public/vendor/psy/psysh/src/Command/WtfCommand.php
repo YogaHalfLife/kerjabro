@@ -103,7 +103,6 @@ HELP
         do {
             $traceCount = \count($exception->getTrace());
             $showLines = $count;
-            // Show the whole trace if we'd only be hiding a few lines
             if ($traceCount < \max($count * 1.2, $count + 2)) {
                 $showLines = \PHP_INT_MAX;
             }

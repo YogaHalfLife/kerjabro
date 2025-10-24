@@ -328,11 +328,9 @@ class Uuid implements UuidInterface
      */
     public function __unserialize(array $data): void
     {
-        // @codeCoverageIgnoreStart
         if (!isset($data['bytes'])) {
             throw new ValueError(sprintf('%s(): Argument #1 ($data) is invalid', __METHOD__));
         }
-        // @codeCoverageIgnoreEnd
 
         $this->unserialize($data['bytes']);
     }
@@ -412,9 +410,6 @@ class Uuid implements UuidInterface
      */
     public static function setFactory(UuidFactoryInterface $factory): void
     {
-        // Note: non-strict equality is intentional here. If the factory is configured differently, every assumption
-        //       around purity is broken, and we have to internally decide everything differently.
-        // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedNotEqualOperator
         self::$factoryReplaced = ($factory != new UuidFactory());
 
         self::$factory = $factory;
@@ -440,8 +435,6 @@ class Uuid implements UuidInterface
     {
         if (! self::$factoryReplaced && strlen($bytes) === 16) {
             $base16Uuid = bin2hex($bytes);
-
-            // Note: we are calling `fromString` internally because we don't know if the given `$bytes` is a valid UUID
             return self::fromString(
                 substr($base16Uuid, 0, 8)
                 . '-'

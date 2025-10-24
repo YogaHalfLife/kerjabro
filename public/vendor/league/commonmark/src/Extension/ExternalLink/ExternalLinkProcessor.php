@@ -45,7 +45,6 @@ final class ExternalLinkProcessor
 
             $host = \parse_url($link->getUrl(), PHP_URL_HOST);
             if (! \is_string($host)) {
-                // Something is terribly wrong with this URL
                 continue;
             }
 
@@ -54,8 +53,6 @@ final class ExternalLinkProcessor
                 $this->applyRelAttribute($link, false);
                 continue;
             }
-
-            // Host does not match our list
             $this->markLinkAsExternal($link, $openInNewWindow, $classes);
         }
     }

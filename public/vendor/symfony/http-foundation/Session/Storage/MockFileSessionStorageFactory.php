@@ -12,8 +12,6 @@
 namespace Symfony\Component\HttpFoundation\Session\Storage;
 
 use Symfony\Component\HttpFoundation\Request;
-
-// Help opcache.preload discover always-needed symbols
 class_exists(MockFileSessionStorage::class);
 
 /**

@@ -25,11 +25,8 @@ class SubRequestHandler
 {
     public static function handle(HttpKernelInterface $kernel, Request $request, int $type, bool $catch): Response
     {
-        // save global state related to trusted headers and proxies
         $trustedProxies = Request::getTrustedProxies();
         $trustedHeaderSet = Request::getTrustedHeaderSet();
-
-        // remove untrusted values
         $remoteAddr = $request->server->get('REMOTE_ADDR');
         if (!$remoteAddr || !IpUtils::checkIp($remoteAddr, $trustedProxies)) {
             $trustedHeaders = [
@@ -45,8 +42,6 @@ class SubRequestHandler
                 $request->server->remove('HTTP_'.$name);
             }
         }
-
-        // compute trusted values, taking any trusted proxies into account
         $trustedIps = [];
         $trustedValues = [];
         foreach (array_reverse($request->getClientIps()) as $ip) {
@@ -57,8 +52,6 @@ class SubRequestHandler
             $trustedIps[] = $remoteAddr;
             $trustedValues[] = sprintf('for="%s"', $remoteAddr);
         }
-
-        // set trusted values, reusing as much as possible the global trusted settings
         if (Request::HEADER_FORWARDED & $trustedHeaderSet) {
             $trustedValues[0] .= sprintf(';host="%s";proto=%s', $request->getHttpHost(), $request->getScheme());
             $request->headers->set('Forwarded', $v = implode(', ', $trustedValues));
@@ -72,12 +65,7 @@ class SubRequestHandler
             $request->headers->set('X-Forwarded-For', $v = implode(', ', $trustedIps));
             $request->server->set('HTTP_X_FORWARDED_FOR', $v);
         }
-
-        // fix the client IP address by setting it to 127.0.0.1,
-        // which is the core responsibility of this method
         $request->server->set('REMOTE_ADDR', '127.0.0.1');
-
-        // ensure 127.0.0.1 is set as trusted proxy
         if (!IpUtils::checkIp('127.0.0.1', $trustedProxies)) {
             Request::setTrustedProxies(array_merge($trustedProxies, ['127.0.0.1']), Request::getTrustedHeaderSet());
         }
@@ -85,7 +73,6 @@ class SubRequestHandler
         try {
             return $kernel->handle($request, $type, $catch);
         } finally {
-            // restore global state
             Request::setTrustedProxies($trustedProxies, $trustedHeaderSet);
         }
     }

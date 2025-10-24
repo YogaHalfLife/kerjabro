@@ -40,7 +40,6 @@ interface MapInterface extends ArrayInterface
      *
      * @param T $value The value to check in the map.
      */
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function containsValue($value): bool;
 
     /**
@@ -60,7 +59,6 @@ interface MapInterface extends ArrayInterface
      *
      * @return T|null the value or `null` if the key could not be found.
      */
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function get($key, $defaultValue = null);
 
     /**
@@ -75,7 +73,6 @@ interface MapInterface extends ArrayInterface
      * @return T|null the previous value associated with key, or `null` if
      *     there was no mapping for `$key`.
      */
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function put($key, $value);
 
     /**
@@ -91,7 +88,6 @@ interface MapInterface extends ArrayInterface
      * @return T|null the previous value associated with key, or `null` if
      *     there was no mapping for `$key`.
      */
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function putIfAbsent($key, $value);
 
     /**
@@ -102,7 +98,6 @@ interface MapInterface extends ArrayInterface
      * @return T|null the previous value associated with key, or `null` if
      *     there was no mapping for `$key`.
      */
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function remove($key);
 
     /**
@@ -116,7 +111,6 @@ interface MapInterface extends ArrayInterface
      *
      * @return bool true if the value was removed.
      */
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function removeIf($key, $value): bool;
 
     /**
@@ -129,7 +123,6 @@ interface MapInterface extends ArrayInterface
      * @return T|null the previous value associated with key, or `null` if
      *     there was no mapping for `$key`.
      */
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function replace($key, $value);
 
     /**
@@ -144,6 +137,5 @@ interface MapInterface extends ArrayInterface
      *
      * @return bool true if the value was replaced.
      */
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function replaceIf($key, $oldValue, $newValue): bool;
 }

@@ -57,14 +57,11 @@ class HelpCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         if ($this->command !== null) {
-            // help for an individual command
             $output->page($this->command->asText());
             $this->command = null;
         } elseif ($name = $input->getArgument('command_name')) {
-            // help for an individual command
             $output->page($this->getApplication()->get($name)->asText());
         } else {
-            // list available commands
             $commands = $this->getApplication()->all();
 
             $table = $this->getTable($output);

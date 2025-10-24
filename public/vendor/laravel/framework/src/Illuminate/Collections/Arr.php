@@ -266,7 +266,6 @@ class Arr
         }
 
         foreach ($keys as $key) {
-            // if the exact key exists in the top-level, remove it
             if (static::exists($array, $key)) {
                 unset($array[$key]);
 
@@ -274,8 +273,6 @@ class Arr
             }
 
             $parts = explode('.', $key);
-
-            // clean up before each pass
             $array = &$original;
 
             while (count($parts) > 1) {
@@ -463,10 +460,6 @@ class Arr
 
         foreach ($array as $item) {
             $itemValue = data_get($item, $value);
-
-            // If the key is "null", we will just append the value to the array and keep
-            // looping. Otherwise we will key the array using the value of the key we
-            // received from the developer. Then we'll return the final array form.
             if (is_null($key)) {
                 $results[] = $itemValue;
             } else {
@@ -617,10 +610,6 @@ class Arr
             }
 
             unset($keys[$i]);
-
-            // If the key doesn't exist at this depth, we will just create an empty array
-            // to hold the next value, allowing us to create the arrays to hold final
-            // values at the correct depth. Then we'll keep digging into the array.
             if (! isset($array[$key]) || ! is_array($array[$key])) {
                 $array[$key] = [];
             }

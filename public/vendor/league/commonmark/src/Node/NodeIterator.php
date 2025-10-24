@@ -43,8 +43,6 @@ final class NodeIterator implements \IteratorAggregate
             $node = \array_pop($stack);
 
             yield $index++ => $node;
-
-            // Push all children onto the stack in reverse order
             $child = $node->lastChild();
             while ($child !== null) {
                 if (! $this->blocksOnly || $child instanceof AbstractBlock) {

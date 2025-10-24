@@ -31,7 +31,6 @@ final class NullOutputFormatter implements OutputFormatterInterface
      */
     public function getStyle(string $name): OutputFormatterStyleInterface
     {
-        // to comply with the interface we must return a OutputFormatterStyleInterface
         return $this->style ?? $this->style = new NullOutputFormatterStyle();
     }
 
@@ -56,7 +55,6 @@ final class NullOutputFormatter implements OutputFormatterInterface
      */
     public function setDecorated(bool $decorated): void
     {
-        // do nothing
     }
 
     /**
@@ -64,6 +62,5 @@ final class NullOutputFormatter implements OutputFormatterInterface
      */
     public function setStyle(string $name, OutputFormatterStyleInterface $style): void
     {
-        // do nothing
     }
 }

@@ -337,10 +337,6 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface
         static::$cascadeFactors = $cascadeFactors;
     }
 
-    ///////////////////////////////////////////////////////////////////
-    //////////////////////////// CONSTRUCTORS /////////////////////////
-    ///////////////////////////////////////////////////////////////////
-
     /**
      * Create a new CarbonInterval instance.
      *
@@ -392,7 +388,6 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface
             }
 
             if ($spec === static::PERIOD_PREFIX) {
-                // Allow the zero interval.
                 $spec .= '0'.static::PERIOD_YEARS;
             }
         }
@@ -731,8 +726,6 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface
         while ([$part, $value, $unit] = array_shift($parts)) {
             $intValue = (int) $value;
             $fraction = (float) $value - $intValue;
-
-            // Fix calculation precision
             switch (round($fraction, 6)) {
                 case 1:
                     $fraction = 0;
@@ -1030,10 +1023,6 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface
 
         return $interval;
     }
-
-    ///////////////////////////////////////////////////////////////////
-    ///////////////////////// GETTERS AND SETTERS /////////////////////
-    ///////////////////////////////////////////////////////////////////
 
     /**
      * Get a part of the CarbonInterval object.
@@ -1626,7 +1615,6 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface
 
         $handleDeclensions = function ($unit, $count) use ($interpolations, $transId, $translator, $altNumbers, $absolute) {
             if (!$absolute) {
-                // Some languages have special pluralization for past and future tense.
                 $key = $unit.'_'.$transId;
                 $result = $this->translate($key, $interpolations, $count, $translator, $altNumbers);
 
@@ -1730,13 +1718,9 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface
             } elseif ($options & CarbonInterface::SEQUENTIAL_PARTS_ONLY && \count($interval) > 0) {
                 break;
             }
-
-            // break the loop after we get the required number of parts in array
             if (\count($interval) >= $parts) {
                 break;
             }
-
-            // break the loop after we have reached the minimum unit
             if (\in_array($minimumUnit, [$diffIntervalData['unit'], $diffIntervalData['unitShort']])) {
                 $fallbackUnit = [$diffIntervalData['unit'], $diffIntervalData['unitShort']];
 
@@ -1758,8 +1742,6 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface
             $unit = $fallbackUnit[$short ? 1 : 0];
             $interval[] = $this->translate($unit, $interpolations, $count, $translator, $altNumbers);
         }
-
-        // join the interval parts by a space
         $time = $join($interval);
 
         unset($diffIntervalArray, $interval);

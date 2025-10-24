@@ -110,8 +110,6 @@ final class XmlRenderer implements MarkdownRendererInterface
         if (\is_bool($value)) {
             return $value ? 'true' : 'false';
         }
-
-        // @phpstan-ignore-next-line
         throw new \InvalidArgumentException('$value must be a string, int, float, or bool');
     }
 

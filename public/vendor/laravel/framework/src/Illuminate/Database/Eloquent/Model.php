@@ -239,7 +239,6 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
      */
     protected static function booting()
     {
-        //
     }
 
     /**
@@ -303,7 +302,6 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
      */
     protected static function booted()
     {
-        //
     }
 
     /**
@@ -424,9 +422,6 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
         $totallyGuarded = $this->totallyGuarded();
 
         foreach ($this->fillableFromArray($attributes) as $key => $value) {
-            // The developers may choose to place some attributes in the "fillable" array
-            // which means only those attributes may be set through mass assignment to
-            // the model, and all others will just get ignored for security reasons.
             if ($this->isFillable($key)) {
                 $this->setAttribute($key, $value);
             } elseif ($totallyGuarded) {
@@ -490,9 +485,6 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
      */
     public function newInstance($attributes = [], $exists = false)
     {
-        // This method just provides a convenient way for us to generate fresh model
-        // instances of this current model. It is particularly useful during the
-        // hydration of new objects via the Eloquent query builder instances.
         $model = new static;
 
         $model->exists = $exists;
@@ -538,9 +530,6 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
      */
     public static function on($connection = null)
     {
-        // First we will just create a fresh instance of this model, and then we can set the
-        // connection on the model so that it is used for the queries we execute, as well
-        // as being set on every relation we retrieve without a custom connection name.
         $instance = new static;
 
         $instance->setConnection($connection);
@@ -931,10 +920,6 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
         if (! $this->save()) {
             return false;
         }
-
-        // To sync all of the relationships to the database, we will simply spin through
-        // the relationships and save each model via this "push" method, which allows
-        // us to recurse into all of these nested relations for the model instance.
         foreach ($this->relations as $models) {
             $models = $models instanceof Collection
                         ? $models->all() : [$models];
@@ -973,25 +958,13 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
         $this->mergeAttributesFromCachedCasts();
 
         $query = $this->newModelQuery();
-
-        // If the "saving" event returns false we'll bail out of the save and return
-        // false, indicating that the save failed. This provides a chance for any
-        // listeners to cancel save operations if validations fail or whatever.
         if ($this->fireModelEvent('saving') === false) {
             return false;
         }
-
-        // If the model already exists in the database we can just update our record
-        // that is already in this database using the current IDs in this "where"
-        // clause to only update this model. Otherwise, we'll just insert them.
         if ($this->exists) {
             $saved = $this->isDirty() ?
                         $this->performUpdate($query) : true;
         }
-
-        // If the model is brand new, we'll insert it into our database and set the
-        // ID attribute on the model to the value of the newly inserted row's ID
-        // which is typically an auto-increment value managed by the database.
         else {
             $saved = $this->performInsert($query);
 
@@ -1000,10 +973,6 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
                 $this->setConnection($connection->getName());
             }
         }
-
-        // If the model is successfully saved, we need to do a few more things once
-        // that is done. We will call the "saved" method here to run any actions
-        // we need to happen after a model gets successfully saved right here.
         if ($saved) {
             $this->finishSave($options);
         }
@@ -1051,23 +1020,12 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
      */
     protected function performUpdate(Builder $query)
     {
-        // If the updating event returns false, we will cancel the update operation so
-        // developers can hook Validation systems into their models and cancel this
-        // operation if the model does not pass validation. Otherwise, we update.
         if ($this->fireModelEvent('updating') === false) {
             return false;
         }
-
-        // First we need to create a fresh query instance and touch the creation and
-        // update timestamp on the model which are maintained by us for developer
-        // convenience. Then we will just continue saving the model instances.
         if ($this->usesTimestamps()) {
             $this->updateTimestamps();
         }
-
-        // Once we have run the update operation, we will fire the "updated" event for
-        // this model instance. This will allow developers to hook into these after
-        // models are updated, giving them a chance to do any special processing.
         $dirty = $this->getDirty();
 
         if (count($dirty) > 0) {
@@ -1138,26 +1096,14 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
         if ($this->fireModelEvent('creating') === false) {
             return false;
         }
-
-        // First we'll need to create a fresh query instance and touch the creation and
-        // update timestamps on this model, which are maintained by us for developer
-        // convenience. After, we will just continue saving these model instances.
         if ($this->usesTimestamps()) {
             $this->updateTimestamps();
         }
-
-        // If the model has an incrementing key, we can use the "insertGetId" method on
-        // the query builder, which will give us back the final inserted ID for this
-        // table from the database. Not all tables have to be incrementing though.
         $attributes = $this->getAttributesForInsert();
 
         if ($this->getIncrementing()) {
             $this->insertAndSetId($query, $attributes);
         }
-
-        // If the table isn't incrementing we'll simply insert these attributes as they
-        // are. These attribute arrays must contain an "id" column previously placed
-        // there by the developer as the manually determined key for these models.
         else {
             if (empty($attributes)) {
                 return true;
@@ -1165,10 +1111,6 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
 
             $query->insert($attributes);
         }
-
-        // We will go ahead and set the exists property to true, so that it is set when
-        // the created event is fired, just in case the developer tries to update it
-        // during the event. This will allow them to do so and run an update here.
         $this->exists = true;
 
         $this->wasRecentlyCreated = true;
@@ -1213,10 +1155,6 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
         if (count($ids) === 0) {
             return 0;
         }
-
-        // We will actually pull the models from the database table and call delete on
-        // each of them individually so that their events get fired properly with a
-        // correct set of attributes in case the developers wants to check these.
         $key = ($instance = new static)->getKeyName();
 
         $count = 0;
@@ -1244,10 +1182,6 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
         if (is_null($this->getKeyName())) {
             throw new LogicException('No primary key defined on model.');
         }
-
-        // If the model doesn't exist, there is nothing to delete so we'll just return
-        // immediately and not do anything else. Otherwise, we will continue with a
-        // deletion process on the model, firing the proper events, and so forth.
         if (! $this->exists) {
             return;
         }
@@ -1255,17 +1189,9 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
         if ($this->fireModelEvent('deleting') === false) {
             return false;
         }
-
-        // Here, we'll touch the owning models, verifying these timestamps get updated
-        // for the models. This will allow any caching to get broken on the parents
-        // by the timestamp. Then we will go ahead and delete the model instance.
         $this->touchOwners();
 
         $this->performDeleteOnModel();
-
-        // Once the model has been deleted, we will fire off the deleted event so that
-        // the developers may hook into post-delete operations. We will then return
-        // a boolean true as the delete is presumably successful on the database.
         $this->fireModelEvent('deleted', false);
 
         return true;

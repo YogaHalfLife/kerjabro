@@ -128,7 +128,6 @@ class EntityPopulator
         $relations = $entityName::relations($this->mapper, $entity);
 
         foreach ($relations as $relation) {
-            // We don't need any other relation here.
             if ($relation instanceof BelongsTo) {
                 $fieldName = $relation->localKey();
                 $entityName = $relation->entityName();
@@ -143,8 +142,6 @@ class EntityPopulator
                     }
 
                     if ($required && $this->useExistingData) {
-                        // We did not add anything like this, but it's required,
-                        // So let's find something existing in DB.
                         $mapper = $locator->mapper($entityName);
                         $records = $mapper->all()->limit(self::RELATED_FETCH_COUNT)->toArray();
 

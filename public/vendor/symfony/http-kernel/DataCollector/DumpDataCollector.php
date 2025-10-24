@@ -50,8 +50,6 @@ class DumpDataCollector extends DataCollector implements DataDumperInterface
         $this->charset = $charset ?: ini_get('php.output_encoding') ?: ini_get('default_charset') ?: 'UTF-8';
         $this->requestStack = $requestStack;
         $this->dumper = $dumper;
-
-        // All clones share these properties by reference:
         $this->rootRefs = [
             &$this->data,
             &$this->dataCount,
@@ -101,13 +99,9 @@ class DumpDataCollector extends DataCollector implements DataDumperInterface
         if (!$this->dataCount) {
             $this->data = [];
         }
-
-        // Sub-requests and programmatic calls stay in the collected profile.
         if ($this->dumper || ($this->requestStack && $this->requestStack->getMainRequest() !== $request) || $request->isXmlHttpRequest() || $request->headers->has('Origin')) {
             return;
         }
-
-        // In all other conditions that remove the web debug toolbar, dumps are written on the output.
         if (!$this->requestStack
             || !$response->headers->has('X-Debug-Token')
             || $response->isRedirection()

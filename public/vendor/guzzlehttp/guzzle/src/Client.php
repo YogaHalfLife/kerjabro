@@ -61,8 +61,6 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
         } elseif (!\is_callable($config['handler'])) {
             throw new InvalidArgumentException('handler must be a callable');
         }
-
-        // Convert the base_uri to a UriInterface
         if (isset($config['base_uri'])) {
             $config['base_uri'] = Psr7\Utils::uriFor($config['base_uri']);
         }
@@ -100,7 +98,6 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
      */
     public function sendAsync(RequestInterface $request, array $options = []): PromiseInterface
     {
-        // Merge the base URI into the request URI if needed.
         $options = $this->prepareDefaults($options);
 
         return $this->transfer(
@@ -152,17 +149,14 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
     public function requestAsync(string $method, $uri = '', array $options = []): PromiseInterface
     {
         $options = $this->prepareDefaults($options);
-        // Remove request modifying parameter because it can be done up-front.
         $headers = $options['headers'] ?? [];
         $body = $options['body'] ?? null;
         $version = $options['version'] ?? '1.1';
-        // Merge the URI into the base URI.
         $uri = $this->buildUri(Psr7\Utils::uriFor($uri), $options);
         if (\is_array($body)) {
             throw $this->invalidBody();
         }
         $request = new Psr7\Request($method, $uri, $headers, $body, $version);
-        // Remove the option so that they are not doubly-applied.
         unset($options['headers'], $options['body'], $options['version']);
 
         return $this->transfer($request, $options);
@@ -234,12 +228,6 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
             'cookies'         => false,
             'idn_conversion'  => false,
         ];
-
-        // Use the standard Linux HTTP_PROXY and HTTPS_PROXY if set.
-
-        // We can only trust the HTTP_PROXY environment variable in a CLI
-        // process due to the fact that PHP has no reliable mechanism to
-        // get environment variables that start with "HTTP_".
         if (\PHP_SAPI === 'cli' && ($proxy = Utils::getenv('HTTP_PROXY'))) {
             $defaults['proxy']['http'] = $proxy;
         }
@@ -258,12 +246,9 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
         if (!empty($config['cookies']) && $config['cookies'] === true) {
             $this->config['cookies'] = new CookieJar();
         }
-
-        // Add the default user-agent header.
         if (!isset($this->config['headers'])) {
             $this->config['headers'] = ['User-Agent' => Utils::defaultUserAgent()];
         } else {
-            // Add the User-Agent header if one was not already set.
             foreach (\array_keys($this->config['headers']) as $name) {
                 if (\strtolower($name) === 'user-agent') {
                     return;
@@ -283,15 +268,10 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
         $defaults = $this->config;
 
         if (!empty($defaults['headers'])) {
-            // Default headers are only added if they are not present.
             $defaults['_conditional'] = $defaults['headers'];
             unset($defaults['headers']);
         }
-
-        // Special handling for headers is required as they are added as
-        // conditional headers and as headers passed to a request ctor.
         if (\array_key_exists('headers', $options)) {
-            // Allows default headers to be unset.
             if ($options['headers'] === null) {
                 $defaults['_conditional'] = [];
                 unset($options['headers']);
@@ -299,11 +279,7 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
                 throw new InvalidArgumentException('headers must be an array');
             }
         }
-
-        // Shallow merge defaults underneath options.
         $result = $options + $defaults;
-
-        // Remove null values.
         foreach ($result as $k => $v) {
             if ($v === null) {
                 unset($result[$k]);
@@ -361,7 +337,6 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
             }
             $options['body'] = \http_build_query($options['form_params'], '', '&');
             unset($options['form_params']);
-            // Ensure that we don't have the header in different case and set the new value.
             $options['_conditional'] = Psr7\Utils::caselessRemove(['Content-Type'], $options['_conditional']);
             $options['_conditional']['Content-Type'] = 'application/x-www-form-urlencoded';
         }
@@ -374,7 +349,6 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
         if (isset($options['json'])) {
             $options['body'] = Utils::jsonEncode($options['json']);
             unset($options['json']);
-            // Ensure that we don't have the header in different case and set the new value.
             $options['_conditional'] = Psr7\Utils::caselessRemove(['Content-Type'], $options['_conditional']);
             $options['_conditional']['Content-Type'] = 'application/json';
         }
@@ -382,7 +356,6 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
         if (!empty($options['decode_content'])
             && $options['decode_content'] !== true
         ) {
-            // Ensure that we don't have the header in different case and set the new value.
             $options['_conditional'] = Psr7\Utils::caselessRemove(['Accept-Encoding'], $options['_conditional']);
             $modify['set_headers']['Accept-Encoding'] = $options['decode_content'];
         }
@@ -400,13 +373,11 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
             $type = isset($value[2]) ? \strtolower($value[2]) : 'basic';
             switch ($type) {
                 case 'basic':
-                    // Ensure that we don't have the header in different case and set the new value.
                     $modify['set_headers'] = Psr7\Utils::caselessRemove(['Authorization'], $modify['set_headers']);
                     $modify['set_headers']['Authorization'] = 'Basic '
                         . \base64_encode("$value[0]:$value[1]");
                     break;
                 case 'digest':
-                    // @todo: Do not rely on curl
                     $options['curl'][\CURLOPT_HTTPAUTH] = \CURLAUTH_DIGEST;
                     $options['curl'][\CURLOPT_USERPWD] = "$value[0]:$value[1]";
                     break;
@@ -428,10 +399,7 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
             $modify['query'] = $value;
             unset($options['query']);
         }
-
-        // Ensure that sink is not an invalid value.
         if (isset($options['sink'])) {
-            // TODO: Add more sink validation?
             if (\is_bool($options['sink'])) {
                 throw new InvalidArgumentException('sink must not be a boolean');
             }
@@ -439,16 +407,11 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
 
         $request = Psr7\Utils::modifyRequest($request, $modify);
         if ($request->getBody() instanceof Psr7\MultipartStream) {
-            // Use a multipart/form-data POST if a Content-Type is not set.
-            // Ensure that we don't have the header in different case and set the new value.
             $options['_conditional'] = Psr7\Utils::caselessRemove(['Content-Type'], $options['_conditional']);
             $options['_conditional']['Content-Type'] = 'multipart/form-data; boundary='
                 . $request->getBody()->getBoundary();
         }
-
-        // Merge in conditional headers if they are not present.
         if (isset($options['_conditional'])) {
-            // Build up the changes so it's in a single clone of the message.
             $modify = [];
             foreach ($options['_conditional'] as $k => $v) {
                 if (!$request->hasHeader($k)) {
@@ -456,7 +419,6 @@ class Client implements ClientInterface, \Psr\Http\Client\ClientInterface
                 }
             }
             $request = Psr7\Utils::modifyRequest($request, $modify);
-            // Don't pass this internal value along to middleware/handlers.
             unset($options['_conditional']);
         }
 

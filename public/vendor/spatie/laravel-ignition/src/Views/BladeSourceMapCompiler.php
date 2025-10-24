@@ -45,7 +45,6 @@ class BladeSourceMapCompiler
         $echoPairs = [['{{', '}}'], ['{{{', '}}}'], ['{!!', '!!}']];
 
         foreach ($echoPairs as $pair) {
-            // Matches {{ $value }}, {!! $value !!} and  {{{ $value }}} depending on $pair
             $pattern = sprintf('/(@)?%s\s*(.+?)\s*%s(\r?\n)?/s', $pair[0], $pair[1]);
 
             if (preg_match_all($pattern, $value, $matches, PREG_OFFSET_CAPTURE)) {
@@ -62,7 +61,6 @@ class BladeSourceMapCompiler
 
     protected function addStatementLineNumbers(string $value): string
     {
-        // Matches @bladeStatements() like @if, @component(...), @etc;
         $shouldInsertLineNumbers = preg_match_all(
             '/\B@(@?\w+(?:::\w+)?)([ \t]*)(\( ( (?>[^()]+) | (?3) )* \))?/x',
             $value,
@@ -83,7 +81,6 @@ class BladeSourceMapCompiler
 
     protected function addBladeComponentLineNumbers(string $value): string
     {
-        // Matches the start of `<x-blade-component`
         $shouldInsertLineNumbers = preg_match_all(
             '/<\s*x[-:]([\w\-:.]*)/mx',
             $value,
@@ -120,10 +117,6 @@ class BladeSourceMapCompiler
     protected function findClosestLineNumberMapping(string $map, int $compiledLineNumber): int
     {
         $map = explode("\n", $map);
-
-        // Max 10 lines between compiled and source line number.
-        // Blade components can span multiple lines and the compiled line number is often
-        // a couple lines below the source-mapped `<x-component>` code.
         $maxDistance = 10;
 
         $pattern = '/\|---LINE:(?P<line>[0-9]+)---\|/m';
@@ -131,7 +124,6 @@ class BladeSourceMapCompiler
 
         while (true) {
             if ($lineNumberToCheck < $compiledLineNumber - $maxDistance) {
-                // Something wrong. Return the $compiledLineNumber (unless it's out of range)
                 return $compiledLineNumber > count($map) ? count($map) : $compiledLineNumber;
             }
 

@@ -1027,10 +1027,6 @@ class LazyCollection implements CanBeEscapedWhenCastToString, Enumerable
                     yield (new static($chunk))->tap(function () use (&$chunk, $step) {
                         $chunk = array_slice($chunk, $step, null, true);
                     });
-
-                    // If the $step between chunks is bigger than each chunk's $size
-                    // we will skip the extra items (which should never be in any
-                    // chunk) before we continue to the next chunk in the loop.
                     if ($step > $size) {
                         $skip = $step - $size;
 

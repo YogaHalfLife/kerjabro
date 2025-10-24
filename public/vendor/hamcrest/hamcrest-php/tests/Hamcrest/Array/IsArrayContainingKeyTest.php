@@ -38,8 +38,6 @@ class IsArrayContainingKeyTest extends AbstractMatcherTest
         $array = array(1=>'A', 2=>'B');
 
         assertThat($array, hasKey(1));
-
-        // very ugly version!
         assertThat($array, IsArrayContainingKey::hasKeyInArray(2));
     }
 

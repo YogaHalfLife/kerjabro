@@ -118,13 +118,9 @@ class Internet extends Base
         $username = static::bothify($this->generator->parse($format));
 
         $username = strtolower(static::transliterate($username));
-
-        // check if transliterate() didn't support the language and removed all letters
         if (trim($username, '._') === '') {
             throw new \Exception('userName failed with the selected locale. Try a different locale or activate the "intl" PHP extension.');
         }
-
-        // clean possible trailing dots from first/last names
         $username = str_replace('..', '.', $username);
         $username = rtrim($username, '.');
 
@@ -163,13 +159,9 @@ class Internet extends Base
         $lastName = $this->generator->format('lastName');
 
         $lastName = strtolower(static::transliterate($lastName));
-
-        // check if transliterate() didn't support the language and removed all letters
         if (trim($lastName, '._') === '') {
             throw new \Exception('domainWord failed with the selected locale. Try a different locale or activate the "intl" PHP extension.');
         }
-
-        // clean possible trailing dot from last name
         $lastName = rtrim($lastName, '.');
 
         return $lastName;

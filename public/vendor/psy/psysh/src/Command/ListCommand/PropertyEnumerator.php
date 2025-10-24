@@ -23,18 +23,13 @@ class PropertyEnumerator extends Enumerator
      */
     protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null): array
     {
-        // only list properties when a Reflector is present.
 
         if ($reflector === null) {
             return [];
         }
-
-        // We can only list properties on actual class (or object) reflectors.
         if (!$reflector instanceof \ReflectionClass) {
             return [];
         }
-
-        // only list properties if we are specifically asked
         if (!$input->getOption('properties')) {
             return [];
         }
@@ -91,7 +86,6 @@ class PropertyEnumerator extends Enumerator
      */
     protected function prepareProperties(array $properties, $target = null): array
     {
-        // My kingdom for a generator.
         $ret = [];
 
         foreach ($properties as $name => $property) {
@@ -155,9 +149,6 @@ class PropertyEnumerator extends Enumerator
         if (!$target) {
             return '';
         }
-
-        // If $target is a class or trait (try to) get the default
-        // value for the property.
         if (!\is_object($target)) {
             try {
                 $refl = new \ReflectionClass($target);
@@ -168,7 +159,6 @@ class PropertyEnumerator extends Enumerator
                     return $this->presentRef($props[$property->name]).$suffix;
                 }
             } catch (\Throwable $e) {
-                // Well, we gave it a shot.
             }
 
             return '';

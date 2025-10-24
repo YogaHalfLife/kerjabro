@@ -40,7 +40,6 @@ abstract class Handler implements HandlerInterface
         try {
             $this->close();
         } catch (\Throwable $e) {
-            // do nothing
         }
     }
 

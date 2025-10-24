@@ -30,7 +30,6 @@ class RunkitReloader extends AbstractListener
      */
     public static function isSupported(): bool
     {
-        // runkit_import was removed in runkit7-4.0.0a1
         return \extension_loaded('runkit') || \extension_loaded('runkit7') && \function_exists('runkit_import');
     }
 
@@ -88,19 +87,6 @@ class RunkitReloader extends AbstractListener
             $this->timestamps[$file] = $timestamp;
         }
 
-        // switch (count($modified)) {
-        //     case 0:
-        //         return;
-
-        //     case 1:
-        //         printf("Reloading modified file: \"%s\"\n", str_replace(getcwd(), '.', $file));
-        //         break;
-
-        //     default:
-        //         printf("Reloading %d modified files\n", count($modified));
-        //         break;
-        // }
-
         foreach ($modified as $file) {
             $flags = (
                 RUNKIT_IMPORT_FUNCTIONS |
@@ -110,8 +96,6 @@ class RunkitReloader extends AbstractListener
                 RUNKIT_IMPORT_CLASS_PROPS |
                 RUNKIT_IMPORT_OVERRIDE
             );
-
-            // these two const cannot be used with RUNKIT_IMPORT_OVERRIDE  in runkit7
             if (\extension_loaded('runkit7')) {
                 $flags &= ~RUNKIT_IMPORT_CLASS_PROPS & ~RUNKIT_IMPORT_CLASS_STATIC_PROPS;
                 runkit7_import($file, $flags);
@@ -132,7 +116,6 @@ class RunkitReloader extends AbstractListener
      */
     private function lintFile(string $file): bool
     {
-        // first try to parse it
         try {
             $this->parser->parse(\file_get_contents($file));
         } catch (\Throwable $e) {

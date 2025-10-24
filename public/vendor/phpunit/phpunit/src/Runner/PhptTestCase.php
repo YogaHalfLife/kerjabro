@@ -752,7 +752,6 @@ final class PhptTestCase implements Reorderable, SelfDescribing, Test
             $search = [$sectionName];
         } else {
             $search = [
-                // 'FILE',
                 'EXPECT',
                 'EXPECTF',
                 'EXPECTREGEX',
@@ -796,14 +795,11 @@ final class PhptTestCase implements Reorderable, SelfDescribing, Test
         }
 
         if ($sectionName) {
-            // String not found in specified section, show user the start of the named section
             return [[
                 'file' => realpath($this->filename),
                 'line' => $sectionOffset,
             ]];
         }
-
-        // No section specified, show user start of code
         return [[
             'file' => realpath($this->filename),
             'line' => 1,

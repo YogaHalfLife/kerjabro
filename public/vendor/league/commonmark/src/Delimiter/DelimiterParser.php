@@ -68,8 +68,6 @@ final class DelimiterParser implements InlineParserInterface
             'delim' => true,
         ]);
         $inlineContext->getContainer()->appendChild($node);
-
-        // Add entry to stack to this opener
         if ($canOpen || $canClose) {
             $delimiter = new Delimiter($character, $numDelims, $node, $canOpen, $canClose);
             $inlineContext->getDelimiterStack()->push($delimiter);

@@ -90,7 +90,6 @@ final class Example implements Tag, Factory\StaticMethod
 
     public static function create(string $body): ?Tag
     {
-        // File component: File path in quotes or File URI / Source information
         if (!preg_match('/^\s*(?:(\"[^\"]+\")|(\S+))(?:\s+(.*))?$/sux', $body, $matches)) {
             return null;
         }
@@ -109,8 +108,6 @@ final class Example implements Tag, Factory\StaticMethod
 
         if (array_key_exists(3, $matches)) {
             $description = $matches[3];
-
-            // Starting line / Number of lines / Description
             if (preg_match('/^([1-9]\d*)(?:\s+((?1))\s*)?(.*)$/sux', $matches[3], $contentMatches)) {
                 $startingLine = (int) $contentMatches[1];
                 if (isset($contentMatches[2])) {

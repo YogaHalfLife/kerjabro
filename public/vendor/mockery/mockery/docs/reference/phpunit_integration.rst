@@ -118,15 +118,9 @@ If we are creating the test suite programmatically we may add the listener
 like this:
 
 .. code-block:: php
-
-    // Create the suite.
     $suite = new PHPUnit\Framework\TestSuite();
-
-    // Create the listener and add it to the suite.
     $result = new PHPUnit\Framework\TestResult();
     $result->addListener(new \Mockery\Adapter\Phpunit\TestListener());
-
-    // Run the tests.
     $suite->run($result);
 
 .. caution::

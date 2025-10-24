@@ -89,7 +89,6 @@ class Cookie
      */
     public function __construct(string $name, string $value = null, int|string|\DateTimeInterface $expire = 0, ?string $path = '/', string $domain = null, bool $secure = null, bool $httpOnly = true, bool $raw = false, ?string $sameSite = 'lax')
     {
-        // from PHP source code
         if ($raw && false !== strpbrk($name, self::RESERVED_CHARS_LIST)) {
             throw new \InvalidArgumentException(sprintf('The cookie name "%s" contains invalid characters.', $name));
         }
@@ -147,7 +146,6 @@ class Cookie
      */
     private static function expiresTimestamp(int|string|\DateTimeInterface $expire = 0): int
     {
-        // convert expiration time to a Unix timestamp
         if ($expire instanceof \DateTimeInterface) {
             $expire = $expire->format('U');
         } elseif (!is_numeric($expire)) {

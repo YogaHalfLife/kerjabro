@@ -35,13 +35,9 @@ abstract class FileLoader extends ArrayLoader
         }
 
         $messages = $this->loadResource($resource);
-
-        // empty resource
         if (null === $messages) {
             $messages = [];
         }
-
-        // not an array
         if (!\is_array($messages)) {
             throw new InvalidResourceException(sprintf('Unable to load file "%s".', $resource));
         }

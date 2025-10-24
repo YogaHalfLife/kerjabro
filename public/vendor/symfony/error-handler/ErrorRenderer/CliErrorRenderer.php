@@ -14,8 +14,6 @@ namespace Symfony\Component\ErrorHandler\ErrorRenderer;
 use Symfony\Component\ErrorHandler\Exception\FlattenException;
 use Symfony\Component\VarDumper\Cloner\VarCloner;
 use Symfony\Component\VarDumper\Dumper\CliDumper;
-
-// Help opcache.preload discover always-needed symbols
 class_exists(CliDumper::class);
 
 /**

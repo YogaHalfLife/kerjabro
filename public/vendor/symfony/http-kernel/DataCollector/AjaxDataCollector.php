@@ -23,12 +23,10 @@ class AjaxDataCollector extends DataCollector
 {
     public function collect(Request $request, Response $response, \Throwable $exception = null)
     {
-        // all collecting is done client side
     }
 
     public function reset()
     {
-        // all collecting is done client side
     }
 
     public function getName(): string

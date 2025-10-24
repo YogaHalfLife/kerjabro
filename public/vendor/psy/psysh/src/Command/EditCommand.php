@@ -124,8 +124,6 @@ class EditCommand extends Command implements ContextAware
         if ($noExecOption) {
             return false;
         }
-
-        // By default, code that is edited is executed if there was no given input file path
         return $filePath === null;
     }
 
@@ -138,7 +136,6 @@ class EditCommand extends Command implements ContextAware
      */
     private function extractFilePath(string $fileArgument = null)
     {
-        // If the file argument was a variable, get it from the context
         if ($fileArgument !== null &&
             $fileArgument !== '' &&
             $fileArgument[0] === '$') {

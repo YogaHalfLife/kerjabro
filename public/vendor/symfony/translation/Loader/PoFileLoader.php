@@ -77,7 +77,6 @@ class PoFileLoader extends FileLoader
             $line = trim($line);
 
             if ('' === $line) {
-                // Whitespace indicated current item is done
                 if (!\in_array('fuzzy', $flags)) {
                     $this->addMessage($messages, $item);
                 }
@@ -86,8 +85,6 @@ class PoFileLoader extends FileLoader
             } elseif ('#,' === substr($line, 0, 2)) {
                 $flags = array_map('trim', explode(',', substr($line, 2)));
             } elseif ('msgid "' === substr($line, 0, 7)) {
-                // We start a new msg so save previous
-                // TODO: this fails when comments or contexts are added
                 $this->addMessage($messages, $item);
                 $item = $defaults;
                 $item['ids']['singular'] = substr($line, 7, -1);
@@ -109,7 +106,6 @@ class PoFileLoader extends FileLoader
                 $item['translated'][(int) substr($line, 7, 1)] = substr($line, $size + 3, -1);
             }
         }
-        // save last item
         if (!\in_array('fuzzy', $flags)) {
             $this->addMessage($messages, $item);
         }
@@ -133,12 +129,9 @@ class PoFileLoader extends FileLoader
             }
 
             $translated = (array) $item['translated'];
-            // PO are by definition indexed so sort by index.
             ksort($translated);
-            // Make sure every index is filled.
             end($translated);
             $count = key($translated);
-            // Fill missing spots with '-'.
             $empties = array_fill(0, $count + 1, '-');
             $translated += $empties;
             ksort($translated);

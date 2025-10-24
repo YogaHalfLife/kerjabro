@@ -1500,8 +1500,6 @@ class Php7 extends \PhpParser\ParserAbstract
 
         $e = $this->semStack[$stackPos-(2-1)];
         if ($e instanceof Expr\Throw_) {
-            // For backwards-compatibility reasons, convert throw in statement position into
-            // Stmt\Throw_ rather than Stmt\Expression(Expr\Throw_).
             $this->semValue = new Stmt\Throw_($e->expr, $this->startAttributeStack[$stackPos-(2-1)] + $this->endAttributes);
         } else {
             $this->semValue = new Stmt\Expression($e, $this->startAttributeStack[$stackPos-(2-1)] + $this->endAttributes);

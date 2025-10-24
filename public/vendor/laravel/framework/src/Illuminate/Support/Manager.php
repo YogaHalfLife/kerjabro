@@ -72,10 +72,6 @@ abstract class Manager
                 'Unable to resolve NULL driver for [%s].', static::class
             ));
         }
-
-        // If the given driver has not been created before, we will create the instances
-        // here and cache it so we can return it next time very quickly. If there is
-        // already a driver created by this name, we'll just return that instance.
         if (! isset($this->drivers[$driver])) {
             $this->drivers[$driver] = $this->createDriver($driver);
         }
@@ -93,9 +89,6 @@ abstract class Manager
      */
     protected function createDriver($driver)
     {
-        // First, we will determine if a custom driver creator exists for the given driver and
-        // if it does not we will check for a creator method for the driver. Custom creator
-        // callbacks allow developers to build their own "drivers" easily using Closures.
         if (isset($this->customCreators[$driver])) {
             return $this->callCustomCreator($driver);
         } else {

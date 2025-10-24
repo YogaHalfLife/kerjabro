@@ -61,8 +61,6 @@ abstract class AbstractPipes implements PipesInterface
     {
         $lastError = $this->lastError;
         $this->lastError = null;
-
-        // stream_select returns false when the `select` system call is interrupted by an incoming signal
         return null !== $lastError && false !== stripos($lastError, 'interrupted system call');
     }
 
@@ -119,8 +117,6 @@ abstract class AbstractPipes implements PipesInterface
 
         $r = $e = [];
         $w = [$this->pipes[0]];
-
-        // let's have a look if something changed in streams
         if (false === @stream_select($r, $w, $e, 0, 0)) {
             return null;
         }
@@ -157,8 +153,6 @@ abstract class AbstractPipes implements PipesInterface
                 }
             }
         }
-
-        // no input to read on resource, buffer is empty
         if (!isset($this->inputBuffer[0]) && !($this->input instanceof \Iterator ? $this->input->valid() : $this->input)) {
             $this->input = null;
             fclose($this->pipes[0]);

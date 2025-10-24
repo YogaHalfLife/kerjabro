@@ -487,7 +487,6 @@ class PhpRedisConnection extends Connection implements ConnectionContract
      */
     public function createSubscription($channels, Closure $callback, $method = 'subscribe')
     {
-        //
     }
 
     /**

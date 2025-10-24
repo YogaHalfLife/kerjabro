@@ -52,7 +52,6 @@ final class StandardTestSuiteLoader implements TestSuiteLoader
         }
 
         if (!class_exists($suiteClassName, false)) {
-            // this block will handle namespaced classes
             $offset = 0 - strlen($suiteClassName);
 
             foreach ($loadedClasses as $loadedClass) {
@@ -70,7 +69,6 @@ final class StandardTestSuiteLoader implements TestSuiteLoader
 
         try {
             $class = new ReflectionClass($suiteClassName);
-            // @codeCoverageIgnoreStart
         } catch (ReflectionException $e) {
             throw new Exception(
                 $e->getMessage(),
@@ -78,7 +76,6 @@ final class StandardTestSuiteLoader implements TestSuiteLoader
                 $e
             );
         }
-        // @codeCoverageIgnoreEnd
 
         if ($class->isSubclassOf(TestCase::class) && !$class->isAbstract()) {
             return $class;
@@ -87,7 +84,6 @@ final class StandardTestSuiteLoader implements TestSuiteLoader
         if ($class->hasMethod('suite')) {
             try {
                 $method = $class->getMethod('suite');
-                // @codeCoverageIgnoreStart
             } catch (ReflectionException $e) {
                 throw new Exception(
                     $e->getMessage(),
@@ -95,7 +91,6 @@ final class StandardTestSuiteLoader implements TestSuiteLoader
                     $e
                 );
             }
-            // @codeCoverageIgnoreEnd
 
             if (!$method->isAbstract() && $method->isPublic() && $method->isStatic()) {
                 return $class;

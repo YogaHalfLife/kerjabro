@@ -146,8 +146,6 @@ final class Color
         $r = ($color >> 16) & 255;
         $g = ($color >> 8) & 255;
         $b = $color & 255;
-
-        // see https://github.com/termstandard/colors/ for more information about true color support
         if ('truecolor' !== getenv('COLORTERM')) {
             return (string) $this->degradeHexColorToAnsi($r, $g, $b);
         }

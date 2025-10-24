@@ -652,10 +652,6 @@ class Builder implements BuilderContract
     public function get($columns = ['*'])
     {
         $builder = $this->applyScopes();
-
-        // If we actually found models we will also eager load any relationships that
-        // have been specified as needing to be eager loaded, which will solve the
-        // n+1 query issue for the developers to avoid running a lot of queries.
         if (count($models = $builder->getModels($columns)) > 0) {
             $models = $builder->eagerLoadRelations($models);
         }
@@ -685,9 +681,6 @@ class Builder implements BuilderContract
     public function eagerLoadRelations(array $models)
     {
         foreach ($this->eagerLoad as $name => $constraints) {
-            // For nested eager loads we'll skip loading them here and they will be set as an
-            // eager load on the query to retrieve the relation so that they will be eager
-            // loaded on that query, because that is where they get hydrated as models.
             if (! str_contains($name, '.')) {
                 $models = $this->eagerLoadRelation($models, $name, $constraints);
             }
@@ -706,18 +699,11 @@ class Builder implements BuilderContract
      */
     protected function eagerLoadRelation(array $models, $name, Closure $constraints)
     {
-        // First we will "back up" the existing where conditions on the query so we can
-        // add our eager constraints. Then we will merge the wheres that were on the
-        // query back to it in order that any where conditions might be specified.
         $relation = $this->getRelation($name);
 
         $relation->addEagerConstraints($models);
 
         $constraints($relation);
-
-        // Once we have the results, we just match those back up to their parent models
-        // using the relationship instance. Then we just return the finished arrays
-        // of models which have been eagerly hydrated and are readied for return.
         return $relation->match(
             $relation->initRelation($models, $name),
             $relation->getEager(), $name
@@ -732,9 +718,6 @@ class Builder implements BuilderContract
      */
     public function getRelation($name)
     {
-        // We want to run a relationship query without any constrains so that we will
-        // not have to remove these where clauses manually which gets really hacky
-        // and error prone. We don't want constraints because we add eager ones.
         $relation = Relation::noConstraints(function () use ($name) {
             try {
                 return $this->getModel()->newInstance()->$name();
@@ -744,10 +727,6 @@ class Builder implements BuilderContract
         });
 
         $nested = $this->relationsNestedUnder($name);
-
-        // If there are nested relationships set on the query, we will put those onto
-        // the query instances so that they can be handled after this relationship
-        // is loaded. In this way they will all trickle down as they are loaded.
         if (count($nested) > 0) {
             $relation->getQuery()->with($nested);
         }
@@ -764,10 +743,6 @@ class Builder implements BuilderContract
     protected function relationsNestedUnder($relation)
     {
         $nested = [];
-
-        // We are basically looking for any relationships that are nested deeper than
-        // the given top-level relationship. We will just check for any relations
-        // that start with the given top relations and adds them to our arrays.
         foreach ($this->eagerLoad as $name => $constraints) {
             if ($this->isNestedUnder($relation, $name)) {
                 $nested[substr($name, strlen($relation.'.'))] = $constraints;
@@ -823,10 +798,6 @@ class Builder implements BuilderContract
     public function pluck($column, $key = null)
     {
         $results = $this->toBase()->pluck($column, $key);
-
-        // If the model has a mutator for the requested column, we will spin through
-        // the results and mutate the values so that the mutated version of these
-        // columns are returned as you would expect from these Eloquent models.
         if (! $this->model->hasGetMutator($column) &&
             ! $this->model->hasCast($column) &&
             ! in_array($column, $this->model->getDates())) {
@@ -879,10 +850,6 @@ class Builder implements BuilderContract
         $page = $page ?: Paginator::resolveCurrentPage($pageName);
 
         $perPage = $perPage ?: $this->model->getPerPage();
-
-        // Next we will set the limit and offset for this query so that when we get the
-        // results we get the proper section of results. Then, we'll create the full
-        // paginator instances for these results with the given page and per page.
         $this->skip(($page - 1) * $perPage)->take($perPage + 1);
 
         return $this->simplePaginator($this->get($columns), $perPage, $page, [
@@ -1171,16 +1138,9 @@ class Builder implements BuilderContract
         $builder = $this;
 
         foreach (Arr::wrap($scopes) as $scope => $parameters) {
-            // If the scope key is an integer, then the scope was passed as the value and
-            // the parameter list is empty, so we will format the scope name and these
-            // parameters here. Then, we'll be ready to call the scope on the model.
             if (is_int($scope)) {
                 [$scope, $parameters] = [$parameters, []];
             }
-
-            // Next we'll pass the scope callback to the callScope method which will take
-            // care of grouping the "wheres" properly so the logical order doesn't get
-            // messed up when adding scopes. Then we'll return back out the builder.
             $builder = $builder->callNamedScope(
                 $scope, Arr::wrap($parameters)
             );
@@ -1208,16 +1168,9 @@ class Builder implements BuilderContract
             }
 
             $builder->callScope(function (self $builder) use ($scope) {
-                // If the scope is a Closure we will just go ahead and call the scope with the
-                // builder instance. The "callScope" method will properly group the clauses
-                // that are added to this query so "where" clauses maintain proper logic.
                 if ($scope instanceof Closure) {
                     $scope($builder);
                 }
-
-                // If the scope is a scope object, we will call the apply method on this scope
-                // passing in the builder and the model instance. After we run all of these
-                // scopes we will return back the builder instance to the outside caller.
                 if ($scope instanceof Scope) {
                     $scope->apply($builder, $this->getModel());
                 }
@@ -1239,10 +1192,6 @@ class Builder implements BuilderContract
         array_unshift($parameters, $this);
 
         $query = $this->getQuery();
-
-        // We will keep track of how many wheres are on the query before running the
-        // scope so that we can properly group the added scope constraints in the
-        // query as their own isolated nested where statement and avoid issues.
         $originalWhereCount = is_null($query->wheres)
                     ? 0 : count($query->wheres);
 
@@ -1278,9 +1227,6 @@ class Builder implements BuilderContract
      */
     protected function addNewWheresWithinGroup(QueryBuilder $query, $originalWhereCount)
     {
-        // Here, we totally remove all of the where clauses since we are going to
-        // rebuild them as nested queries by slicing the groups of wheres into
-        // their own sections. This is to prevent any confusing logic order.
         $allWheres = $query->wheres;
 
         $query->wheres = [];
@@ -1304,10 +1250,6 @@ class Builder implements BuilderContract
     protected function groupWhereSliceForScope(QueryBuilder $query, $whereSlice)
     {
         $whereBooleans = collect($whereSlice)->pluck('boolean');
-
-        // Here we'll check if the given subset of where clauses contains any "or"
-        // booleans and in this case create a nested where expression. That way
-        // we don't add any unnecessary nesting thus keeping the query clean.
         if ($whereBooleans->contains('or')) {
             $query->wheres[] = $this->createNestedWhere(
                 $whereSlice, $whereBooleans->first()
@@ -1405,22 +1347,14 @@ class Builder implements BuilderContract
         $results = [];
 
         foreach ($relations as $name => $constraints) {
-            // If the "name" value is a numeric key, we can assume that no constraints
-            // have been specified. We will just put an empty Closure there so that
-            // we can treat these all the same while we are looping through them.
             if (is_numeric($name)) {
                 $name = $constraints;
 
                 [$name, $constraints] = str_contains($name, ':')
                             ? $this->createSelectWithConstraint($name)
                             : [$name, static function () {
-                                //
                             }];
             }
-
-            // We need to separate out any nested includes, which allows the developers
-            // to load deep relationships using "dots" without stating each level of
-            // the relationship with its own key in the array of eager-load names.
             $results = $this->addNestedWiths($name, $results);
 
             $results[$name] = $constraints;
@@ -1460,16 +1394,11 @@ class Builder implements BuilderContract
     protected function addNestedWiths($name, $results)
     {
         $progress = [];
-
-        // If the relation has already been set on the result array, we will not set it
-        // again, since that would override any constraints that were already placed
-        // on the relationships. We will only set the ones that are not specified.
         foreach (explode('.', $name) as $segment) {
             $progress[] = $segment;
 
             if (! isset($results[$last = implode('.', $progress)])) {
                 $results[$last] = static function () {
-                    //
                 };
             }
         }

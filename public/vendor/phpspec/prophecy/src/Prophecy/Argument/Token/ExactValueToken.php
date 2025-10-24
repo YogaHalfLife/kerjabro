@@ -63,8 +63,6 @@ class ExactValueToken implements TokenInterface
             	return false;
 			}
         }
-
-        // If either one is an object it should be castable to a string
         if (is_object($argument) xor is_object($this->value)) {
             if (is_object($argument) && !method_exists($argument, '__toString')) {
                 return false;
@@ -74,7 +72,6 @@ class ExactValueToken implements TokenInterface
                 return false;
             }
         } elseif (is_numeric($argument) && is_numeric($this->value)) {
-            // noop
         } elseif (gettype($argument) !== gettype($this->value)) {
             return false;
         }

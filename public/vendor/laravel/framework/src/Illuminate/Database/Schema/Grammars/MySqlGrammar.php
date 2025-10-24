@@ -90,17 +90,9 @@ class MySqlGrammar extends Grammar
         $sql = $this->compileCreateTable(
             $blueprint, $command, $connection
         );
-
-        // Once we have the primary SQL, we can add the encoding option to the SQL for
-        // the table.  Then, we can check if a storage engine has been supplied for
-        // the table. If so, we will add the engine declaration to the SQL query.
         $sql = $this->compileCreateEncoding(
             $sql, $connection, $blueprint
         );
-
-        // Finally, we will append the engine configuration onto this SQL statement as
-        // the final thing we do before returning this finished SQL. Once this gets
-        // added the query will be ready to execute against the real connections.
         return array_values(array_filter(array_merge([$this->compileCreateEngine(
             $sql, $connection, $blueprint
         )], $this->compileAutoIncrementStartingValues($blueprint))));
@@ -133,18 +125,11 @@ class MySqlGrammar extends Grammar
      */
     protected function compileCreateEncoding($sql, Connection $connection, Blueprint $blueprint)
     {
-        // First we will set the character set if one has been set on either the create
-        // blueprint itself or on the root configuration for the connection that the
-        // table is being created on. We will add these to the create table query.
         if (isset($blueprint->charset)) {
             $sql .= ' default character set '.$blueprint->charset;
         } elseif (! is_null($charset = $connection->getConfig('charset'))) {
             $sql .= ' default character set '.$charset;
         }
-
-        // Next we will add the collation to the create table statement if one has been
-        // added to either this create table blueprint or the configuration for this
-        // connection that the query is targeting. We'll add it to this SQL query.
         if (isset($blueprint->collation)) {
             $sql .= " collate '{$blueprint->collation}'";
         } elseif (! is_null($collation = $connection->getConfig('collation'))) {

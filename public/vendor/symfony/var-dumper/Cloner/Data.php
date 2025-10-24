@@ -232,7 +232,6 @@ class Data implements \ArrayAccess, \Countable, \IteratorAggregate
                 $keys[] = Caster::PREFIX_PROTECTED.$key;
                 $keys[] = Caster::PREFIX_VIRTUAL.$key;
                 $keys[] = "\0$item->class\0$key";
-                // no break
             case Stub::TYPE_ARRAY:
             case Stub::TYPE_RESOURCE:
                 break;
@@ -343,7 +342,6 @@ class Data implements \ArrayAccess, \Countable, \IteratorAggregate
                     $item = clone $item;
                     $item->type = $item->class;
                     $item->class = $item->value;
-                    // no break
                 case Stub::TYPE_OBJECT:
                 case Stub::TYPE_RESOURCE:
                     $withChildren = $children && $cursor->depth !== $this->maxDepth && $this->maxItemsPerDepth;

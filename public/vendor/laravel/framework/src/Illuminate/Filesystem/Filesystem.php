@@ -196,14 +196,11 @@ class Filesystem
      */
     public function replace($path, $content)
     {
-        // If the path already exists and is a symlink, get the real path...
         clearstatcache(true, $path);
 
         $path = realpath($path) ?: $path;
 
         $tempPath = tempnam(dirname($path), basename($path));
-
-        // Fix permissions of tempPath because `tempnam()` creates it with permissions set to 0600...
         chmod($tempPath, 0777 - umask());
 
         file_put_contents($tempPath, $content);
@@ -634,18 +631,11 @@ class Filesystem
         }
 
         $options = $options ?: FilesystemIterator::SKIP_DOTS;
-
-        // If the destination directory does not actually exist, we will go ahead and
-        // create it recursively, which just gets the destination prepared to copy
-        // the files over. Once we make the directory we'll proceed the copying.
         $this->ensureDirectoryExists($destination, 0777);
 
         $items = new FilesystemIterator($directory, $options);
 
         foreach ($items as $item) {
-            // As we spin through items, we will check to see if the current file is actually
-            // a directory or a file. When it is actually a directory we will need to call
-            // back into this function recursively to keep copying these nested folders.
             $target = $destination.'/'.$item->getBasename();
 
             if ($item->isDir()) {
@@ -655,10 +645,6 @@ class Filesystem
                     return false;
                 }
             }
-
-            // If the current items is just a regular file, we will just copy this to the new
-            // location and keep looping. If for some reason the copy fails we'll bail out
-            // and return false, so the developer is aware that the copy process failed.
             elseif (! $this->copy($item->getPathname(), $target)) {
                 return false;
             }
@@ -685,16 +671,9 @@ class Filesystem
         $items = new FilesystemIterator($directory);
 
         foreach ($items as $item) {
-            // If the item is a directory, we can just recurse into the function and
-            // delete that sub-directory otherwise we'll just delete the file and
-            // keep iterating through each file until the directory is cleaned.
             if ($item->isDir() && ! $item->isLink()) {
                 $this->deleteDirectory($item->getPathname());
             }
-
-            // If the item is just a file, we can go ahead and delete it since we're
-            // just looping through and waxing all of the files in this directory
-            // and calling directories recursively, so we delete the real path.
             else {
                 $this->delete($item->getPathname());
             }

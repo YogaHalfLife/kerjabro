@@ -54,8 +54,6 @@ final class Loader
         if ($actual === '') {
             throw new Exception('Could not load XML from empty string');
         }
-
-        // Required for XInclude on Windows.
         if ($xinclude) {
             $cwd = getcwd();
             @chdir(dirname($filename));
@@ -69,7 +67,6 @@ final class Loader
         $reporting = error_reporting(0);
 
         if ($filename !== '') {
-            // Required for XInclude
             $document->documentURI = $filename;
         }
 

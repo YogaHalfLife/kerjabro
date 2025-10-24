@@ -61,18 +61,12 @@ class ObjectComparator extends ArrayComparator
                 )
             );
         }
-
-        // don't compare twice to allow for cyclic dependencies
         if (in_array([$actual, $expected], $processed, true) ||
             in_array([$expected, $actual], $processed, true)) {
             return;
         }
 
         $processed[] = [$actual, $expected];
-
-        // don't compare objects if they are identical
-        // this helps to avoid the error "maximum function nesting level reached"
-        // CAUTION: this conditional clause is not tested
         if ($actual !== $expected) {
             try {
                 parent::assertEquals(
@@ -87,7 +81,6 @@ class ObjectComparator extends ArrayComparator
                 throw new ComparisonFailure(
                     $expected,
                     $actual,
-                    // replace "Array" with "MyClass object"
                     substr_replace($e->getExpectedAsString(), get_class($expected) . ' Object', 0, 5),
                     substr_replace($e->getActualAsString(), get_class($actual) . ' Object', 0, 5),
                     false,

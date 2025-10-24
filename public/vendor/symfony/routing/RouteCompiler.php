@@ -114,14 +114,10 @@ class RouteCompiler implements RouteCompilerInterface
         if (!$useUtf8 && $needsUtf8) {
             throw new \LogicException(sprintf('Cannot mix UTF-8 requirements with non-UTF-8 pattern "%s".', $pattern));
         }
-
-        // Match all variables enclosed in "{}" and iterate over them. But we only want to match the innermost variable
-        // in case of nested "{}", e.g. {foo{bar}}. This in ensured because \w does not match "{" or "}" itself.
         preg_match_all('#\{(!)?(\w+)\}#', $pattern, $matches, \PREG_OFFSET_CAPTURE | \PREG_SET_ORDER);
         foreach ($matches as $match) {
             $important = $match[1][1] >= 0;
             $varName = $match[2][0];
-            // get all static text preceding the current variable
             $precedingText = substr($pattern, $pos, $match[0][1] - $pos);
             $pos = $match[0][1] + \strlen($match[0][0]);
 
@@ -134,9 +130,6 @@ class RouteCompiler implements RouteCompilerInterface
                 $precedingChar = substr($precedingText, -1);
             }
             $isSeparator = '' !== $precedingChar && str_contains(static::SEPARATORS, $precedingChar);
-
-            // A PCRE subpattern name must start with a non-digit. Also a PHP variable cannot start with a digit so the
-            // variable would not be usable as a Controller action argument.
             if (preg_match('/^\d/', $varName)) {
                 throw new \DomainException(sprintf('Variable name "%s" cannot start with a digit in route pattern "%s". Please use a different name.', $varName, $pattern));
             }
@@ -157,13 +150,6 @@ class RouteCompiler implements RouteCompilerInterface
             $regexp = $route->getRequirement($varName);
             if (null === $regexp) {
                 $followingPattern = (string) substr($pattern, $pos);
-                // Find the next static character after the variable that functions as a separator. By default, this separator and '/'
-                // are disallowed for the variable. This default requirement makes sure that optional variables can be matched at all
-                // and that the generating-matching-combination of URLs unambiguous, i.e. the params used for generating the URL are
-                // the same that will be matched. Example: new Route('/{page}.{_format}', ['_format' => 'html'])
-                // If {page} would also match the separating dot, {_format} would never match as {page} will eagerly consume everything.
-                // Also even if {_format} was not optional the requirement prevents that {page} matches something that was originally
-                // part of {_format} when generating the URL, e.g. _format = 'mobile.html'.
                 $nextSeparator = self::findNextSeparator($followingPattern, $useUtf8);
                 $regexp = sprintf(
                     '[^%s%s]+',
@@ -171,11 +157,6 @@ class RouteCompiler implements RouteCompilerInterface
                     $defaultSeparator !== $nextSeparator && '' !== $nextSeparator ? preg_quote($nextSeparator) : ''
                 );
                 if (('' !== $nextSeparator && !preg_match('#^\{\w+\}#', $followingPattern)) || '' === $followingPattern) {
-                    // When we have a separator, which is disallowed for the variable, we can optimize the regex with a possessive
-                    // quantifier. This prevents useless backtracking of PCRE and improves performance by 20% for matching those patterns.
-                    // Given the above example, there is no point in backtracking into {page} (that forbids the dot) when a dot must follow
-                    // after it. This optimization cannot be applied when the next char is no real separator or when the next variable is
-                    // directly adjacent, e.g. '/{x}{y}'.
                     $regexp .= '+';
                 }
             } else {
@@ -203,13 +184,10 @@ class RouteCompiler implements RouteCompilerInterface
         if ($pos < \strlen($pattern)) {
             $tokens[] = ['text', substr($pattern, $pos)];
         }
-
-        // find the first optional token
         $firstOptional = \PHP_INT_MAX;
         if (!$isHost) {
             for ($i = \count($tokens) - 1; $i >= 0; --$i) {
                 $token = $tokens[$i];
-                // variable is optional when it is not important and has a default value
                 if ('variable' === $token[0] && !($token[5] ?? false) && $route->hasDefault($token[3])) {
                     $firstOptional = $i;
                 } else {
@@ -217,15 +195,11 @@ class RouteCompiler implements RouteCompilerInterface
                 }
             }
         }
-
-        // compute the matching regexp
         $regexp = '';
         for ($i = 0, $nbToken = \count($tokens); $i < $nbToken; ++$i) {
             $regexp .= self::computeRegexp($tokens, $i, $firstOptional);
         }
         $regexp = '{^'.$regexp.'$}sD'.($isHost ? 'i' : '');
-
-        // enable Utf8 matching if really required
         if ($needsUtf8) {
             $regexp .= 'u';
             for ($i = 0, $nbToken = \count($tokens); $i < $nbToken; ++$i) {
@@ -267,10 +241,8 @@ class RouteCompiler implements RouteCompilerInterface
     private static function findNextSeparator(string $pattern, bool $useUtf8): string
     {
         if ('' == $pattern) {
-            // return empty string if pattern is empty or false (false which can be returned by substr)
             return '';
         }
-        // first remove all placeholders from the pattern so we can find the next real static character
         if ('' === $pattern = preg_replace('#\{\w+\}#', '', $pattern)) {
             return '';
         }
@@ -292,23 +264,16 @@ class RouteCompiler implements RouteCompilerInterface
     {
         $token = $tokens[$index];
         if ('text' === $token[0]) {
-            // Text tokens
             return preg_quote($token[1]);
         } else {
-            // Variable tokens
             if (0 === $index && 0 === $firstOptional) {
-                // When the only token is an optional variable token, the separator is required
                 return sprintf('%s(?P<%s>%s)?', preg_quote($token[1]), $token[3], $token[2]);
             } else {
                 $regexp = sprintf('%s(?P<%s>%s)', preg_quote($token[1]), $token[3], $token[2]);
                 if ($index >= $firstOptional) {
-                    // Enclose each optional token in a subpattern to make it optional.
-                    // "?:" means it is non-capturing, i.e. the portion of the subject string that
-                    // matched the optional subpattern is not passed back.
                     $regexp = "(?:$regexp";
                     $nbTokens = \count($tokens);
                     if ($nbTokens - 1 == $index) {
-                        // Close the optional subpatterns
                         $regexp .= str_repeat(')?', $nbTokens - $firstOptional - (0 === $firstOptional ? 1 : 0));
                     }
                 }

@@ -48,11 +48,6 @@
     border-color: $pagination-disabled-border-color;
   }
 }
-
-
-//
-// Sizing
-//
 @include pagination-size($pagination-padding-y, $pagination-padding-x, null, $pagination-border-radius);
 
 .pagination-lg {

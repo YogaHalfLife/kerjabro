@@ -252,7 +252,6 @@
     </script>
 
     <script>
-        // Inisialisasi tooltip (termasuk yang dinamis saat paginate)
         document.addEventListener('DOMContentLoaded', () => {
             const tts = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             tts.forEach(el => new bootstrap.Tooltip(el));
@@ -263,8 +262,6 @@
                 new bootstrap.Tooltip(t);
             }
         });
-
-        // Handler "Lihat selengkapnya" → tampilkan modal
         document.addEventListener('click', function(e) {
             const btn = e.target.closest('.detail-pekerjaan-view');
             if (!btn) return;

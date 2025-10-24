@@ -124,7 +124,6 @@ class MetadataBag implements SessionBagInterface
      */
     public function clear(): mixed
     {
-        // nothing to do
         return null;
     }
 

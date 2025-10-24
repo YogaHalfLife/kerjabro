@@ -22,7 +22,7 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $validated = $request->validate([
-            'username' => ['required', 'string'],      // atau: 'required','alpha_dash','min:3'
+            'username' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 

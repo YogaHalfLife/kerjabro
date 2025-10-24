@@ -120,7 +120,6 @@ class ErrorHandler
 
         if (null === $prev = set_error_handler([$handler, 'handleError'])) {
             restore_error_handler();
-            // Specifying the error types earlier would expose us to https://bugs.php.net/63206
             set_error_handler([$handler, 'handleError'], $handler->thrownErrors | $handler->loggedErrors);
             $handler->isRoot = true;
         }
@@ -389,17 +388,12 @@ class ErrorHandler
         if (\E_WARNING === $type && '"' === $message[0] && str_contains($message, '" targeting switch is equivalent to "break')) {
             $type = \E_DEPRECATED;
         }
-
-        // Level is the current error reporting level to manage silent error.
         $level = error_reporting();
         $silenced = 0 === ($level & $type);
-        // Strong errors are not authorized to be silenced.
         $level |= \E_RECOVERABLE_ERROR | \E_USER_ERROR | \E_DEPRECATED | \E_USER_DEPRECATED;
         $log = $this->loggedErrors & $type;
         $throw = $this->thrownErrors & $type & $level;
         $type &= $level | $this->screamedErrors;
-
-        // Never throw on warnings triggered by assert()
         if (\E_WARNING === $type && 'a' === $message[0] && 0 === strncmp($message, 'assert(): ', 10)) {
             $throw = 0;
         }
@@ -612,7 +606,6 @@ class ErrorHandler
         }
 
         if ($error && $error['type'] &= \E_PARSE | \E_ERROR | \E_CORE_ERROR | \E_COMPILE_ERROR) {
-            // Let's not throw anymore but keep logging
             $handler->throwAt(0, true);
             $trace = $error['backtrace'] ?? null;
 
@@ -631,7 +624,6 @@ class ErrorHandler
                 $handler->handleException($fatalError);
             }
         } catch (FatalError $e) {
-            // Ignore this re-throw
         }
 
         if ($exit && self::$exitCode) {

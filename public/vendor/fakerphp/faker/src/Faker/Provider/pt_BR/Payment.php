@@ -9,8 +9,6 @@ class Payment extends \Faker\Provider\Payment
         'MasterCard', 'MasterCard', 'MasterCard', 'MasterCard', 'MasterCard',
         'American Express', 'Discover Card', 'Diners', 'Elo', 'Hipercard',
     ];
-
-    // see https://gist.github.com/erikhenrique/5931368 / http://pt.stackoverflow.com/q/3715/26461
     protected static $cardParams = [
         'Visa' => [
             '4##############',

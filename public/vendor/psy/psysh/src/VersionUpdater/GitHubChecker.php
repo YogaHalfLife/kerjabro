@@ -24,8 +24,6 @@ class GitHubChecker implements Checker
      */
     public function isLatest(): bool
     {
-        // version_compare doesn't handle semver completely;
-        // strip pre-release and build metadata before comparing
         $version = \preg_replace('/[+-]\w+/', '', Shell::VERSION);
 
         return \version_compare($version, $this->getLatest(), '>=');
@@ -80,8 +78,6 @@ class GitHubChecker implements Checker
         ]);
 
         \set_error_handler(function () {
-            // Just ignore all errors with this. The checker will throw an exception
-            // if it doesn't work :)
         });
 
         $result = @\file_get_contents(self::URL, false, $context);

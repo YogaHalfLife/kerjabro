@@ -1,4 +1,3 @@
-// function for init Tailwind ChartJS
 (function () {
   let lineConfig = {
     type: "line",
@@ -192,8 +191,6 @@
       },
     },
   };
-  // we are personalizing the charts a bit for each framework
-  // lines
   let lineAngularChart = document.getElementById("line-chart-angular");
   let lineJSChart = document.getElementById("line-chart-javascript");
   let lineNextJSChart = document.getElementById("line-chart-nextjs");
@@ -224,7 +221,6 @@
     ctx = lineVueChart.getContext("2d");
     window.myBar = new Chart(ctx, lineConfig);
   }
-  // bars
   let barAngularChart = document.getElementById("bar-chart-angular");
   let barJSChart = document.getElementById("bar-chart-javascript");
   let barNextJSChart = document.getElementById("bar-chart-nextjs");
@@ -256,8 +252,6 @@
     window.myBar = new Chart(ctx, barConfig);
   }
 })();
-
-// function for init tailwind google maps
 (function () {
   /* Map initialisation */
   let google = window.google;

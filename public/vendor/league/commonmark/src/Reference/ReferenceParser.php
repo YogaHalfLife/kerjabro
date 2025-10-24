@@ -21,17 +21,11 @@ use League\CommonMark\Util\LinkParserHelper;
 
 final class ReferenceParser
 {
-    // Looking for the start of a definition, i.e. `[`
     private const START_DEFINITION = 0;
-    // Looking for and parsing the label, i.e. `[foo]` within `[foo]`
     private const LABEL = 1;
-    // Parsing the destination, i.e. `/url` in `[foo]: /url`
     private const DESTINATION = 2;
-    // Looking for the start of a title, i.e. the first `"` in `[foo]: /url "title"`
     private const START_TITLE = 3;
-    // Parsing the content of the title, i.e. `title` in `[foo]: /url "title"`
     private const TITLE = 4;
-    // End state, no matter what kind of lines we add, they won't be references
     private const PARAGRAPH = 5;
 
     /** @psalm-readonly-allow-private-mutation */
@@ -99,8 +93,6 @@ final class ReferenceParser
             $result = false;
             switch ($this->state) {
                 case self::PARAGRAPH:
-                    // We're in a paragraph now. Link reference definitions can only appear at the beginning, so once
-                    // we're in a paragraph, there's no going back.
                     return;
                 case self::START_DEFINITION:
                     $result = $this->parseStartDefinition($cursor);
@@ -118,7 +110,6 @@ final class ReferenceParser
                     $result = $this->parseTitle($cursor);
                     break;
                 default:
-                    // this should never happen
                     break;
             }
 
@@ -161,7 +152,6 @@ final class ReferenceParser
         $this->label .= $partialLabel;
 
         if ($cursor->isAtEnd()) {
-            // label might continue on next line
             $this->label .= "\n";
 
             return true;
@@ -172,20 +162,14 @@ final class ReferenceParser
         }
 
         $cursor->advance();
-
-        // end of label
         if ($cursor->getCurrentCharacter() !== ':') {
             return false;
         }
 
         $cursor->advance();
-
-        // spec: A link label can have at most 999 characters inside the square brackets
         if (\mb_strlen($this->label, 'utf-8') > 999) {
             return false;
         }
-
-        // spec: A link label must contain at least one non-whitespace character
         if (\trim($this->label) === '') {
             return false;
         }
@@ -210,12 +194,9 @@ final class ReferenceParser
 
         $advanced = $cursor->advanceToNextNonSpaceOrTab();
         if ($cursor->isAtEnd()) {
-            // Destination was at end of line, so this is a valid reference for sure (and maybe a title).
-            // If not at end of line, wait for title to be valid first.
             $this->referenceValid = true;
             $this->paragraph      = '';
         } elseif ($advanced === 0) {
-            // spec: The title must be separated from the link destination by whitespace
             return false;
         }
 
@@ -243,7 +224,6 @@ final class ReferenceParser
                 $this->titleDelimiter = ')';
                 break;
             default:
-                // no title delimter found
                 break;
         }
 
@@ -255,7 +235,6 @@ final class ReferenceParser
             }
         } else {
             $this->finishReference();
-            // There might be another reference instead, try that for the same character.
             $this->state = self::START_DEFINITION;
         }
 
@@ -268,39 +247,29 @@ final class ReferenceParser
         $title = LinkParserHelper::parsePartialLinkTitle($cursor, $this->titleDelimiter);
 
         if ($title === null) {
-            // Invalid title, stop
             return false;
         }
-
-        // Did we find the end delimiter?
         $endDelimiterFound = false;
         if (\substr($title, -1) === $this->titleDelimiter) {
             $endDelimiterFound = true;
-            // Chop it off
             $title = \substr($title, 0, -1);
         }
 
         $this->title .= $title;
 
         if (! $endDelimiterFound && $cursor->isAtEnd()) {
-            // Title still going, continue on next line
             $this->title .= "\n";
 
             return true;
         }
-
-        // We either hit the end delimiter or some extra whitespace
         $cursor->advanceToNextNonSpaceOrTab();
         if (! $cursor->isAtEnd()) {
-            // spec: No further non-whitespace characters may occur on the line.
             return false;
         }
 
         $this->referenceValid = true;
         $this->finishReference();
         $this->paragraph = '';
-
-        // See if there's another definition
         $this->state = self::START_DEFINITION;
 
         return true;

@@ -118,23 +118,11 @@ final class TestResult
         if ($testCase instanceof HasPrintableTestCaseName) {
             return $name;
         }
-
-        // First, lets replace underscore by spaces.
         $name = str_replace('_', ' ', $name);
-
-        // Then, replace upper cases by spaces.
         $name = (string) preg_replace('/([A-Z])/', ' $1', $name);
-
-        // Finally, if it starts with `test`, we remove it.
         $name = (string) preg_replace('/^test/', '', $name);
-
-        // Removes spaces
         $name = trim($name);
-
-        // Lower case everything
         $name = mb_strtolower($name);
-
-        // Add the dataset name if it has one
         if ($dataName = $testCase->dataName()) {
             if (is_int($dataName)) {
                 $name .= sprintf(' with data set #%d', $dataName);

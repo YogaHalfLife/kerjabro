@@ -21,7 +21,6 @@ class {{ class }}
      */
     public function __construct()
     {
-        //
     }
 
     /**

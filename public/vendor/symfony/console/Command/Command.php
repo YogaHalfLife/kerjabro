@@ -32,7 +32,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Command
 {
-    // see https://tldp.org/LDP/abs/html/exitcodes.html
     public const SUCCESS = 0;
     public const FAILURE = 1;
     public const INVALID = 2;
@@ -242,10 +241,7 @@ class Command
      */
     public function run(InputInterface $input, OutputInterface $output): int
     {
-        // add the application arguments and options
         $this->mergeApplicationDefinition();
-
-        // bind the input against the command specific arguments/options
         try {
             $input->bind($this->getDefinition());
         } catch (ExceptionInterface $e) {
@@ -275,10 +271,6 @@ class Command
         if ($input->isInteractive()) {
             $this->interact($input, $output);
         }
-
-        // The command name argument is often omitted when a command is executed directly with its run() method.
-        // It would fail the validation if we didn't make sure the command argument is present,
-        // since it's required by the application.
         if ($input->hasArgument('command') && null === $input->getArgument('command')) {
             $input->setArgument('command', $this->getName());
         }

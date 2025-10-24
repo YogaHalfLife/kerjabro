@@ -18,8 +18,6 @@ final class CoaleseEqualTokenEmulator extends TokenEmulator
 
     public function emulate(string $code, array $tokens): array
     {
-        // We need to manually iterate and manage a count because we'll change
-        // the tokens array on the way
         $line = 1;
         for ($i = 0, $c = count($tokens); $i < $c; ++$i) {
             if (isset($tokens[$i + 1])) {
@@ -41,7 +39,6 @@ final class CoaleseEqualTokenEmulator extends TokenEmulator
 
     public function reverseEmulate(string $code, array $tokens): array
     {
-        // ??= was not valid code previously, don't bother.
         return $tokens;
     }
 }

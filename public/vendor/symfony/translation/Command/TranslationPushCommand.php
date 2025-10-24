@@ -149,9 +149,6 @@ EOF
             $provider->delete($providerTranslations->diff($localTranslations));
 
             $io->success(sprintf('Missing translations on "%s" has been deleted (for "%s" locale(s), and "%s" domain(s)).', parse_url($provider, \PHP_URL_SCHEME), implode(', ', $locales), implode(', ', $domains)));
-
-            // Read provider translations again, after missing translations deletion,
-            // to avoid push freshly deleted translations.
             $providerTranslations = $provider->read($domains, $locales);
         }
 

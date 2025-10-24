@@ -36,7 +36,6 @@ class RequestException extends TransferException implements RequestExceptionInte
         \Throwable $previous = null,
         array $handlerContext = []
     ) {
-        // Set the code of the exception if the response is set and not future.
         $code = $response ? $response->getStatusCode() : 0;
         parent::__construct($message, $code, $previous);
         $this->request = $request;
@@ -92,9 +91,6 @@ class RequestException extends TransferException implements RequestExceptionInte
 
         $uri = $request->getUri();
         $uri = static::obfuscateUri($uri);
-
-        // Client Error: `GET /` resulted in a `404 Not Found` response:
-        // <html> ... (truncated)
         $message = \sprintf(
             '%s: `%s %s` resulted in a `%s %s` response',
             $label,

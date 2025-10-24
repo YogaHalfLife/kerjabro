@@ -168,7 +168,6 @@ class Name extends NodeAbstract
         }
 
         if ($realLength === 0) {
-            // Empty slice is represented as null
             return null;
         }
 

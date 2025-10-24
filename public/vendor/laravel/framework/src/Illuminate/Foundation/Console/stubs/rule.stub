@@ -13,7 +13,6 @@ class {{ class }} implements {{ ruleType }}
      */
     public function __construct()
     {
-        //
     }
 
     /**
@@ -25,7 +24,6 @@ class {{ class }} implements {{ ruleType }}
      */
     public function passes($attribute, $value)
     {
-        //
     }
 
     /**

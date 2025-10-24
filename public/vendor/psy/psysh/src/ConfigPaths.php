@@ -141,7 +141,6 @@ class ConfigPaths
      */
     public static function getHomeConfigDirs(): array
     {
-        // Not quite the same, but this is deprecated anyway /shrug
         return self::getConfigDirs();
     }
 
@@ -266,8 +265,6 @@ class ConfigPaths
         if ($this->runtimeDir !== null) {
             return $this->runtimeDir;
         }
-
-        // Fallback to a boring old folder in the system temp dir.
         $runtimeDir = $this->getEnv('XDG_RUNTIME_DIR') ?: \sys_get_temp_dir();
 
         return \strtr($runtimeDir, '\\', '/').'/psysh';
@@ -297,16 +294,11 @@ class ConfigPaths
         $dirs = \array_map(function ($dir) {
             return \strtr($dir, '\\', '/').'/psysh';
         }, $baseDirs);
-
-        // Add ~/.psysh
         if ($home = $this->getEnv('HOME')) {
             $dirs[] = \strtr($home, '\\', '/').'/.psysh';
         }
-
-        // Add some Windows specific ones :)
         if (\defined('PHP_WINDOWS_VERSION_MAJOR')) {
             if ($appData = $this->getEnv('APPDATA')) {
-                // AppData gets preference
                 \array_unshift($dirs, \strtr($appData, '\\', '/').'/PsySH');
             }
 
@@ -354,7 +346,6 @@ class ConfigPaths
     public static function ensureDir(string $dir): bool
     {
         if (!\is_dir($dir)) {
-            // Just try making it and see if it works
             @\mkdir($dir, 0700, true);
         }
 

@@ -60,14 +60,12 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
                 $root = Date::getFacadeRoot();
                 $root->setLocale($locale);
             } catch (Throwable $e) {
-                // Non Carbon class in use in Date facade
             }
         }
     }
 
     public function register()
     {
-        // Needed for Laravel < 5.3 compatibility
     }
 
     protected function isEventDispatcher($instance)

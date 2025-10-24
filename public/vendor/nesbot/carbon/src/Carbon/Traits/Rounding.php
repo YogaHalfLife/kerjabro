@@ -40,20 +40,14 @@ trait Rounding
     public function roundUnit($unit, $precision = 1, $function = 'round')
     {
         $metaUnits = [
-            // @call roundUnit
             'millennium' => [static::YEARS_PER_MILLENNIUM, 'year'],
-            // @call roundUnit
             'century' => [static::YEARS_PER_CENTURY, 'year'],
-            // @call roundUnit
             'decade' => [static::YEARS_PER_DECADE, 'year'],
-            // @call roundUnit
             'quarter' => [static::MONTHS_PER_QUARTER, 'month'],
-            // @call roundUnit
             'millisecond' => [1000, 'microsecond'],
         ];
         $normalizedUnit = static::singularUnit($unit);
         $ranges = array_merge(static::getRangesByUnit(), [
-            // @call roundUnit
             'microsecond' => [0, 999999],
         ]);
         $factor = 1;
@@ -97,8 +91,6 @@ trait Rounding
                 $changes[$unit] = round(
                     $minimum + ($fraction ? $fraction * $function(($this->$unit - $minimum) / $fraction) : 0)
                 );
-
-                // Cannot use modulo as it lose double precision
                 while ($changes[$unit] >= $delta) {
                     $changes[$unit] -= $delta;
                 }
@@ -118,7 +110,6 @@ trait Rounding
         }
 
         return $normalizedUnit === 'month' && $precision <= 1 && abs($result->month - $initialMonth) === 2
-            // Re-run the change in case an overflow occurred
             ? $result->$normalizedUnit($normalizedValue)
             : $result;
     }

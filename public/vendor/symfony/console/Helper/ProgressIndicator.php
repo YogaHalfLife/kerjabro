@@ -192,7 +192,6 @@ class ProgressIndicator
     private function determineBestFormat(): string
     {
         switch ($this->output->getVerbosity()) {
-            // OutputInterface::VERBOSITY_QUIET: display is disabled anyway
             case OutputInterface::VERBOSITY_VERBOSE:
                 return $this->output->isDecorated() ? 'verbose' : 'verbose_no_ansi';
             case OutputInterface::VERBOSITY_VERY_VERBOSE:

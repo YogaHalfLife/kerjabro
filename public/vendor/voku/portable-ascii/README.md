@@ -43,11 +43,8 @@ The project based on ...
 If you like a more Object Oriented Way to edit strings, then you can take a look at [voku/Stringy](https://github.com/voku/Stringy), it's a fork of "danielstjules/Stringy" but it used the "Portable ASCII"-Class and some extra methods. 
 
 ```php
-// Portable ASCII
 use voku\helper\ASCII;
 ASCII::to_transliterate('déjà σσς iıii'); // 'deja sss iiii'
-
-// voku/Stringy
 use Stringy\Stringy as S;
 $stringy = S::create('déjà σσς iıii');
 $stringy->toTransliterate();              // 'deja sss iiii'
@@ -73,14 +70,8 @@ but this repo is more modular and portable, because it has no dependencies.
 Example: ASCII::to_ascii()
 ```php
   echo ASCII::to_ascii('�Düsseldorf�', 'de');
-  
-  // will output
-  // Duesseldorf
 
   echo ASCII::to_ascii('�Düsseldorf�', 'en');
-  
-  // will output
-  // Dusseldorf
 ```
 
 # Portable ASCII | API

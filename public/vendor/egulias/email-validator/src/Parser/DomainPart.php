@@ -159,8 +159,6 @@ class DomainPart extends PartParser
                 $this->lexer->token['type'] === EmailLexer::S_CLOSEPARENTHESIS ) {
                 $hasComments = true;
                 $commentsResult = $this->parseComments();
-
-                //Invalid comment parsing
                 if($commentsResult->isInvalid()) {
                     return $commentsResult;
                 }

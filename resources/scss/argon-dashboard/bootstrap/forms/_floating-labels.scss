@@ -18,8 +18,6 @@
     transform-origin: 0 0;
     @include transition($form-floating-transition);
   }
-
-  // stylelint-disable no-duplicate-selectors
   > .form-control {
     padding: $form-floating-padding-y $form-floating-padding-x;
 
@@ -32,7 +30,6 @@
       padding-top: $form-floating-input-padding-t;
       padding-bottom: $form-floating-input-padding-b;
     }
-    // Duplicated because `:-webkit-autofill` invalidates other selectors when grouped
     &:-webkit-autofill {
       padding-top: $form-floating-input-padding-t;
       padding-bottom: $form-floating-input-padding-b;
@@ -52,12 +49,10 @@
       transform: $form-floating-label-transform;
     }
   }
-  // Duplicated because `:-webkit-autofill` invalidates other selectors when grouped
   > .form-control:-webkit-autofill {
     ~ label {
       opacity: $form-floating-label-opacity;
       transform: $form-floating-label-transform;
     }
   }
-  // stylelint-enable no-duplicate-selectors
 }

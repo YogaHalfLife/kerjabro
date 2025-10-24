@@ -74,6 +74,5 @@ class AnonymousNotifiable
      */
     public function getKey()
     {
-        //
     }
 }

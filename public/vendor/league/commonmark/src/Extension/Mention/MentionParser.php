@@ -53,11 +53,8 @@ final class MentionParser implements InlineParserInterface
     public function parse(InlineParserContext $inlineContext): bool
     {
         $cursor = $inlineContext->getCursor();
-
-        // The prefix must not have any other characters immediately prior
         $previousChar = $cursor->peek(-1);
         if ($previousChar !== null && \preg_match('/\w/', $previousChar)) {
-            // peek() doesn't modify the cursor, so no need to restore state first
             return false;
         }
 

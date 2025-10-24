@@ -184,28 +184,21 @@ class BinaryFileResponse extends Response
         $this->headers->set('Content-Length', $fileSize);
 
         if (!$this->headers->has('Accept-Ranges')) {
-            // Only accept ranges on safe HTTP methods
             $this->headers->set('Accept-Ranges', $request->isMethodSafe() ? 'bytes' : 'none');
         }
 
         if (self::$trustXSendfileTypeHeader && $request->headers->has('X-Sendfile-Type')) {
-            // Use X-Sendfile, do not send any content.
             $type = $request->headers->get('X-Sendfile-Type');
             $path = $this->file->getRealPath();
-            // Fall back to scheme://path for stream wrapped locations.
             if (false === $path) {
                 $path = $this->file->getPathname();
             }
             if ('x-accel-redirect' === strtolower($type)) {
-                // Do X-Accel-Mapping substitutions.
-                // @link https://www.nginx.com/resources/wiki/start/topics/examples/x-accel/#x-accel-redirect
                 $parts = HeaderUtils::split($request->headers->get('X-Accel-Mapping', ''), ',=');
                 foreach ($parts as $part) {
                     [$pathPrefix, $location] = $part;
                     if (substr($path, 0, \strlen($pathPrefix)) === $pathPrefix) {
                         $path = $location.substr($path, \strlen($pathPrefix));
-                        // Only set X-Accel-Redirect header if a valid URI can be produced
-                        // as nginx does not serve arbitrary file paths.
                         $this->headers->set($type, $path);
                         $this->maxlen = 0;
                         break;
@@ -216,7 +209,6 @@ class BinaryFileResponse extends Response
                 $this->maxlen = 0;
             }
         } elseif ($request->headers->has('Range') && $request->isMethod('GET')) {
-            // Process the range headers.
             if (!$request->headers->has('If-Range') || $this->hasValidIfRangeHeader($request->headers->get('If-Range'))) {
                 $range = $request->headers->get('Range');
 

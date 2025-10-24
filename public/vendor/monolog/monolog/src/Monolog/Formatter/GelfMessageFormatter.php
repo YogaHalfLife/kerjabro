@@ -105,8 +105,6 @@ class GelfMessageFormatter extends NormalizerFormatter
             ->setShortMessage((string) $record['message'])
             ->setHost($this->systemName)
             ->setLevel($this->logLevels[$record['level']]);
-
-        // message length + system name length + 200 for padding / metadata
         $len = 200 + strlen((string) $record['message']) + strlen($this->systemName);
 
         if ($len > $this->maxLength) {

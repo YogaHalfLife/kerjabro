@@ -79,7 +79,6 @@ class CollectionConfigurator
     {
         if (\is_array($prefix)) {
             if (null === $this->parentPrefixes) {
-                // no-op
             } elseif ($missing = array_diff_key($this->parentPrefixes, $prefix)) {
                 throw new \LogicException(sprintf('Collection "%s" is missing prefixes for locale(s) "%s".', $this->name, implode('", "', array_keys($missing))));
             } else {

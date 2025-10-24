@@ -22,7 +22,6 @@ final class Str
      */
     private function __construct()
     {
-        //
     }
 
     /**

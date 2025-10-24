@@ -183,9 +183,6 @@ class PostgresGrammar extends Grammar
      */
     protected function compileColumns(Builder $query, $columns)
     {
-        // If the query is actually performing an aggregating select, we will let that
-        // compiler handle the building of the select clauses, as it will need some
-        // more syntax that is best handled by that function to keep things neat.
         if (! is_null($query->aggregate)) {
             return;
         }
@@ -389,18 +386,11 @@ class PostgresGrammar extends Grammar
     public function compileUpdateFrom(Builder $query, $values)
     {
         $table = $this->wrapTable($query->from);
-
-        // Each one of the columns in the update statements needs to be wrapped in the
-        // keyword identifiers, also a place-holder needs to be created for each of
-        // the values in the list of bindings so we can make the sets statements.
         $columns = $this->compileUpdateColumns($query, $values);
 
         $from = '';
 
         if (isset($query->joins)) {
-            // When using Postgres, updates with joins list the joined tables in the from
-            // clause, which is different than other systems like MySQL. Here, we will
-            // compile out the tables that are joined and add them to a from clause.
             $froms = collect($query->joins)->map(function ($join) {
                 return $this->wrapTable($join->table);
             })->all();
@@ -428,10 +418,6 @@ class PostgresGrammar extends Grammar
         if (! isset($query->joins)) {
             return $baseWheres;
         }
-
-        // Once we compile the join constraints, we will either use them as the where
-        // clause or append them to the existing base where clauses. If we need to
-        // strip the leading boolean we will do so when using as the only where.
         $joinWheres = $this->compileUpdateJoinWheres($query);
 
         if (trim($baseWheres) == '') {
@@ -450,10 +436,6 @@ class PostgresGrammar extends Grammar
     protected function compileUpdateJoinWheres(Builder $query)
     {
         $joinWheres = [];
-
-        // Here we will just loop through all of the join constraints and compile them
-        // all out then implode them. This should give us "where" like syntax after
-        // everything has been built and then we will join it to the real wheres.
         foreach ($query->joins as $join) {
             foreach ($join->wheres as $where) {
                 $method = "where{$where['type']}";

@@ -113,8 +113,6 @@ class LineFormatter extends NormalizerFormatter
                 $output = str_replace('%'.$var.'%', $this->stringify($val), $output);
             }
         }
-
-        // remove leftover %extra.xxx% and %context.xxx% if any
         if (false !== strpos($output, '%')) {
             $output = preg_replace('/%(?:extra|context)\..+?%/', '', $output);
             if (null === $output) {

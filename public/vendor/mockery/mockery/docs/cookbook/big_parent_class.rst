@@ -14,8 +14,6 @@ too much:
     {
         public function doesEverything()
         {
-            // sets up database connections
-            // writes to log files
         }
     }
 
@@ -23,9 +21,7 @@ too much:
     {
         public function doesOneThing()
         {
-            // but calls on BigParentClass methods
             $result = $this->doesEverything();
-            // does something with $result
             return $result;
         }
     }

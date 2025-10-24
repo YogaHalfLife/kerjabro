@@ -37,7 +37,6 @@ class Api
                 ? $this->sendReportToApi($report)
                 : $this->addReportToQueue($report);
         } catch (Exception $e) {
-            //
         }
     }
 
@@ -62,7 +61,6 @@ class Api
                 $this->sendReportToApi($report);
             }
         } catch (Exception $e) {
-            //
         } finally {
             $this->queue = [];
         }

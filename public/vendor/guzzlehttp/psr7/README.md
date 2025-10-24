@@ -46,9 +46,6 @@ preferred size of the buffer.
 
 ```php
 use GuzzleHttp\Psr7;
-
-// When more than 1024 bytes are in the buffer, it will begin returning
-// false to writes. This is an indication that writers should slow down.
 $buffer = new Psr7\BufferStream(1024);
 ```
 
@@ -70,11 +67,9 @@ $stream = new Psr7\CachingStream($original);
 
 $stream->read(1024);
 echo $stream->tell();
-// 1024
 
 $stream->seek(0);
 echo $stream->tell();
-// 0
 ```
 
 
@@ -87,11 +82,7 @@ stream becomes too full.
 
 ```php
 use GuzzleHttp\Psr7;
-
-// Create an empty stream
 $stream = Psr7\Utils::streamFor();
-
-// Start dropping data when the stream has more than 10 bytes
 $dropping = new Psr7\DroppingStream($stream, 10);
 
 $dropping->write('01234567890123456789');
@@ -122,7 +113,6 @@ $fnStream = Psr7\FnStream::decorate($stream, [
 ]);
 
 $fnStream->rewind();
-// Outputs: About to rewind - rewound!
 ```
 
 
@@ -148,10 +138,8 @@ take place on the stream.
 use GuzzleHttp\Psr7;
 
 $stream = new Psr7\LazyOpenStream('/path/to/file', 'r');
-// The file has not yet been opened...
 
 echo $stream->read(10);
-// The file is opened and read from only when needed.
 ```
 
 
@@ -168,14 +156,9 @@ use GuzzleHttp\Psr7;
 
 $original = Psr7\Utils::streamFor(fopen('/tmp/test.txt', 'r+'));
 echo $original->getSize();
-// >>> 1048576
-
-// Limit the size of the body to 1024 bytes and start reading from byte 2048
 $stream = new Psr7\LimitStream($original, 1024, 2048);
 echo $stream->getSize();
-// >>> 1024
 echo $stream->tell();
-// >>> 0
 ```
 
 
@@ -200,12 +183,9 @@ $original = Psr7\Utils::streamFor('foo');
 $noSeek = new Psr7\NoSeekStream($original);
 
 echo $noSeek->read(3);
-// foo
 var_export($noSeek->isSeekable());
-// false
 $noSeek->seek(0);
 var_export($noSeek->read(3));
-// NULL
 ```
 
 
@@ -254,8 +234,6 @@ class EofCallbackStream implements StreamInterface
     public function read($length)
     {
         $result = $this->stream->read($length);
-
-        // Invoke the callback when EOF is hit.
         if ($this->eof()) {
             call_user_func($this->callback);
         }
@@ -278,10 +256,8 @@ $eofStream = new EofCallbackStream($original, function () {
 
 $eofStream->read(2);
 $eofStream->read(1);
-// echoes "EOF!"
 $eofStream->seek(0);
 $eofStream->read(3);
-// echoes "EOF!"
 ```
 
 

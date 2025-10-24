@@ -25,7 +25,6 @@ final class AdjacentTextMerger
 {
     public static function mergeChildNodes(Node $node): void
     {
-        // No children or just one child node, no need for merging
         if ($node->firstChild() === $node->lastChild() || $node->firstChild() === null || $node->lastChild() === null) {
             return;
         }
@@ -36,7 +35,6 @@ final class AdjacentTextMerger
 
     public static function mergeTextNodesBetweenExclusive(Node $fromNode, Node $toNode): void
     {
-        // No nodes between them
         if ($fromNode === $toNode || $fromNode->next() === $toNode || $fromNode->next() === null || $toNode->previous() === null) {
             return;
         }
@@ -85,7 +83,6 @@ final class AdjacentTextMerger
     private static function mergeIfNeeded(?Text $first, ?Text $last): void
     {
         if ($first === null || $last === null || $first === $last) {
-            // No merging needed
             return;
         }
 

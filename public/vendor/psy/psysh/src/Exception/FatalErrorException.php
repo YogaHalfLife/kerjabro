@@ -30,7 +30,6 @@ class FatalErrorException extends \ErrorException implements Exception
      */
     public function __construct($message = '', $code = 0, $severity = 1, $filename = null, $lineno = null, $previous = null)
     {
-        // Since these are basically always PHP Parser Node line numbers, treat -1 as null.
         if ($lineno === -1) {
             $lineno = null;
         }

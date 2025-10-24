@@ -59,12 +59,9 @@ class Util
      */
     public static function createMatcherArray(array $items)
     {
-        //Extract single array item
         if (count($items) == 1 && is_array($items[0])) {
             $items = $items[0];
         }
-
-        //Replace non-matchers
         foreach ($items as &$item) {
             if (!($item instanceof Matcher)) {
                 $item = Core\IsEqual::equalTo($item);

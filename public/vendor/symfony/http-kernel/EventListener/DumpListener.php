@@ -56,8 +56,6 @@ class DumpListener implements EventSubscriberInterface
         if (!class_exists(ConsoleEvents::class)) {
             return [];
         }
-
-        // Register early to have a working dump() as early as possible
         return [ConsoleEvents::COMMAND => ['configure', 1024]];
     }
 }

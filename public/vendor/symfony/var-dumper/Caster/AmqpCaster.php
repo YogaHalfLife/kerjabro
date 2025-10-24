@@ -53,13 +53,9 @@ class AmqpCaster
         $a += [
             $prefix.'is_connected' => $c->isConnected(),
         ];
-
-        // Recent version of the extension already expose private properties
         if (isset($a["\x00AMQPConnection\x00login"])) {
             return $a;
         }
-
-        // BC layer in the amqp lib
         if (method_exists($c, 'getReadTimeout')) {
             $timeout = $c->getReadTimeout();
         } else {
@@ -87,8 +83,6 @@ class AmqpCaster
             $prefix.'is_connected' => $c->isConnected(),
             $prefix.'channel_id' => $c->getChannelId(),
         ];
-
-        // Recent version of the extension already expose private properties
         if (isset($a["\x00AMQPChannel\x00connection"])) {
             return $a;
         }
@@ -109,8 +103,6 @@ class AmqpCaster
         $a += [
             $prefix.'flags' => self::extractFlags($c->getFlags()),
         ];
-
-        // Recent version of the extension already expose private properties
         if (isset($a["\x00AMQPQueue\x00name"])) {
             return $a;
         }
@@ -134,8 +126,6 @@ class AmqpCaster
         ];
 
         $type = isset(self::EXCHANGE_TYPES[$c->getType()]) ? new ConstStub(self::EXCHANGE_TYPES[$c->getType()], $c->getType()) : $c->getType();
-
-        // Recent version of the extension already expose private properties
         if (isset($a["\x00AMQPExchange\x00name"])) {
             $a["\x00AMQPExchange\x00type"] = $type;
 
@@ -158,8 +148,6 @@ class AmqpCaster
         $prefix = Caster::PREFIX_VIRTUAL;
 
         $deliveryMode = new ConstStub($c->getDeliveryMode().(2 === $c->getDeliveryMode() ? ' (persistent)' : ' (non-persistent)'), $c->getDeliveryMode());
-
-        // Recent version of the extension already expose private properties
         if (isset($a["\x00AMQPEnvelope\x00body"])) {
             $a["\0AMQPEnvelope\0delivery_mode"] = $deliveryMode;
 

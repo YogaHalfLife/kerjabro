@@ -441,14 +441,11 @@
 @push('js')
 <script>
     (function() {
-        // Util: set input.files dari array memorinya
         function syncInputFiles(input, fileObjs) {
             const dt = new DataTransfer();
             for (const fo of fileObjs) dt.items.add(fo.file);
             input.files = dt.files;
         }
-
-        // Render thumbnail
         function renderThumbs(zone) {
             const thumbs = zone.querySelector('.thumbs');
             thumbs.innerHTML = '';
@@ -492,8 +489,6 @@
                 thumbs.appendChild(wrap);
             });
         }
-
-        // Tambahkan file ke memori & sinkronkan ke input
         function addFiles(zone, files) {
             if (!zone._files) zone._files = [];
             const input = zone.querySelector(zone.dataset.input) || zone.querySelector('input[type="file"]');
@@ -509,8 +504,6 @@
             syncInputFiles(input, zone._files);
             renderThumbs(zone);
         }
-
-        // Init
         document.querySelectorAll('.dropzone-arg').forEach(zone => {
             zone._files = [];
 
@@ -518,23 +511,15 @@
                 'input[type="file"]');
             const clearBtn = zone.querySelector('.dz-clear');
             const browseBtn = zone.querySelector('.dz-browse');
-
-            // Hanya tombol browse yang membuka picker
             if (browseBtn) {
                 browseBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     input.click();
                 });
             }
-
-            // File picker manual
             input.addEventListener('change', (e) => {
                 addFiles(zone, e.target.files);
-                // ⚠️ JANGAN reset input.value di sini — bisa menghapus files yang baru diset
-                // input.value = '';
             });
-
-            // Drag & drop
             zone.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 zone.classList.add('border-primary');
@@ -545,8 +530,6 @@
                 zone.classList.remove('border-primary');
                 addFiles(zone, e.dataTransfer.files);
             });
-
-            // Paste dari clipboard
             zone.addEventListener('paste', (e) => {
                 const items = e.clipboardData?.items || [];
                 const files = [];
@@ -558,8 +541,6 @@
                 }
                 if (files.length) addFiles(zone, files);
             });
-
-            // Clear all
             if (clearBtn) {
                 clearBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -578,26 +559,16 @@
         const modal = new bootstrap.Modal(modalEl);
         const container = document.getElementById('fotosContainer');
         const titleEl = document.getElementById('fotosModalLabel');
-
-        // hitung lebar modal + kolom grid agar proporsional
         function layoutFor(count) {
             const thumbW = 160; // lebar thumbnail
             const gap = 12; // gap grid
             const pad = 64; // padding + border modal approx
             const margin = 48; // jarak aman dari kiri/kanan viewport
-
-            // target kolom: 1→1, 2→2, 3→3, >=4→4
             const cols = Math.max(1, Math.min(count, 4));
-
-            // atur kolom grid
             container.style.gridTemplateColumns = `repeat(${cols}, ${thumbW}px)`;
-
-            // lebar ideal konten (grid)
             const contentWidth = cols * thumbW + (cols - 1) * gap;
             const vw = window.innerWidth;
             const maxAllow = vw - margin;
-
-            // kasih min/max supaya tidak terlalu sempit/terlalu lebar
             const minW = 420; // min modal width
             const maxW = Math.min(980, maxAllow); // cap maksimal
             const target = Math.max(minW, Math.min(contentWidth + pad, maxW));
@@ -651,11 +622,8 @@
     })();
 </script>
 <script>
-    // bootstrap tooltip
     const ttEls = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     ttEls.forEach(el => new bootstrap.Tooltip(el));
-
-    // modal "lihat selengkapnya"
     document.addEventListener('click', function(e) {
         const btn = e.target.closest('.detail-pekerjaan-view');
         if (!btn) return;

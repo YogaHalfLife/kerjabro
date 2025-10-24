@@ -195,15 +195,11 @@ final class Writer implements WriterContract
         return $inspector->getFrames()
             ->filter(
                 function ($frame) {
-                    // If we are in verbose mode, we always
-                    // display the full stack trace.
                     if ($this->output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE) {
                         return true;
                     }
 
                     foreach ($this->ignore as $ignore) {
-                        // Ensure paths are linux-style (like the ones on $this->ignore)
-                        // @phpstan-ignore-next-line
                         $sanitizedPath = (string) str_replace('\\', '/', $frame->getFile());
                         if (preg_match($ignore, $sanitizedPath)) {
                             return false;
@@ -272,8 +268,6 @@ final class Writer implements WriterContract
     {
         if ($frame->getFile() !== 'Unknown') {
             $file = $this->getFileRelativePath((string) $frame->getFile());
-
-            // getLine() might return null so cast to int to get 0 instead
             $line = (int) $frame->getLine();
             $this->render('at <fg=green>' . $file . '</>' . ':<fg=green>' . $line . '</>');
 

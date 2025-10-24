@@ -37,9 +37,7 @@ class PassableByReferencePass extends CodeCleanerPass
      */
     public function enterNode(Node $node)
     {
-        // @todo support MethodCall and StaticCall as well.
         if ($node instanceof FuncCall) {
-            // if function name is an expression or a variable, give it a pass for now.
             if ($node->name instanceof Expr || $node->name instanceof Variable) {
                 return;
             }
@@ -53,7 +51,6 @@ class PassableByReferencePass extends CodeCleanerPass
             try {
                 $refl = new \ReflectionFunction($name);
             } catch (\ReflectionException $e) {
-                // Well, we gave it a shot!
                 return;
             }
 
@@ -70,13 +67,9 @@ class PassableByReferencePass extends CodeCleanerPass
 
     private function isPassableByReference(Node $arg): bool
     {
-        // Unpacked arrays can be passed by reference
         if ($arg->value instanceof Array_) {
             return $arg->unpack;
         }
-
-        // FuncCall, MethodCall and StaticCall are all PHP _warnings_ not fatal errors, so we'll let
-        // PHP handle those ones :)
         return $arg->value instanceof ClassConstFetch ||
             $arg->value instanceof PropertyFetch ||
             $arg->value instanceof Variable ||
@@ -108,8 +101,6 @@ class PassableByReferencePass extends CodeCleanerPass
             if ($this->isPassableByReference($arg)) {
                 $nonPassable = 0;
             } elseif (++$nonPassable > 2) {
-                // There can be *at most* two non-passable-by-reference args in a row. This is about
-                // as close as we can get to validating the arguments for this function :-/
                 throw new FatalErrorException(self::EXCEPTION_MESSAGE, 0, \E_ERROR, null, $node->getLine());
             }
         }

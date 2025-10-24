@@ -1896,9 +1896,6 @@ class Assert
     public static function uuid($value, $message = '')
     {
         $value = \str_replace(array('urn:', 'uuid:', '{', '}'), '', $value);
-
-        // The nil UUID is special form of UUID that is specified to have all
-        // 128 bits set to zero.
         if ('00000000-0000-0000-0000-000000000000' === $value) {
             return;
         }

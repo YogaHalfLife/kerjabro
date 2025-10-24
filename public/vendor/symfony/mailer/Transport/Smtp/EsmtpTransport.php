@@ -33,8 +33,6 @@ class EsmtpTransport extends SmtpTransport
     public function __construct(string $host = 'localhost', int $port = 0, bool $tls = null, EventDispatcherInterface $dispatcher = null, LoggerInterface $logger = null)
     {
         parent::__construct(null, $dispatcher, $logger);
-
-        // order is important here (roughly most secure and popular first)
         $this->authenticators = [
             new Auth\CramMd5Authenticator(),
             new Auth\LoginAuthenticator(),
@@ -112,9 +110,6 @@ class EsmtpTransport extends SmtpTransport
 
         /** @var SocketStream $stream */
         $stream = $this->getStream();
-        // WARNING: !$stream->isTLS() is right, 100% sure :)
-        // if you think that the ! should be removed, read the code again
-        // if doing so "fixes" your issue then it probably means your SMTP server behaves incorrectly or is wrongly configured
         if (!$stream->isTLS() && \defined('OPENSSL_VERSION_NUMBER') && \array_key_exists('STARTTLS', $capabilities)) {
             $this->executeCommand("STARTTLS\r\n", [220]);
 
@@ -175,10 +170,7 @@ class EsmtpTransport extends SmtpTransport
                 try {
                     $this->executeCommand("RSET\r\n", [250]);
                 } catch (TransportExceptionInterface $_) {
-                    // ignore this exception as it probably means that the server error was final
                 }
-
-                // keep the error message, but tries the other authenticators
                 $errors[$authenticator->getAuthKeyword()] = $e->getMessage();
             }
         }

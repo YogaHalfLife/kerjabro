@@ -87,8 +87,6 @@ class Message extends RawMessage
         if (!$headers->has('Date')) {
             $headers->addDateHeader('Date', new \DateTimeImmutable());
         }
-
-        // determine the "real" sender
         if (!$headers->has('Sender') && \count($froms = $headers->get('From')->getAddresses()) > 1) {
             $headers->addMailboxHeader('Sender', $froms[0]);
         }
@@ -96,8 +94,6 @@ class Message extends RawMessage
         if (!$headers->has('Message-ID')) {
             $headers->addIdHeader('Message-ID', $this->generateMessageId());
         }
-
-        // remove the Bcc field which should NOT be part of the sent message
         $headers->remove('Bcc');
 
         return $headers;

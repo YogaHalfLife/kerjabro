@@ -98,8 +98,6 @@ final class MarkdownParser implements MarkdownParserInterface
             $this->lineNumber = $lineNumber;
             $this->parseLine($line);
         }
-
-        // finalizeAndProcess
         $this->closeBlockParsers(\count($this->activeBlockParsers), $this->lineNumber);
         $this->processInlines();
 
@@ -124,12 +122,8 @@ final class MarkdownParser implements MarkdownParserInterface
         $unmatchedBlocks = \count($this->activeBlockParsers) - $matches;
         $blockParser     = $this->activeBlockParsers[$matches - 1];
         $startedNewBlock = false;
-
-        // Unless last matched container is a code block, try new container starts,
-        // adding children to the last matched container:
         $tryBlockStarts = $blockParser->getBlock() instanceof Paragraph || $blockParser->isContainer();
         while ($tryBlockStarts) {
-            // this is a little performance optimization
             if ($this->cursor->isBlank()) {
                 $this->cursor->advanceToEnd();
                 break;
@@ -150,8 +144,6 @@ final class MarkdownParser implements MarkdownParserInterface
             }
 
             $startedNewBlock = true;
-
-            // We're starting a new block. If we have any previous blocks that need to be closed, we need to do it now.
             if ($unmatchedBlocks > 0) {
                 $this->closeBlockParsers($unmatchedBlocks, $this->lineNumber - 1);
                 $unmatchedBlocks = 0;
@@ -166,14 +158,9 @@ final class MarkdownParser implements MarkdownParserInterface
                 $tryBlockStarts = $newBlockParser->isContainer();
             }
         }
-
-        // What remains at the offset is a text line. Add the text to the appropriate block.
-
-        // First check for a lazy paragraph continuation:
         if (! $startedNewBlock && ! $this->cursor->isBlank() && $this->getActiveBlockParser()->canHaveLazyContinuationLines()) {
             $this->getActiveBlockParser()->addLine($this->cursor->getRemainder());
         } else {
-            // finalize any blocks not matched
             if ($unmatchedBlocks > 0) {
                 $this->closeBlockParsers($unmatchedBlocks, $this->lineNumber);
             }
@@ -189,8 +176,6 @@ final class MarkdownParser implements MarkdownParserInterface
 
     private function parseBlockContinuation(): ?int
     {
-        // For each containing block, try to parse the associated line start.
-        // The document will always match, so we can skip the first block parser and start at 1 matches
         $matches = 1;
         for ($i = 1; $i < \count($this->activeBlockParsers); $i++) {
             $blockParser   = $this->activeBlockParsers[$i];
@@ -234,10 +219,7 @@ final class MarkdownParser implements MarkdownParserInterface
         for ($i = 0; $i < $count; $i++) {
             $blockParser = $this->deactivateBlockParser();
             $this->finalize($blockParser, $endLineNumber);
-
-            // phpcs:disable SlevomatCodingStandard.ControlStructures.EarlyExit.EarlyExitNotUsed
             if ($blockParser instanceof BlockContinueParserWithInlinesInterface) {
-                // Remember for inline parsing
                 $this->closedBlockParsers[] = $blockParser;
             }
         }
@@ -305,7 +287,6 @@ final class MarkdownParser implements MarkdownParserInterface
 
     private function prepareActiveBlockParserForReplacement(): void
     {
-        // Note that we don't want to parse inlines or finalize this block, as it's getting replaced.
         $old = $this->deactivateBlockParser();
 
         if ($old instanceof ParagraphParser) {

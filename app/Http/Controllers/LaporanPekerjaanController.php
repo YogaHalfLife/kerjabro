@@ -16,12 +16,11 @@ class LaporanPekerjaanController extends Controller
     public function index(Request $request)
     {
         $q       = $request->get('q');
-        $bulan   = $request->get('bulan');     // "YYYY-MM" dari <input type="month">
+        $bulan   = $request->get('bulan');
         $divisi  = $request->get('id_divisi');
 
         $isAdmin = Auth::check() && Auth::user()->username === 'admin';
 
-        // Dapatkan pegawai & divisi user login (jika bukan admin)
         $pegawaiLogin = null;
         $divisiLogin  = null;
         if (!$isAdmin) {
@@ -31,9 +30,6 @@ class LaporanPekerjaanController extends Controller
             $divisiLogin  = $pegawaiLogin ? MasterDivisi::find($pegawaiLogin->id_divisi) : null;
         }
 
-        // Dropdown divisi:
-        // - Admin: semua
-        // - Non-admin: hanya divisinya + "all"
         $divisis = MasterDivisi::query()
             ->when(!$isAdmin && $divisiLogin, function ($q2) use ($divisiLogin) {
                 $q2->where('id_divisi', $divisiLogin->id_divisi)
@@ -42,7 +38,6 @@ class LaporanPekerjaanController extends Controller
             ->orderBy('nama_divisi')
             ->get(['id_divisi', 'nama_divisi']);
 
-        // Jika non-admin mengirim id_divisi tak diizinkan → abaikan
         if (!$isAdmin && $divisi) {
             $allowedIds = $divisis->pluck('id_divisi')->all();
             if (!in_array($divisi, $allowedIds)) {
@@ -50,7 +45,6 @@ class LaporanPekerjaanController extends Controller
             }
         }
 
-        // Isi default bulan agar input tetap terisi
         $bulan = $bulan ?: now()->format('Y-m');
 
         return view('laporan.pekerjaan.index', compact(
@@ -64,28 +58,25 @@ class LaporanPekerjaanController extends Controller
 
     public function export(Request $request)
     {
-        // Validasi input dari form laporan
         $request->validate([
-            'bulan'     => ['nullable', 'regex:/^\d{4}-\d{2}$/'], // "YYYY-MM"
+            'bulan'     => ['nullable', 'regex:/^\d{4}-\d{2}$/'],
             'id_divisi' => ['nullable', 'string'],
             'q'         => ['nullable', 'string'],
         ]);
 
         $isAdmin = Auth::check() && Auth::user()->username === 'admin';
-
-        // Normalisasi bulan → rentang tanggal (start & end) untuk dipakai di export
-        $bulanRaw = $request->get('bulan'); // "YYYY-MM"
+        
+        $bulanRaw = $request->get('bulan');
         $start = $end = null;
         if ($bulanRaw) {
             try {
                 $start = Carbon::createFromFormat('Y-m', $bulanRaw)->startOfMonth()->toDateString();
                 $end   = Carbon::createFromFormat('Y-m', $bulanRaw)->endOfMonth()->toDateString();
             } catch (\Throwable $e) {
-                $start = $end = null; // kalau invalid, anggap tanpa filter bulan
+                $start = $end = null;
             }
         }
 
-        // Batasi divisi untuk non-admin (hanya divisinya + "all")
         $divisi = $request->get('id_divisi');
         if (!$isAdmin) {
             $user = $request->user();
@@ -101,17 +92,14 @@ class LaporanPekerjaanController extends Controller
                 ->all();
 
             if ($divisi && !in_array($divisi, $divisisAllowed)) {
-                $divisi = null; // paksa kosong kalau tak diizinkan
-            }
+                $divisi = null;
         }
 
         $fileName = 'Laporan_Pekerjaan_' . now()->format('Ymd_His') . '.xlsx';
 
-        // Kirim parameter yang sudah dinormalisasi ke Export
         return Excel::download(
             new TransPekerjaanExport(
                 q: $request->get('q'),
-                // kirim rentang tanggal, biar Export bisa whereBetween('bulan', [$start, $end])
                 startDate: $start,
                 endDate: $end,
                 divisi: $divisi,
@@ -124,7 +112,7 @@ class LaporanPekerjaanController extends Controller
     public function exportWord(Request $request)
     {
         $request->validate([
-            'bulan'     => ['nullable', 'regex:/^\d{4}-\d{2}$/'], // dari <input type="month">
+            'bulan'     => ['nullable', 'regex:/^\d{4}-\d{2}$/'],
             'id_divisi' => ['nullable', 'string'],
             'q'         => ['nullable', 'string'],
         ]);
@@ -136,10 +124,9 @@ class LaporanPekerjaanController extends Controller
             user: $request->user(),
         );
 
-        $doc = $export->build(); // \PhpOffice\PhpWord\PhpWord instance (or temp file path)
+        $doc = $export->build();
         $fileName = 'Laporan_Pekerjaan_' . now()->format('Ymd_His') . '.docx';
-
-        // simpan ke file sementara
+        
         $tempPath = storage_path('app/tmp_' . uniqid() . '.docx');
         $writer = \PhpOffice\PhpWord\IOFactory::createWriter($doc, 'Word2007');
         $writer->save($tempPath);

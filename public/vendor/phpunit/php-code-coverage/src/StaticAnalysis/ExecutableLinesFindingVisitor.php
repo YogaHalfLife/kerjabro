@@ -182,8 +182,6 @@ final class ExecutableLinesFindingVisitor extends NodeVisitorAbstract
             }
 
             if ($existsAPromotedProperty) {
-                // Only the line with `function` keyword should be listed here
-                // but `nikic/php-parser` doesn't provide a way to fetch it
                 return range($node->getStartLine(), $node->name->getEndLine());
             }
 

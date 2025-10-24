@@ -62,7 +62,6 @@ abstract class SchemaState
         };
 
         $this->handleOutputUsing(function () {
-            //
         });
     }
 

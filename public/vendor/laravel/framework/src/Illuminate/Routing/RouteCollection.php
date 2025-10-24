@@ -76,16 +76,9 @@ class RouteCollection extends AbstractRouteCollection
      */
     protected function addLookups($route)
     {
-        // If the route has a name, we will add it to the name look-up table so that we
-        // will quickly be able to find any route associate with a name and not have
-        // to iterate through every route every time we need to perform a look-up.
         if ($name = $route->getName()) {
             $this->nameList[$name] = $route;
         }
-
-        // When the route is routing to a controller we will also store the action that
-        // is used by the route. This will let us reverse route to controllers while
-        // processing a request and easily generate URLs to the given controllers.
         $action = $route->getAction();
 
         if (isset($action['controller'])) {
@@ -153,10 +146,6 @@ class RouteCollection extends AbstractRouteCollection
     public function match(Request $request)
     {
         $routes = $this->get($request->getMethod());
-
-        // First, we will see if we can find a matching route for this current request
-        // method. If we can, great, we can just return it so that it can be called
-        // by the consumer. Otherwise we will check for routes with another verb.
         $route = $this->matchAgainstRoutes($routes, $request);
 
         return $this->handleMatchedRoute($request, $route);

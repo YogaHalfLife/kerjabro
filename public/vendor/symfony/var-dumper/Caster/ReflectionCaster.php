@@ -80,7 +80,6 @@ class ReflectionCaster
 
     public static function castGenerator(\Generator $c, array $a, Stub $stub, bool $isNested)
     {
-        // Cannot create ReflectionGenerator based on a terminated Generator
         try {
             $reflectionGenerator = new \ReflectionGenerator($c);
         } catch (\Exception $e) {

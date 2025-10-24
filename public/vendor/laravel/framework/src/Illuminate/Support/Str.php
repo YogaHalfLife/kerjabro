@@ -339,19 +339,11 @@ class Str
 
         foreach ($patterns as $pattern) {
             $pattern = (string) $pattern;
-
-            // If the given value is an exact match we can of course return true right
-            // from the beginning. Otherwise, we will translate asterisks and do an
-            // actual pattern match against the two strings to see if they match.
             if ($pattern === $value) {
                 return true;
             }
 
             $pattern = preg_quote($pattern, '#');
-
-            // Asterisks are translated into zero-or-more regular expression wildcards
-            // to make it convenient to check if the strings starts with the given
-            // pattern such as "library/*", making any string check convenient.
             $pattern = str_replace('\*', '.*', $pattern);
 
             if (preg_match('#^'.$pattern.'\z#u', $value) === 1) {
@@ -843,19 +835,11 @@ class Str
     public static function slug($title, $separator = '-', $language = 'en')
     {
         $title = $language ? static::ascii($title, $language) : $title;
-
-        // Convert all dashes/underscores into separator
         $flip = $separator === '-' ? '_' : '-';
 
         $title = preg_replace('!['.preg_quote($flip).']+!u', $separator, $title);
-
-        // Replace @ with the word 'at'
         $title = str_replace('@', $separator.'at'.$separator, $title);
-
-        // Remove all characters that are not the separator, letters, numbers, or whitespace.
         $title = preg_replace('![^'.preg_quote($separator).'\pL\pN\s]+!u', '', static::lower($title));
-
-        // Replace all separator characters and whitespace by a single separator
         $title = preg_replace('!['.preg_quote($separator).'\s]+!u', $separator, $title);
 
         return trim($title, $separator);

@@ -61,8 +61,6 @@ class Ssi extends AbstractSurrogate
         if (!\in_array($parts[0], $this->contentTypes)) {
             return $response;
         }
-
-        // we don't use a proper XML parser here as we can have SSI tags in a plain text response
         $content = $response->getContent();
 
         $chunks = preg_split('#<!--\#include\s+(.*?)\s*-->#', $content, -1, \PREG_SPLIT_DELIM_CAPTURE);
@@ -91,8 +89,6 @@ class Ssi extends AbstractSurrogate
 
         $response->setContent($content);
         $response->headers->set('X-Body-Eval', 'SSI');
-
-        // remove SSI/1.0 from the Surrogate-Control header
         $this->removeFromControl($response);
 
         return $response;

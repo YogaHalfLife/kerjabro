@@ -87,8 +87,6 @@ final class InputBag extends ParameterBag
     public function filter(string $key, mixed $default = null, int $filter = \FILTER_DEFAULT, mixed $options = []): mixed
     {
         $value = $this->has($key) ? $this->all()[$key] : $default;
-
-        // Always turn $options into an array - this allows filter_var option shortcuts.
         if (!\is_array($options) && $options) {
             $options = ['flags' => $options];
         }

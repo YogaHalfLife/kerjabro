@@ -249,12 +249,8 @@ class HtmlErrorRenderer implements ErrorRendererInterface
     private function fileExcerpt(string $file, int $line, int $srcContext = 3): string
     {
         if (is_file($file) && is_readable($file)) {
-            // highlight_file could throw warnings
-            // see https://bugs.php.net/25725
             $code = @highlight_file($file, true);
-            // remove main code/span tags
             $code = preg_replace('#^<code.*?>\s*<span.*?>(.*)</span>\s*</code>#s', '\\1', $code);
-            // split multiline spans
             $code = preg_replace_callback('#<span ([^>]++)>((?:[^<]*+<br \/>)++[^<]*+)</span>#', function ($m) {
                 return "<span $m[1]>".str_replace('<br />', "</span><br /><span $m[1]>", $m[2]).'</span>';
             }, $code);
@@ -277,14 +273,11 @@ class HtmlErrorRenderer implements ErrorRendererInterface
 
     private function fixCodeMarkup(string $line)
     {
-        // </span> ending tag from previous line
         $opening = strpos($line, '<span');
         $closing = strpos($line, '</span>');
         if (false !== $closing && (false === $opening || $closing < $opening)) {
             $line = substr_replace($line, '', $closing, 7);
         }
-
-        // missing </span> tag at the end of line
         $opening = strrpos($line, '<span');
         $closing = strrpos($line, '</span>');
         if (false !== $opening && (false === $closing || $closing < $opening)) {

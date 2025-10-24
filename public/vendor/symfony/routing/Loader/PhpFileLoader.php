@@ -34,8 +34,6 @@ class PhpFileLoader extends FileLoader
     {
         $path = $this->locator->locate($file);
         $this->setCurrentDir(\dirname($path));
-
-        // the closure forbids access to the private scope in the included file
         $loader = $this;
         $load = \Closure::bind(static function ($file) use ($loader) {
             return include $file;

@@ -69,9 +69,6 @@ class TokenGuard implements Guard
      */
     public function user()
     {
-        // If we've already retrieved the user for the current request we can just
-        // return it back immediately. We do not want to fetch the user data on
-        // every call to this method because that would be tremendously slow.
         if (! is_null($this->user)) {
             return $this->user;
         }

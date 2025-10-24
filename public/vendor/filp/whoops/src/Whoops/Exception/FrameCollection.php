@@ -55,8 +55,6 @@ class FrameCollection implements ArrayAccess, IteratorAggregate, Serializable, C
      */
     public function map($callable)
     {
-        // Contain the map within a higher-order callable
-        // that enforces type-correctness for the $callable
         $this->frames = array_map(function ($frame) use ($callable) {
             $frame = call_user_func($callable, $frame);
 

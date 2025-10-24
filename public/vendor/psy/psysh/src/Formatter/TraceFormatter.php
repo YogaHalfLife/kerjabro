@@ -65,18 +65,12 @@ class TraceFormatter
             $function = $trace[$i]['function'];
             $file = isset($trace[$i]['file']) ? $trace[$i]['file'] : 'n/a';
             $line = isset($trace[$i]['line']) ? $trace[$i]['line'] : 'n/a';
-
-            // Make file paths relative to cwd
             if ($cwd !== false) {
                 $file = \preg_replace('/^'.\preg_quote($cwd, '/').'/', '', $file);
             }
-
-            // Leave execution loop out of the `eval()'d code` lines
             if (\preg_match("#/src/Execution(?:Loop)?Closure.php\(\d+\) : eval\(\)'d code$#", \str_replace('\\', '/', $file))) {
                 $file = "eval()'d code";
             }
-
-            // Skip any lines that don't match our filter options
             if ($filter !== null && !$filter->match(\sprintf('%s%s%s() at %s:%s', $class, $type, $function, $file, $line))) {
                 continue;
             }

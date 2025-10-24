@@ -10,8 +10,6 @@
  */
 
 namespace Symfony\Component\HttpFoundation;
-
-// Help opcache.preload discover always-needed symbols
 class_exists(ResponseHeaderBag::class);
 
 /**
@@ -262,33 +260,25 @@ class Response
             $this->setContent(null);
             $headers->remove('Content-Type');
             $headers->remove('Content-Length');
-            // prevent PHP from sending the Content-Type header based on default_mimetype
             ini_set('default_mimetype', '');
         } else {
-            // Content-type based on the Request
             if (!$headers->has('Content-Type')) {
                 $format = $request->getRequestFormat(null);
                 if (null !== $format && $mimeType = $request->getMimeType($format)) {
                     $headers->set('Content-Type', $mimeType);
                 }
             }
-
-            // Fix Content-Type
             $charset = $this->charset ?: 'UTF-8';
             if (!$headers->has('Content-Type')) {
                 $headers->set('Content-Type', 'text/html; charset='.$charset);
             } elseif (0 === stripos($headers->get('Content-Type'), 'text/') && false === stripos($headers->get('Content-Type'), 'charset')) {
-                // add the charset
                 $headers->set('Content-Type', $headers->get('Content-Type').'; charset='.$charset);
             }
-
-            // Fix Content-Length
             if ($headers->has('Transfer-Encoding')) {
                 $headers->remove('Content-Length');
             }
 
             if ($request->isMethod('HEAD')) {
-                // cf. RFC2616 14.13
                 $length = $headers->get('Content-Length');
                 $this->setContent(null);
                 if ($length) {
@@ -296,13 +286,9 @@ class Response
                 }
             }
         }
-
-        // Fix protocol
         if ('HTTP/1.0' != $request->server->get('SERVER_PROTOCOL')) {
             $this->setProtocolVersion('1.1');
         }
-
-        // Check if we need to send extra expire info headers
         if ('1.0' == $this->getProtocolVersion() && str_contains($headers->get('Cache-Control', ''), 'no-cache')) {
             $headers->set('pragma', 'no-cache');
             $headers->set('expires', -1);
@@ -326,25 +312,18 @@ class Response
      */
     public function sendHeaders(): static
     {
-        // headers have already been sent by the developer
         if (headers_sent()) {
             return $this;
         }
-
-        // headers
         foreach ($this->headers->allPreserveCaseWithoutCookies() as $name => $values) {
             $replace = 0 === strcasecmp($name, 'Content-Type');
             foreach ($values as $value) {
                 header($name.': '.$value, $replace, $this->statusCode);
             }
         }
-
-        // cookies
         foreach ($this->headers->getCookies() as $cookie) {
             header('Set-Cookie: '.$cookie, false, $this->statusCode);
         }
-
-        // status
         header(sprintf('HTTP/%s %s %s', $this->version, $this->statusCode, $this->statusText), true, $this->statusCode);
 
         return $this;
@@ -699,7 +678,6 @@ class Response
         try {
             return $this->headers->getDate('Expires');
         } catch (\RuntimeException $e) {
-            // according to RFC 2616 invalid date formats (e.g. "0" and "-1") must be treated as in the past
             return \DateTime::createFromFormat('U', time() - 172800);
         }
     }
@@ -991,8 +969,6 @@ class Response
     {
         $this->setStatusCode(304);
         $this->setContent(null);
-
-        // remove headers that MUST NOT be included with 304 Not Modified responses
         foreach (['Allow', 'Content-Encoding', 'Content-Language', 'Content-Length', 'Content-MD5', 'Content-Type', 'Last-Modified'] as $header) {
             $this->headers->remove($header);
         }
@@ -1068,8 +1044,6 @@ class Response
             if (0 == strncmp($etag, 'W/', 2)) {
                 $etag = substr($etag, 2);
             }
-
-            // Use weak comparison as per https://tools.ietf.org/html/rfc7232#section-3.2.
             foreach ($ifNoneMatchEtags as $ifNoneMatchEtag) {
                 if (0 == strncmp($ifNoneMatchEtag, 'W/', 2)) {
                     $ifNoneMatchEtag = substr($ifNoneMatchEtag, 2);
@@ -1081,7 +1055,6 @@ class Response
                 }
             }
         }
-        // Only do If-Modified-Since date comparison when If-None-Match is not present as per https://tools.ietf.org/html/rfc7232#section-3.3.
         elseif ($modifiedSince && $lastModified) {
             $notModified = strtotime($modifiedSince) >= strtotime($lastModified);
         }

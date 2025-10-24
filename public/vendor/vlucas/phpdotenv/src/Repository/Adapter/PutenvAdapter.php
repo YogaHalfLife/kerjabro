@@ -17,7 +17,6 @@ final class PutenvAdapter implements AdapterInterface
      */
     private function __construct()
     {
-        //
     }
 
     /**

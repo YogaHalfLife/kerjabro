@@ -116,11 +116,6 @@ final class Parameters implements ParametersRule
 
         if (count($this->invocation->getParameters()) < count($this->parameters)) {
             $message = 'Parameter count for invocation %s is too low.';
-
-            // The user called `->with($this->anything())`, but may have meant
-            // `->withAnyParameters()`.
-            //
-            // @see https://github.com/sebastianbergmann/phpunit-mock-objects/issues/199
             if (count($this->parameters) === 1 &&
                 get_class($this->parameters[0]) === IsAnything::class) {
                 $message .= "\nTo allow 0 or more parameters with any value, omit ->with() or use ->withAnyParameters() instead.";

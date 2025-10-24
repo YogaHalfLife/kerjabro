@@ -60,8 +60,6 @@ final class QuoteParser implements InlineParserInterface
 
         $node = new Quote($normalizedCharacter, ['delim' => true]);
         $inlineContext->getContainer()->appendChild($node);
-
-        // Add entry to stack to this opener
         $inlineContext->getDelimiterStack()->push(new Delimiter($normalizedCharacter, 1, $node, $canOpen, $canClose));
 
         return true;

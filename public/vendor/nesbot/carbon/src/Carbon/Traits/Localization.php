@@ -226,12 +226,9 @@ trait Localization
         if (isset($parameters['%count%'])) {
             $parameters[':count'] = $parameters['%count%'];
         }
-
-        // @codeCoverageIgnoreStart
         $choice = $translator instanceof ContractsTranslatorInterface
             ? $translator->trans($key, $parameters)
             : $translator->transChoice($key, $number, $parameters);
-        // @codeCoverageIgnoreEnd
 
         return (string) $choice;
     }
@@ -326,15 +323,12 @@ trait Localization
      */
     public static function translateTimeString($timeString, $from = null, $to = null, $mode = CarbonInterface::TRANSLATE_ALL)
     {
-        // Fallback source and destination locales
         $from = $from ?: static::getLocale();
         $to = $to ?: 'en';
 
         if ($from === $to) {
             return $timeString;
         }
-
-        // Standardize apostrophe
         $timeString = strtr($timeString, ['’' => "'"]);
 
         $fromTranslations = [];

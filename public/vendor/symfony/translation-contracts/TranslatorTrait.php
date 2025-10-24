@@ -82,8 +82,6 @@ EOF;
         $standardRules = [];
         foreach ($parts as $part) {
             $part = trim(str_replace('||', '|', $part));
-
-            // try to match an explicit rule, then fallback to the standard ones
             if (preg_match($intervalRegexp, $part, $matches)) {
                 if ($matches[2]) {
                     foreach (explode(',', $matches[3]) as $n) {
@@ -111,8 +109,6 @@ EOF;
         $position = $this->getPluralizationRule($number, $locale);
 
         if (!isset($standardRules[$position])) {
-            // when there's exactly one rule given, and that rule is a standard
-            // rule, use this rule
             if (1 === \count($parts) && isset($standardRules[0])) {
                 return strtr($standardRules[0], $parameters);
             }

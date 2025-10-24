@@ -69,8 +69,6 @@ abstract class Bundle implements BundleInterface
                 if (!$extension instanceof ExtensionInterface) {
                     throw new \LogicException(sprintf('Extension "%s" must implement Symfony\Component\DependencyInjection\Extension\ExtensionInterface.', get_debug_type($extension)));
                 }
-
-                // check naming convention
                 $basename = preg_replace('/Bundle$/', '', $this->getName());
                 $expectedAlias = Container::underscore($basename);
 

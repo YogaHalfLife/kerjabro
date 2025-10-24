@@ -138,8 +138,6 @@ class Stream implements StreamInterface
         if (!isset($this->stream)) {
             return null;
         }
-
-        // Clear the stat cache if the stream has a URI
         if ($this->uri) {
             clearstatcache(true, $this->uri);
         }
@@ -245,8 +243,6 @@ class Stream implements StreamInterface
         if (!$this->writable) {
             throw new \RuntimeException('Cannot write to a non-writable stream');
         }
-
-        // We can't know the size after writing anything
         $this->size = null;
         $result = fwrite($this->stream, $string);
 

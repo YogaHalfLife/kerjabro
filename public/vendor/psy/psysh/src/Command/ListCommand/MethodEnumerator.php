@@ -23,17 +23,12 @@ class MethodEnumerator extends Enumerator
      */
     protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null): array
     {
-        // only list methods when a Reflector is present.
         if ($reflector === null) {
             return [];
         }
-
-        // We can only list methods on actual class (or object) reflectors.
         if (!$reflector instanceof \ReflectionClass) {
             return [];
         }
-
-        // only list methods if we are specifically asked
         if (!$input->getOption('methods')) {
             return [];
         }
@@ -67,8 +62,6 @@ class MethodEnumerator extends Enumerator
 
         $methods = [];
         foreach ($reflector->getMethods() as $name => $method) {
-            // For some reason PHP reflection shows private methods from the parent class, even
-            // though they're effectively worthless. Let's suppress them here, like --no-inherit
             if (($noInherit || $method->isPrivate()) && $method->getDeclaringClass()->getName() !== $className) {
                 continue;
             }
@@ -92,7 +85,6 @@ class MethodEnumerator extends Enumerator
      */
     protected function prepareMethods(array $methods): array
     {
-        // My kingdom for a generator.
         $ret = [];
 
         foreach ($methods as $name => $method) {

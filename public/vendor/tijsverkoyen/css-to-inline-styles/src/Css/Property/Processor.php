@@ -23,8 +23,6 @@ class Processor
 
         for ($i = 0; $i < $numberOfProperties; $i++) {
             $properties[$i] = trim($properties[$i]);
-
-            // if the new property begins with base64 it is part of the current property
             if (isset($properties[$i + 1]) && strpos(trim($properties[$i + 1]), 'base64,') === 0) {
                 $properties[$i] .= ';' . trim($properties[$i + 1]);
                 $keysToRemove[] = $i + 1;

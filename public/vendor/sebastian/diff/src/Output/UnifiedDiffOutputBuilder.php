@@ -76,9 +76,6 @@ final class UnifiedDiffOutputBuilder extends AbstractChunkOutputBuilder
         $diff = stream_get_contents($buffer, -1, 0);
 
         fclose($buffer);
-
-        // If the diff is non-empty and last char is not a linebreak: add it.
-        // This might happen when both the `from` and `to` do not have a trailing linebreak
         $last = substr($diff, -1);
 
         return 0 !== strlen($diff) && "\n" !== $last && "\r" !== $last
@@ -88,7 +85,6 @@ final class UnifiedDiffOutputBuilder extends AbstractChunkOutputBuilder
 
     private function writeDiffHunks($output, array $diff): void
     {
-        // detect "No newline at end of file" and insert into `$diff` if needed
 
         $upperLimit = count($diff);
 
@@ -99,8 +95,6 @@ final class UnifiedDiffOutputBuilder extends AbstractChunkOutputBuilder
                 array_splice($diff, $upperLimit, 0, [["\n\\ No newline at end of file\n", Differ::NO_LINE_END_EOF_WARNING]]);
             }
         } else {
-            // search back for the last `+` and `-` line,
-            // check if has trailing linebreak, else add under it warning under it
             $toFind = [1 => true, 2 => true];
 
             for ($i = $upperLimit - 1; $i >= 0; --$i) {
@@ -118,8 +112,6 @@ final class UnifiedDiffOutputBuilder extends AbstractChunkOutputBuilder
                 }
             }
         }
-
-        // write hunks to output buffer
 
         $cutOff      = max($this->commonLineThreshold, $this->contextLines);
         $hunkCapture = false;
@@ -145,17 +137,6 @@ final class UnifiedDiffOutputBuilder extends AbstractChunkOutputBuilder
                     $contextStartOffset = ($hunkCapture - $this->contextLines) < 0
                         ? $hunkCapture
                         : $this->contextLines;
-
-                    // note: $contextEndOffset = $this->contextLines;
-                    //
-                    // because we never go beyond the end of the diff.
-                    // with the cutoff/contextlines here the follow is never true;
-                    //
-                    // if ($i - $cutOff + $this->contextLines + 1 > \count($diff)) {
-                    //    $contextEndOffset = count($diff) - 1;
-                    // }
-                    //
-                    // ; that would be true for a trailing incomplete hunk case which is dealt with after this loop
 
                     $this->writeHunk(
                         $diff,
@@ -201,15 +182,9 @@ final class UnifiedDiffOutputBuilder extends AbstractChunkOutputBuilder
             return;
         }
 
-        // we end here when cutoff (commonLineThreshold) was not reached, but we where capturing a hunk,
-        // do not render hunk till end automatically because the number of context lines might be less than the commonLineThreshold
-
         $contextStartOffset = $hunkCapture - $this->contextLines < 0
             ? $hunkCapture
             : $this->contextLines;
-
-        // prevent trying to write out more common lines than there are in the diff _and_
-        // do not write more than configured through the context lines
         $contextEndOffset = min($sameCount, $this->contextLines);
 
         $fromRange -= $sameCount;

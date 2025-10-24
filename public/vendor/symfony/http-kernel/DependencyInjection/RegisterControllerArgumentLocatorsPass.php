@@ -55,8 +55,6 @@ class RegisterControllerArgumentLocatorsPass implements CompilerPassInterface
             $class = $def->getClass();
             $autowire = $def->isAutowired();
             $bindings = $def->getBindings();
-
-            // resolve service class, taking parent definitions into account
             while ($def instanceof ChildDefinition) {
                 $def = $container->findDefinition($def->getParent());
                 $class = $class ?: $def->getClass();
@@ -68,8 +66,6 @@ class RegisterControllerArgumentLocatorsPass implements CompilerPassInterface
                 throw new InvalidArgumentException(sprintf('Class "%s" used for service "%s" cannot be found.', $class, $id));
             }
             $isContainerAware = $r->implementsInterface(ContainerAwareInterface::class) || is_subclass_of($class, AbstractController::class);
-
-            // get regular public methods
             $methods = [];
             $arguments = [];
             foreach ($r->getMethods(\ReflectionMethod::IS_PUBLIC) as $r) {
@@ -80,8 +76,6 @@ class RegisterControllerArgumentLocatorsPass implements CompilerPassInterface
                     $methods[strtolower($r->name)] = [$r, $r->getParameters()];
                 }
             }
-
-            // validate and collect explicit per-actions and per-arguments service references
             foreach ($tags as $attributes) {
                 if (!isset($attributes['action']) && !isset($attributes['argument']) && !isset($attributes['id'])) {
                     $autowire = true;
@@ -115,8 +109,6 @@ class RegisterControllerArgumentLocatorsPass implements CompilerPassInterface
 
             foreach ($methods as [$r, $parameters]) {
                 /** @var \ReflectionMethod $r */
-
-                // create a per-method map of argument-names to service/type-references
                 $args = [];
                 foreach ($parameters as $p) {
                     /** @var \ReflectionParameter $p */
@@ -151,7 +143,6 @@ class RegisterControllerArgumentLocatorsPass implements CompilerPassInterface
                     } elseif (!$type || !$autowire || '\\' !== $target[0]) {
                         continue;
                     } elseif (is_subclass_of($type, \UnitEnum::class)) {
-                        // do not attempt to register enum typed arguments if not already present in bindings
                         continue;
                     } elseif (!$p->allowsNull()) {
                         $invalidBehavior = ContainerInterface::RUNTIME_EXCEPTION_ON_INVALID_REFERENCE;
@@ -163,8 +154,6 @@ class RegisterControllerArgumentLocatorsPass implements CompilerPassInterface
 
                     if ($type && !$p->isOptional() && !$p->allowsNull() && !class_exists($type) && !interface_exists($type, false)) {
                         $message = sprintf('Cannot determine controller argument for "%s::%s()": the $%s argument is type-hinted with the non-existent class or interface: "%s".', $class, $r->name, $p->name, $type);
-
-                        // see if the type-hint lives in the same namespace as the controller
                         if (0 === strncmp($type, $class, strrpos($class, '\\'))) {
                             $message .= ' Did you forget to add a use statement?';
                         }
@@ -178,7 +167,6 @@ class RegisterControllerArgumentLocatorsPass implements CompilerPassInterface
                         $args[$p->name] = $type ? new TypedReference($target, $type, $invalidBehavior, $p->name) : new Reference($target, $invalidBehavior);
                     }
                 }
-                // register the maps as a per-method service-locators
                 if ($args) {
                     $controllers[$id.'::'.$r->name] = ServiceLocatorTagPass::register($container, $args);
 

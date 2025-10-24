@@ -118,7 +118,6 @@ class ChoiceQuestion extends Question
 
         return function ($selected) use ($choices, $errorMessage, $multiselect, $isAssoc) {
             if ($multiselect) {
-                // Check for a separated comma values
                 if (!preg_match('/^[^,]+(?:,[^,]+)*$/', (string) $selected, $matches)) {
                     throw new InvalidArgumentException(sprintf($errorMessage, $selected));
                 }
@@ -162,8 +161,6 @@ class ChoiceQuestion extends Question
                 if (false === $result) {
                     throw new InvalidArgumentException(sprintf($errorMessage, $value));
                 }
-
-                // For associative choices, consistently return the key as string:
                 $multiselectChoices[] = $isAssoc ? (string) $result : $result;
             }
 

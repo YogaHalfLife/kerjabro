@@ -60,7 +60,6 @@ class EntityPopulator
         $columnTypeGuesser = new \Faker\ORM\Propel\ColumnTypeGuesser($generator);
 
         foreach ($tableMap->getColumns() as $columnMap) {
-            // skip behavior columns, handled by modifiers
             if ($this->isColumnBehavior($columnMap)) {
                 continue;
             }

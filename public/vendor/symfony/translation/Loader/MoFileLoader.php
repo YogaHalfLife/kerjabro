@@ -60,15 +60,11 @@ class MoFileLoader extends FileLoader
         } else {
             throw new InvalidResourceException('MO stream content has an invalid format.');
         }
-
-        // formatRevision
         $this->readLong($stream, $isBigEndian);
         $count = $this->readLong($stream, $isBigEndian);
         $offsetId = $this->readLong($stream, $isBigEndian);
         $offsetTranslated = $this->readLong($stream, $isBigEndian);
-        // sizeHashes
         $this->readLong($stream, $isBigEndian);
-        // offsetHashes
         $this->readLong($stream, $isBigEndian);
 
         $messages = [];

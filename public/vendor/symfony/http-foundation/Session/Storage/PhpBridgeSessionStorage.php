@@ -49,13 +49,9 @@ class PhpBridgeSessionStorage extends NativeSessionStorage
      */
     public function clear()
     {
-        // clear out the bags and nothing else that may be set
-        // since the purpose of this driver is to share a handler
         foreach ($this->bags as $bag) {
             $bag->clear();
         }
-
-        // reconnect the bags to the session
         $this->loadSession();
     }
 }

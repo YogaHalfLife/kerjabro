@@ -17,13 +17,8 @@
           <?php endif ?>
         </div>
         <?php
-          // Do nothing if there's no line to work off
           if ($line !== null):
-
-          // the $line is 1-indexed, we nab -1 where needed to account for this
           $range = $frame->getFileLines($line - 20, 40);
-
-          // getFileLines can return null if there is no source code
           if ($range):
             $range = array_map(function ($line) { return empty($line) ? ' ' : $line;}, $range);
             $start = key($range) + 1;
@@ -48,7 +43,6 @@
         <?php endif ?>
 
         <?php
-          // Append comments for this frame
           $comments = $frame->getComments();
         ?>
         <div class="frame-comments <?php echo empty($comments) ? 'empty' : '' ?>">

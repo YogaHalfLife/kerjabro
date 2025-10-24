@@ -238,6 +238,5 @@ class AliasLoader
      */
     private function __clone()
     {
-        //
     }
 }

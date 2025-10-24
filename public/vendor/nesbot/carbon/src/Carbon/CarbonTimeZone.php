@@ -195,15 +195,11 @@ class CarbonTimeZone extends DateTimeZone
         }
 
         $date = $date ?: Carbon::now($this);
-
-        // Integer construction no longer supported since PHP 8
-        // @codeCoverageIgnoreStart
         try {
             $offset = @$this->getOffset($date) ?: 0;
         } catch (Throwable $e) {
             $offset = 0;
         }
-        // @codeCoverageIgnoreEnd
 
         $name = @timezone_name_from_abbr('', $offset, $isDst);
 

@@ -6,7 +6,6 @@ class Payment extends \Faker\Provider\Payment
 {
     public function bankAccountNumber()
     {
-        // Length between 5 and 17, biased towards center
         $length = self::numberBetween(0, 3) + self::numberBetween(0, 3) + self::numberBetween(0, 3) + self::numberBetween(0, 3) + 5;
 
         return self::numerify(str_repeat('#', $length));

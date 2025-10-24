@@ -118,12 +118,7 @@ class ProcessForker extends AbstractListener
         if ($pid < 0) {
             throw new \RuntimeException('Unable to start execution loop');
         } elseif ($pid > 0) {
-            // This is the main thread. We'll just wait for a while.
-
-            // We won't be needing this one.
             \fclose($up);
-
-            // Wait for a return value from the loop process.
             $read = [$down];
             $write = null;
             $except = null;
@@ -155,19 +150,12 @@ class ProcessForker extends AbstractListener
 
             throw new BreakException('Exiting main thread');
         }
-
-        // This is the child process. It's going to do all the work.
         if (!@\cli_set_process_title('psysh (loop)')) {
-            // Fall back to `setproctitle` if that wasn't succesful.
             if (\function_exists('setproctitle')) {
                 @\setproctitle('psysh (loop)');
             }
         }
-
-        // We won't be needing this one.
         \fclose($down);
-
-        // Save this; we'll need to close it in `afterRun`
         $this->up = $up;
     }
 
@@ -188,7 +176,6 @@ class ProcessForker extends AbstractListener
      */
     public function afterLoop(Shell $shell)
     {
-        // if there's an old savegame hanging around, let's kill it.
         if (isset($this->savegame)) {
             \posix_kill($this->savegame, \SIGKILL);
             \pcntl_signal_dispatch();
@@ -203,7 +190,6 @@ class ProcessForker extends AbstractListener
      */
     public function afterRun(Shell $shell)
     {
-        // We're a child thread. Send the scope variables back up to the main thread.
         if (isset($this->up)) {
             \fwrite($this->up, $this->serializeReturn($shell->getScopeVariables(false)));
             \fclose($this->up);
@@ -221,22 +207,16 @@ class ProcessForker extends AbstractListener
      */
     private function createSavegame()
     {
-        // the current process will become the savegame
         $this->savegame = \posix_getpid();
 
         $pid = \pcntl_fork();
         if ($pid < 0) {
             throw new \RuntimeException('Unable to create savegame fork');
         } elseif ($pid > 0) {
-            // we're the savegame now... let's wait and see what happens
             \pcntl_waitpid($pid, $status);
-
-            // worker exited cleanly, let's bail
             if (!\pcntl_wexitstatus($status)) {
                 \posix_kill(\posix_getpid(), \SIGKILL);
             }
-
-            // worker didn't exit cleanly, we'll need to have another go
             $this->createSavegame();
         }
     }
@@ -258,18 +238,14 @@ class ProcessForker extends AbstractListener
         $serializable = [];
 
         foreach ($return as $key => $value) {
-            // No need to return magic variables
             if (Context::isSpecialVariableName($key)) {
                 continue;
             }
-
-            // Resources and Closures don't error, but they don't serialize well either.
             if (\is_resource($value) || $value instanceof \Closure) {
                 continue;
             }
 
             if (\version_compare(\PHP_VERSION, '8.1', '>=') && $value instanceof \UnitEnum) {
-                // Enums defined in the REPL session can't be unserialized.
                 $ref = new \ReflectionObject($value);
                 if (\strpos($ref->getFileName(), ": eval()'d code") !== false) {
                     continue;
@@ -280,7 +256,6 @@ class ProcessForker extends AbstractListener
                 @\serialize($value);
                 $serializable[$key] = $value;
             } catch (\Throwable $e) {
-                // we'll just ignore this one...
             }
         }
 

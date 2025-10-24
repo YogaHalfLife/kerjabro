@@ -28,7 +28,6 @@ final class NullOutputFormatterStyle implements OutputFormatterStyleInterface
      */
     public function setBackground(string $color = null): void
     {
-        // do nothing
     }
 
     /**
@@ -36,7 +35,6 @@ final class NullOutputFormatterStyle implements OutputFormatterStyleInterface
      */
     public function setForeground(string $color = null): void
     {
-        // do nothing
     }
 
     /**
@@ -44,7 +42,6 @@ final class NullOutputFormatterStyle implements OutputFormatterStyleInterface
      */
     public function setOption(string $option): void
     {
-        // do nothing
     }
 
     /**
@@ -52,7 +49,6 @@ final class NullOutputFormatterStyle implements OutputFormatterStyleInterface
      */
     public function setOptions(array $options): void
     {
-        // do nothing
     }
 
     /**
@@ -60,6 +56,5 @@ final class NullOutputFormatterStyle implements OutputFormatterStyleInterface
      */
     public function unsetOption(string $option): void
     {
-        // do nothing
     }
 }

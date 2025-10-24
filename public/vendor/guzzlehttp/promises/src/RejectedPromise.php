@@ -27,7 +27,6 @@ class RejectedPromise implements PromiseInterface
         callable $onFulfilled = null,
         callable $onRejected = null
     ) {
-        // If there's no onRejected callback then just return self.
         if (!$onRejected) {
             return $this;
         }
@@ -38,13 +37,10 @@ class RejectedPromise implements PromiseInterface
         $queue->add(static function () use ($p, $reason, $onRejected) {
             if (Is::pending($p)) {
                 try {
-                    // Return a resolved promise if onRejected does not throw.
                     $p->resolve($onRejected($reason));
                 } catch (\Throwable $e) {
-                    // onRejected threw, so return a rejected promise.
                     $p->reject($e);
                 } catch (\Exception $e) {
-                    // onRejected threw, so return a rejected promise.
                     $p->reject($e);
                 }
             }
@@ -86,6 +82,5 @@ class RejectedPromise implements PromiseInterface
 
     public function cancel()
     {
-        // pass
     }
 }

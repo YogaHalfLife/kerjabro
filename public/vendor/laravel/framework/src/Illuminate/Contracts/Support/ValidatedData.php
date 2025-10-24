@@ -7,5 +7,4 @@ use IteratorAggregate;
 
 interface ValidatedData extends Arrayable, ArrayAccess, IteratorAggregate
 {
-    //
 }

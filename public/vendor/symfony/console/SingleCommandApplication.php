@@ -51,11 +51,8 @@ class SingleCommandApplication extends Command
         if ($this->running) {
             return parent::run($input, $output);
         }
-
-        // We use the command name as the application name
         $application = new Application($this->getName() ?: 'UNKNOWN', $this->version);
         $application->setAutoExit($this->autoExit);
-        // Fix the usage of the command displayed with "--help"
         $this->setName($_SERVER['argv'][0]);
         $application->add($this);
         $application->setDefaultCommand($this->getName(), true);

@@ -57,8 +57,6 @@ class EntityPopulator
         $columnTypeGuesser = new \Faker\ORM\Mandango\ColumnTypeGuesser($generator);
 
         $metadata = $mandango->getMetadata($this->class);
-
-        // fields
         foreach ($metadata['fields'] as $fieldName => $field) {
             if ($formatter = $nameGuesser->guessFormat($fieldName)) {
                 $formatters[$fieldName] = $formatter;
@@ -72,8 +70,6 @@ class EntityPopulator
                 continue;
             }
         }
-
-        // references
         foreach (array_merge($metadata['referencesOne'], $metadata['referencesMany']) as $referenceName => $reference) {
             if (!isset($reference['class'])) {
                 continue;

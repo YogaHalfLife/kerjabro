@@ -103,8 +103,6 @@ class OrderingComparison extends TypeSafeMatcher
         return new self($value, 0, 1);
     }
 
-    // -- Private Methods
-
     private function _compare($left, $right)
     {
         $a = $left;

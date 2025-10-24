@@ -32,8 +32,6 @@ class LocalPart extends PartParser
 
             if ($this->lexer->token['type'] === EmailLexer::S_DQUOTE) {
                 $dquoteParsingResult = $this->parseDoubleQuote();
-
-                //Invalid double quote parsing
                 if($dquoteParsingResult->isInvalid()) {
                     return $dquoteParsingResult;
                 }
@@ -42,8 +40,6 @@ class LocalPart extends PartParser
             if ($this->lexer->token['type'] === EmailLexer::S_OPENPARENTHESIS || 
                 $this->lexer->token['type'] === EmailLexer::S_CLOSEPARENTHESIS ) {
                 $commentsResult = $this->parseComments();
-
-                //Invalid comment parsing
                 if($commentsResult->isInvalid()) {
                     return $commentsResult;
                 }
@@ -146,7 +142,6 @@ class LocalPart extends PartParser
 
     private function validateEscaping() : Result
     {
-        //Backslash found
         if ($this->lexer->token['type'] !== EmailLexer::S_BACKSLASH) {
             return new ValidEmail();
         }

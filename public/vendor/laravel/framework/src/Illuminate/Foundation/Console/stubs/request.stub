@@ -24,7 +24,6 @@ class {{ class }} extends FormRequest
     public function rules()
     {
         return [
-            //
         ];
     }
 }

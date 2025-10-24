@@ -63,24 +63,14 @@ class GenericTimeConverter implements TimeConverterInterface
     public function calculateTime(string $seconds, string $microseconds): Hexadecimal
     {
         $timestamp = new Time($seconds, $microseconds);
-
-        // Convert the seconds into a count of 100-nanosecond intervals.
         $sec = $this->calculator->multiply(
             $timestamp->getSeconds(),
             new IntegerObject(self::SECOND_INTERVALS)
         );
-
-        // Convert the microseconds into a count of 100-nanosecond intervals.
         $usec = $this->calculator->multiply(
             $timestamp->getMicroseconds(),
             new IntegerObject(self::MICROSECOND_INTERVALS)
         );
-
-        // Combine the seconds and microseconds intervals and add the count of
-        // 100-nanosecond intervals from the Gregorian calendar epoch to the
-        // Unix epoch. This gives us the correct count of 100-nanosecond
-        // intervals since the Gregorian calendar epoch for the given seconds
-        // and microseconds.
         /** @var IntegerObject $uuidTime */
         $uuidTime = $this->calculator->add(
             $sec,
@@ -100,16 +90,10 @@ class GenericTimeConverter implements TimeConverterInterface
 
     public function convertTime(Hexadecimal $uuidTimestamp): Time
     {
-        // From the total, subtract the number of 100-nanosecond intervals from
-        // the Gregorian calendar epoch to the Unix epoch. This gives us the
-        // number of 100-nanosecond intervals from the Unix epoch, which also
-        // includes the microtime.
         $epochNanoseconds = $this->calculator->subtract(
             $this->calculator->toInteger($uuidTimestamp),
             new IntegerObject(self::GREGORIAN_TO_UNIX_INTERVALS)
         );
-
-        // Convert the 100-nanosecond intervals into seconds and microseconds.
         $unixTimestamp = $this->calculator->divide(
             RoundingMode::HALF_UP,
             6,

@@ -549,7 +549,6 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
     {
         try {
             $class = new ReflectionClass($this);
-            // @codeCoverageIgnoreStart
         } catch (ReflectionException $e) {
             throw new Exception(
                 $e->getMessage(),
@@ -557,7 +556,6 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
                 $e
             );
         }
-        // @codeCoverageIgnoreEnd
 
         $buffer = sprintf(
             '%s::%s',
@@ -595,7 +593,6 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
      */
     public function expectException(string $exception): void
     {
-        // @codeCoverageIgnoreStart
         switch ($exception) {
             case Deprecated::class:
                 $this->addWarning('Support for using expectException() with PHPUnit\Framework\Error\Deprecated is deprecated and will be removed in PHPUnit 10. Use expectDeprecation() instead.');
@@ -617,7 +614,6 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
 
             break;
         }
-        // @codeCoverageIgnoreEnd
 
         $this->expectedException = $exception;
     }
@@ -771,7 +767,6 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
 
             try {
                 $class = new ReflectionClass($this);
-                // @codeCoverageIgnoreStart
             } catch (ReflectionException $e) {
                 throw new Exception(
                     $e->getMessage(),
@@ -779,7 +774,6 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
                     $e
                 );
             }
-            // @codeCoverageIgnoreEnd
 
             if ($runEntireClass) {
                 $template = new Template(
@@ -853,8 +847,6 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
             $includePath                = var_export(get_include_path(), true);
             $codeCoverageFilter         = var_export(serialize($codeCoverageFilter), true);
             $codeCoverageCacheDirectory = var_export(serialize($codeCoverageCacheDirectory), true);
-            // must do these fixes because TestCaseMethod.tpl has unserialize('{data}') in it, and we can't break BC
-            // the lines above used to use addcslashes() rather than var_export(), which breaks null byte escape sequences
             $data                       = "'." . $data . ".'";
             $dataName                   = "'.(" . $dataName . ").'";
             $dependencyInput            = "'." . $dependencyInput . ".'";
@@ -1188,9 +1180,6 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
 
         $this->mockObjects = [];
         $this->prophet     = null;
-
-        // Tear down the fixture. An exception raised in tearDown() will be
-        // caught and passed on when no exception was raised before.
         try {
             if ($hasMetRequirements) {
                 foreach ($hookMethods['after'] as $method) {
@@ -1229,8 +1218,6 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
         $this->cleanupIniSettings();
         $this->cleanupLocaleSettings();
         libxml_clear_errors();
-
-        // Perform assertion on output.
         if (!isset($e)) {
             try {
                 if ($this->outputExpectedRegex !== null) {
@@ -1242,8 +1229,6 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
                 $e = $_e;
             }
         }
-
-        // Workaround for missing "finally".
         if (isset($e)) {
             if ($e instanceof PredictionException) {
                 $e = new AssertionFailedError($e->getMessage());
@@ -1750,7 +1735,6 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
     {
         try {
             $reflector = new ReflectionClass($originalClassName);
-            // @codeCoverageIgnoreStart
         } catch (ReflectionException $e) {
             throw new Exception(
                 $e->getMessage(),
@@ -1758,7 +1742,6 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
                 $e
             );
         }
-        // @codeCoverageIgnoreEnd
 
         $mockedMethodsThatDontExist = array_filter(
             $methods,
@@ -2255,7 +2238,6 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
                     $this->createGlobalStateSnapshot($this->backupGlobals === true)
                 );
             } catch (RiskyTestError $rte) {
-                // Intentionally left empty
             }
         }
 
@@ -2507,7 +2489,6 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
         if (is_string($this->expectedException)) {
             try {
                 $reflector = new ReflectionClass($this->expectedException);
-                // @codeCoverageIgnoreStart
             } catch (ReflectionException $e) {
                 throw new Exception(
                     $e->getMessage(),
@@ -2515,7 +2496,6 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
                     $e
                 );
             }
-            // @codeCoverageIgnoreEnd
 
             if ($this->expectedException === 'PHPUnit\Framework\Exception' ||
                 $this->expectedException === '\PHPUnit\Framework\Exception' ||

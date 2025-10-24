@@ -54,18 +54,11 @@ class Libedit extends GNUReadline
         if (!$history) {
             return [];
         }
-
-        // libedit doesn't seem to support non-unix line separators.
         $history = \explode("\n", $history);
-
-        // remove history signature if it exists
         if ($history[0] === '_HiStOrY_V2_') {
             \array_shift($history);
         }
-
-        // decode the line
         $history = \array_map([$this, 'parseHistoryLine'], $history);
-        // filter empty lines & comments
         return \array_values(\array_filter($history));
     }
 
@@ -75,11 +68,6 @@ class Libedit extends GNUReadline
     public function writeHistory(): bool
     {
         $res = parent::writeHistory();
-
-        // Libedit apparently refuses to save history if the history file is not
-        // owned by the user, even if it is writable. Warn when this happens.
-        //
-        // See https://github.com/bobthecow/psysh/issues/552
         if ($res === false && !$this->hasWarnedOwnership) {
             if (\is_file($this->historyFile) && \is_writable($this->historyFile)) {
                 $this->hasWarnedOwnership = true;
@@ -103,12 +91,9 @@ class Libedit extends GNUReadline
      */
     protected function parseHistoryLine(string $line)
     {
-        // empty line, comment or timestamp
         if (!$line || $line[0] === "\0") {
             return;
         }
-        // if "\0" is found in an entry, then
-        // everything from it until the end of line is a comment.
         if (($pos = \strpos($line, "\0")) !== false) {
             $line = \substr($line, 0, $pos);
         }

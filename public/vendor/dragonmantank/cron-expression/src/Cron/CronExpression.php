@@ -412,8 +412,6 @@ class CronExpression
 
         Assert::isInstanceOf($currentTime, DateTime::class);
         $currentTime->setTimezone(new DateTimeZone($timeZone));
-
-        // drop the seconds to 0
         $currentTime->setTime((int) $currentTime->format('H'), (int) $currentTime->format('i'), 0);
 
         try {
@@ -454,7 +452,6 @@ class CronExpression
 
         Assert::isInstanceOf($currentDate, DateTime::class);
         $currentDate->setTimezone(new DateTimeZone($timeZone));
-        // Workaround for setTime causing an offset change: https://bugs.php.net/bug.php?id=81074
         $currentDate = DateTime::createFromFormat("!Y-m-d H:iO", $currentDate->format("Y-m-d H:iP"), $currentDate->getTimezone());
         if ($currentDate === false) {
             throw new \RuntimeException('Unable to create date from format');
@@ -462,8 +459,6 @@ class CronExpression
         $currentDate->setTimezone(new DateTimeZone($timeZone));
 
         $nextRun = clone $currentDate;
-
-        // We don't have to satisfy * or null fields
         $parts = [];
         $fields = [];
         foreach (self::$order as $position) {
@@ -503,14 +498,10 @@ class CronExpression
 
             return $combined[$nth];
         }
-
-        // Set a hard limit to bail on an impossible date
         for ($i = 0; $i < $this->maxIterationCount; ++$i) {
             foreach ($parts as $position => $part) {
                 $satisfied = false;
-                // Get the field object used to validate this part
                 $field = $fields[$position];
-                // Check if this is singular or a list
                 if (false === strpos($part, ',')) {
                     $satisfied = $field->isSatisfiedBy($nextRun, $part, $invert);
                 } else {
@@ -522,16 +513,12 @@ class CronExpression
                         }
                     }
                 }
-
-                // If the field is not satisfied, then start over
                 if (!$satisfied) {
                     $field->increment($nextRun, $invert, $part);
 
                     continue 2;
                 }
             }
-
-            // Skip this match if needed
             if ((!$allowCurrentDate && $nextRun == $currentDate) || --$nth > -1) {
                 $this->fieldFactory->getField(self::MINUTE)->increment($nextRun, $invert, $parts[self::MINUTE] ?? null);
                 continue;
@@ -539,10 +526,7 @@ class CronExpression
 
             return $nextRun;
         }
-
-        // @codeCoverageIgnoreStart
         throw new RuntimeException('Impossible CRON expression');
-        // @codeCoverageIgnoreEnd
     }
 
     /**

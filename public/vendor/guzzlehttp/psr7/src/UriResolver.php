@@ -39,11 +39,8 @@ final class UriResolver
         $newPath = implode('/', $results);
 
         if ($path[0] === '/' && (!isset($newPath[0]) || $newPath[0] !== '/')) {
-            // Re-add the leading slash if necessary for cases like "/.."
             $newPath = '/' . $newPath;
         } elseif ($newPath !== '' && ($segment === '.' || $segment === '..')) {
-            // Add the trailing slash if necessary
-            // If newPath is not empty, then $segment must be set and is the last segment from the foreach
             $newPath .= '/';
         }
 
@@ -58,7 +55,6 @@ final class UriResolver
     public static function resolve(UriInterface $base, UriInterface $rel): UriInterface
     {
         if ((string) $rel === '') {
-            // we can simply return the same base URI instance for this same-document reference
             return $base;
         }
 
@@ -134,19 +130,12 @@ final class UriResolver
         }
 
         if (Uri::isRelativePathReference($target)) {
-            // As the target is already highly relative we return it as-is. It would be possible to resolve
-            // the target with `$target = self::resolve($base, $target);` and then try make it more relative
-            // by removing a duplicate query. But let's not do that automatically.
             return $target;
         }
 
         if ($target->getAuthority() !== '' && $base->getAuthority() !== $target->getAuthority()) {
             return $target->withScheme('');
         }
-
-        // We must remove the path before removing the authority because if the path starts with two slashes, the URI
-        // would turn invalid. And we also cannot set a relative path before removing the authority, as that is also
-        // invalid.
         $emptyPathUri = $target->withScheme('')->withPath('')->withUserInfo('')->withPort(null)->withHost('');
 
         if ($base->getPath() !== $target->getPath()) {
@@ -154,12 +143,8 @@ final class UriResolver
         }
 
         if ($base->getQuery() === $target->getQuery()) {
-            // Only the target fragment is left. And it must be returned even if base and target fragment are the same.
             return $emptyPathUri->withQuery('');
         }
-
-        // If the base URI has a query but the target has none, we cannot return an empty path reference as it would
-        // inherit the base query component when resolving.
         if ($target->getQuery() === '') {
             $segments = explode('/', $target->getPath());
             /** @var string $lastSegment */
@@ -186,15 +171,10 @@ final class UriResolver
         }
         $targetSegments[] = $targetLastSegment;
         $relativePath = str_repeat('../', count($sourceSegments)) . implode('/', $targetSegments);
-
-        // A reference to am empty last segment or an empty first sub-segment must be prefixed with "./".
-        // This also applies to a segment with a colon character (e.g., "file:colon") that cannot be used
-        // as the first segment of a relative-path reference, as it would be mistaken for a scheme name.
         if ('' === $relativePath || false !== strpos(explode('/', $relativePath, 2)[0], ':')) {
             $relativePath = "./$relativePath";
         } elseif ('/' === $relativePath[0]) {
             if ($base->getAuthority() != '' && $base->getPath() === '') {
-                // In this case an extra slash is added by resolve() automatically. So we must not add one here.
                 $relativePath = ".$relativePath";
             } else {
                 $relativePath = "./$relativePath";
@@ -206,6 +186,5 @@ final class UriResolver
 
     private function __construct()
     {
-        // cannot be instantiated
     }
 }

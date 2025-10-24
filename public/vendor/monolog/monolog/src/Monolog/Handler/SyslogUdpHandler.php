@@ -118,8 +118,6 @@ class SyslogUdpHandler extends AbstractSyslogHandler
         }
 
         if ($this->rfc === self::RFC3164) {
-            // see https://github.com/phpstan/phpstan/issues/5348
-            // @phpstan-ignore-next-line
             $dateNew = $datetime->setTimezone(new \DateTimeZone('UTC'));
             $date = $dateNew->format($this->dateFormats[$this->rfc]);
 

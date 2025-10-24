@@ -30,7 +30,6 @@ use League\CommonMark\Extension\CommonMark\Node\Block\HtmlBlock;
  */
 final class RegexHelper
 {
-    // Partial regular expressions (wrap with `/` on each side and add the case-insensitive `i` flag before use)
     public const PARTIAL_ENTITY                = '&(?:#x[a-f0-9]{1,6}|#[0-9]{1,7}|[a-z][a-z0-9]{1,31});';
     public const PARTIAL_ESCAPABLE             = '[!"#$%&\'()*+,.\/:;<=>?@[\\\\\]^_`{|}~-]';
     public const PARTIAL_ESCAPED_CHAR          = '\\\\' . self::PARTIAL_ESCAPABLE;
@@ -108,8 +107,6 @@ final class RegexHelper
         if (! \preg_match($regex, $string, $matches, \PREG_OFFSET_CAPTURE)) {
             return null;
         }
-
-        // PREG_OFFSET_CAPTURE always returns the byte offset, not the char offset, which is annoying
         $charPos = \mb_strlen(\mb_strcut($string, 0, $matches[0][1], 'utf-8'), 'utf-8');
 
         return $offset + $charPos;

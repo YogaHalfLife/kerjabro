@@ -27,7 +27,6 @@ class CliDumper extends AbstractDumper
     protected $colors;
     protected $maxStringWidth = 0;
     protected $styles = [
-        // See http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
         'default' => '0;38;5;208',
         'num' => '1;38;5;38',
         'const' => '1;38;5;208',
@@ -69,7 +68,6 @@ class CliDumper extends AbstractDumper
         parent::__construct($output, $charset, $flags);
 
         if ('\\' === \DIRECTORY_SEPARATOR && !$this->isWindowsTrueColor()) {
-            // Use only the base 16 xterm colors when using ANSICON or standard Windows 10 CLI
             $this->setStyles([
                 'default' => '31',
                 'num' => '1;34',
@@ -365,7 +363,6 @@ class CliDumper extends AbstractDumper
                         break;
                     }
                     $style = 'index';
-                    // no break
                 case Cursor::HASH_ASSOC:
                     if (\is_int($key)) {
                         $this->line .= $this->style($style, $key).' => ';
@@ -376,7 +373,6 @@ class CliDumper extends AbstractDumper
 
                 case Cursor::HASH_RESOURCE:
                     $key = "\0~\0".$key;
-                    // no break
                 case Cursor::HASH_OBJECT:
                     if (!isset($key[0]) || "\0" !== $key[0]) {
                         $this->line .= '+'.$bin.$this->style('public', $key).': ';
@@ -416,7 +412,6 @@ class CliDumper extends AbstractDumper
 
                         $this->line .= $bin.$this->style($style, $key[1], $attr).($attr['separator'] ?? ': ');
                     } else {
-                        // This case should not happen
                         $this->line .= '-'.$bin.'"'.$this->style('private', $key, ['class' => '']).'": ';
                     }
                     break;
@@ -584,8 +579,6 @@ class CliDumper extends AbstractDumper
         if (!\is_resource($stream) || 'stream' !== get_resource_type($stream)) {
             return false;
         }
-
-        // Follow https://no-color.org/
         if (isset($_SERVER['NO_COLOR']) || false !== getenv('NO_COLOR')) {
             return false;
         }

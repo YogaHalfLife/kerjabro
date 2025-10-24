@@ -3,7 +3,6 @@
   var isWindows = navigator.platform.indexOf('Win') > -1 ? true : false;
 
   if (isWindows) {
-    // if we are on windows OS we activate the perfectScrollbar function
     if (document.getElementsByClassName('main-content')[0]) {
       var mainpanel = document.querySelector('.main-content');
       var ps = new PerfectScrollbar(mainpanel);
@@ -32,41 +31,28 @@ if(document.getElementById('alert')) {
         alertDiv.remove();
     }, 5000);
 }
-
-// Verify navbar blur on scroll
 if (document.getElementById('navbarBlur')) {
   navbarBlurOnScroll('navbarBlur');
 }
-
-// initialization of Tooltips
 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
 var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
   return new bootstrap.Tooltip(tooltipTriggerEl)
 })
-
-
-// when input is focused add focused class for style
 window.focused = function(el) {
   if (el.parentElement.classList.contains('input-group')) {
     el.parentElement.classList.add('focused');
   }
 }
-
-// when input is focused remove focused class for style
 window.defocused = function(el) {
   if (el.parentElement.classList.contains('input-group')) {
     el.parentElement.classList.remove('focused');
   }
 }
-
-// helper for adding on all elements multiple attributes
 function setAttributes(el, options) {
   Object.keys(options).forEach(function(attr) {
     el.setAttribute(attr, options[attr]);
   })
 }
-
-// adding on inputs attributes for calling the focused and defocused functions
 if (document.querySelectorAll('.input-group').length != 0) {
   var allInputs = document.querySelectorAll('input.form-control');
   allInputs.forEach(el => setAttributes(el, {
@@ -74,8 +60,6 @@ if (document.querySelectorAll('.input-group').length != 0) {
     "onfocusout": "defocused(this)"
   }));
 }
-
-// Fixed Plugin
 if (document.querySelector('.fixed-plugin')) {
   var fixedPlugin = document.querySelector('.fixed-plugin');
   var fixedPluginButton = document.querySelector('.fixed-plugin-button');
@@ -124,8 +108,6 @@ if (document.querySelector('.fixed-plugin')) {
   }
 
 }
-
-//Set Sidebar Color
 window.sidebarColor = function(a) {
   var parent = a.parentElement.children;
   var color = a.getAttribute("data-color");
@@ -150,8 +132,6 @@ window.sidebarColor = function(a) {
     sidenavCard.classList.add(...sidenavCardClasses);
   }
 }
-
-// Set Sidebar Type
 window.sidebarType = function(a) {
   var parent = a.parentElement.children;
   var color = a.getAttribute("data-class");
@@ -179,9 +159,6 @@ window.sidebarType = function(a) {
   }
 
   sidebar.classList.add(color);
-
-
-  // Remove text-white/text-dark classes
   if (color == 'bg-white') {
     var textWhites = document.querySelectorAll('.sidenav .text-white');
     for (let i = 0; i < textWhites.length; i++) {
@@ -203,8 +180,6 @@ window.sidebarType = function(a) {
       textDarks[i].classList.remove('text-dark');
     }
   }
-
-  // Remove logo-white/logo-dark
 
   if ((color == 'bg-white') && bodyWhite) {
     var navbarBrand = document.querySelector('.navbar-brand-img');
@@ -233,8 +208,6 @@ window.sidebarType = function(a) {
     }
   }
 }
-
-// Set Navbar Fixed
 window.navbarFixed = function(el) {
   let classes = ['position-sticky', 'bg-white', 'left-auto', 'top-2', 'z-index-sticky'];
   const navbar = document.getElementById('navbarBlur');
@@ -253,8 +226,6 @@ window.navbarFixed = function(el) {
     el.removeAttribute("checked");
   }
 };
-
-// Set Navbar Minimized
 window.navbarMinimize = function(el) {
   var sidenavShow = document.getElementsByClassName('g-sidenav-show')[0];
 
@@ -293,9 +264,6 @@ window.toggleNavLinksColor = function(type) {
     });
   }
 }
-
-
-// Navbar blur on scroll
 function navbarBlurOnScroll(id) {
   const navbar = document.getElementById(id);
   let navbarScrollActive = navbar ? navbar.getAttribute("data-scroll") : false;
@@ -350,13 +318,6 @@ function navbarBlurOnScroll(id) {
     toggleNavLinksColor('transparent');
   }
 }
-
-
-// Debounce Function
-// Returns a function, that, as long as it continues to be invoked, will not
-// be triggered. The function will be called after it stops being called for
-// N milliseconds. If `immediate` is passed, trigger the function on the
-// leading edge, instead of the trailing.
 function debounce(func, wait, immediate) {
   var timeout;
   return function() {
@@ -372,8 +333,6 @@ function debounce(func, wait, immediate) {
     if (callNow) func.apply(context, args);
   };
 };
-
-// Toggle Sidenav
 const iconNavbarSidenav = document.getElementById('iconNavbarSidenav');
 const iconSidenav = document.getElementById('iconSidenav');
 const sidenav = document.getElementById('sidenav-main');
@@ -412,8 +371,6 @@ html.addEventListener("click", function(e) {
   }
 });
 
-// Resize navbar color depends on configurator active type of sidenav
-
 let referenceButtons = document.querySelector('[data-class]');
 
 window.addEventListener("resize", navbarColorOnResize);
@@ -430,8 +387,6 @@ function navbarColorOnResize() {
     sidenav.classList.remove('bg-transparent');
   }
 }
-
-// Deactivate sidenav type buttons on resize and small screens
 window.addEventListener("resize", sidenavTypeOnResize);
 window.addEventListener("load", sidenavTypeOnResize);
 
@@ -447,9 +402,6 @@ function sidenavTypeOnResize() {
     });
   }
 }
-
-
-// Tabs navigation
 
 var total = document.querySelectorAll('.nav-pills');
 
@@ -496,9 +448,6 @@ total.forEach(function(item, i) {
     }
   }
 });
-
-
-// Tabs navigation resize
 
 window.addEventListener('resize', function(event) {
   total.forEach(function(item, i) {
@@ -560,10 +509,6 @@ function getEventTarget(e) {
   e = e || window.event;
   return e.target || e.srcElement;
 }
-
-// End tabs navigation
-
-// Light Mode / Dark Mode
 window.darkMode = function(el) {
   const body = document.getElementsByTagName('body')[0];
   const hr = document.querySelectorAll('div:not(.sidenav) > hr');

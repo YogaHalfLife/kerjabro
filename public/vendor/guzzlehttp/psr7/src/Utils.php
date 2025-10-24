@@ -166,7 +166,6 @@ final class Utils
         if (!isset($changes['uri'])) {
             $uri = $request->getUri();
         } else {
-            // Remove the host header if one is on the URI
             if ($host = $changes['uri']->getHost()) {
                 $changes['set_headers']['Host'] = $host;
 
@@ -240,7 +239,6 @@ final class Utils
                 return $buffer;
             }
             $buffer .= $byte;
-            // Break when a new line is found or the max length - 1 is reached
             if ($byte === "\n" || ++$size === $maxLength - 1) {
                 break;
             }

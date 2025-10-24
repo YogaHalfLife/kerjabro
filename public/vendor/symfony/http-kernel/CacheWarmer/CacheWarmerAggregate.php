@@ -65,7 +65,6 @@ class CacheWarmerAggregate implements CacheWarmerInterface
                 }
 
                 $backtrace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 3);
-                // Clean the trace by removing first frames added by the error handler itself.
                 for ($i = 0; isset($backtrace[$i]); ++$i) {
                     if (isset($backtrace[$i]['file'], $backtrace[$i]['line']) && $backtrace[$i]['line'] === $line && $backtrace[$i]['file'] === $file) {
                         $backtrace = \array_slice($backtrace, 1 + $i);

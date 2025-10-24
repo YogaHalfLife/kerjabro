@@ -94,7 +94,6 @@ class SMimePart extends AbstractPart
 
     public function __sleep(): array
     {
-        // convert iterables to strings for serialization
         if (is_iterable($this->body)) {
             $this->body = $this->bodyToString();
         }

@@ -219,7 +219,6 @@ class EventFake implements Dispatcher
      */
     public function push($event, $payload = [])
     {
-        //
     }
 
     /**
@@ -241,7 +240,6 @@ class EventFake implements Dispatcher
      */
     public function flush($event)
     {
-        //
     }
 
     /**
@@ -293,7 +291,6 @@ class EventFake implements Dispatcher
      */
     public function forget($event)
     {
-        //
     }
 
     /**
@@ -303,7 +300,6 @@ class EventFake implements Dispatcher
      */
     public function forgetPushed()
     {
-        //
     }
 
     /**

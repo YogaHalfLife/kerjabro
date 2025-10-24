@@ -92,14 +92,10 @@ abstract class BaseDescription implements Description
         return $this;
     }
 
-    // -- Protected Methods
-
     /**
      * Append the String <var>$str</var> to the description.
      */
     abstract protected function append($str);
-
-    // -- Private Methods
 
     private function _toPhpSyntax($value)
     {

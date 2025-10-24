@@ -103,7 +103,6 @@ class CurlMultiHandler
         $this->_mh = $multiHandle;
 
         foreach ($this->options as $option => $value) {
-            // A warning is raised in case of a wrong option.
             curl_multi_setopt($this->_mh, $option, $value);
         }
 
@@ -140,7 +139,6 @@ class CurlMultiHandler
      */
     public function tick(): void
     {
-        // Add any delayed handles if needed.
         if ($this->delays) {
             $currentTime = Utils::currentTime();
             foreach ($this->delays as $id => $delay) {
@@ -153,13 +151,9 @@ class CurlMultiHandler
                 }
             }
         }
-
-        // Step through the task queue which may add additional requests.
         P\Utils::queue()->run();
 
         if ($this->active && \curl_multi_select($this->_mh, $this->selectTimeout) === -1) {
-            // Perform a usleep if a select returns -1.
-            // See: https://bugs.php.net/bug.php?id=61141
             \usleep(250);
         }
 
@@ -176,7 +170,6 @@ class CurlMultiHandler
         $queue = P\Utils::queue();
 
         while ($this->handles || !$queue->isEmpty()) {
-            // If there are no transfers, then sleep for the next delay
             if (!$this->active && $this->delays) {
                 \usleep($this->timeToNext());
             }
@@ -208,8 +201,6 @@ class CurlMultiHandler
         if (!is_int($id)) {
             trigger_deprecation('guzzlehttp/guzzle', '7.4', 'Not passing an integer to %s::%s() is deprecated and will cause an error in 8.0.', __CLASS__, __FUNCTION__);
         }
-
-        // Cannot cancel if it has been processed.
         if (!isset($this->handles[$id])) {
             return false;
         }
@@ -226,14 +217,12 @@ class CurlMultiHandler
     {
         while ($done = \curl_multi_info_read($this->_mh)) {
             if ($done['msg'] !== \CURLMSG_DONE) {
-                // if it's not done, then it would be premature to remove the handle. ref https://github.com/guzzle/guzzle/pull/2892#issuecomment-945150216
                 continue;
             }
             $id = (int) $done['handle'];
             \curl_multi_remove_handle($this->_mh, $done['handle']);
 
             if (!isset($this->handles[$id])) {
-                // Probably was cancelled.
                 continue;
             }
 

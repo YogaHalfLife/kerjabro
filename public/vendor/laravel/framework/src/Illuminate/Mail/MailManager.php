@@ -109,10 +109,6 @@ class MailManager implements FactoryContract
         if (is_null($config)) {
             throw new InvalidArgumentException("Mailer [{$name}] is not defined.");
         }
-
-        // Once we have created the mailer instance we will set a container instance
-        // on the mailer. This allows us to resolve mailer classes via containers
-        // for maximum testability on said classes instead of passing Closures.
         $mailer = new Mailer(
             $name,
             $this->app['view'],
@@ -123,10 +119,6 @@ class MailManager implements FactoryContract
         if ($this->app->bound('queue')) {
             $mailer->setQueue($this->app['queue']);
         }
-
-        // Next we will set all of the global addresses on this mailer, which allows
-        // for easy unification of all "from" addresses as well as easy debugging
-        // of sent messages since these will be sent to a single email address.
         foreach (['from', 'reply_to', 'to', 'return_path'] as $type) {
             $this->setGlobalAddress($mailer, $config, $type);
         }
@@ -144,9 +136,6 @@ class MailManager implements FactoryContract
      */
     public function createSymfonyTransport(array $config)
     {
-        // Here we will check if the "transport" key exists and if it doesn't we will
-        // assume an application is still using the legacy mail configuration file
-        // format and use the "mail.driver" configuration option instead for BC.
         $transport = $config['transport'] ?? $this->app['config']['mail.driver'];
 
         if (isset($this->customCreators[$transport])) {
@@ -328,10 +317,6 @@ class MailManager implements FactoryContract
             if (is_null($config)) {
                 throw new InvalidArgumentException("Mailer [{$name}] is not defined.");
             }
-
-            // Now, we will check if the "driver" key exists and if it does we will set
-            // the transport configuration parameter in order to offer compatibility
-            // with any Laravel <= 6.x application style mail configuration files.
             $transports[] = $this->app['config']['mail.driver']
                 ? $this->createSymfonyTransport(array_merge($config, ['transport' => $name]))
                 : $this->createSymfonyTransport($config);
@@ -394,9 +379,6 @@ class MailManager implements FactoryContract
      */
     protected function getConfig(string $name)
     {
-        // Here we will check if the "driver" key exists and if it does we will use
-        // the entire mail configuration file as the "driver" config in order to
-        // provide "BC" for any Laravel <= 6.x style mail configuration files.
         return $this->app['config']['mail.driver']
             ? $this->app['config']['mail']
             : $this->app['config']["mail.mailers.{$name}"];
@@ -409,9 +391,6 @@ class MailManager implements FactoryContract
      */
     public function getDefaultDriver()
     {
-        // Here we will check if the "driver" key exists and if it does we will use
-        // that as the default driver in order to provide support for old styles
-        // of the Laravel mail configuration file for backwards compatibility.
         return $this->app['config']['mail.driver'] ??
             $this->app['config']['mail.default'];
     }

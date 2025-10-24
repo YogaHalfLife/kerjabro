@@ -45,7 +45,6 @@ class TemplateHelper
 
     public function __construct()
     {
-        // root path for ordinary composer projects
         $this->applicationRootPath = dirname(dirname(dirname(dirname(dirname(dirname(__DIR__))))));
     }
 
@@ -58,16 +57,9 @@ class TemplateHelper
     public function escape($raw)
     {
         $flags = ENT_QUOTES;
-
-        // HHVM has all constants defined, but only ENT_IGNORE
-        // works at the moment
         if (defined("ENT_SUBSTITUTE") && !defined("HHVM_VERSION")) {
             $flags |= ENT_SUBSTITUTE;
         } else {
-            // This is for 5.3.
-            // The documentation warns of a potential security issue,
-            // but it seems it does not apply in our case, because
-            // we do not blacklist anything anywhere.
             $flags |= ENT_IGNORE;
         }
 
@@ -129,7 +121,6 @@ class TemplateHelper
     {
         if (!$this->htmlDumper && class_exists('Symfony\Component\VarDumper\Cloner\VarCloner')) {
             $this->htmlDumperOutput = new HtmlDumperOutput();
-            // re-use the same var-dumper instance, so it won't re-render the global styles/scripts on each dump.
             $this->htmlDumper = new HtmlDumper($this->htmlDumperOutput);
 
             $styles = [
@@ -163,11 +154,8 @@ class TemplateHelper
         $dumper = $this->getDumper();
 
         if ($dumper) {
-            // re-use the same DumpOutput instance, so it won't re-render the global styles/scripts on each dump.
-            // exclude verbose information (e.g. exception stack traces)
             if (class_exists('Symfony\Component\VarDumper\Caster\Caster')) {
                 $cloneVar = $this->getCloner()->cloneVar($value, Caster::EXCLUDE_VERBOSE);
-                // Symfony VarDumper 2.6 Caster class dont exist.
             } else {
                 $cloneVar = $this->getCloner()->cloneVar($value);
             }
@@ -194,7 +182,6 @@ class TemplateHelper
      */
     public function dumpArgs(Frame $frame)
     {
-        // we support frame args only when the optional dumper is available
         if (!$this->getDumper()) {
             return '';
         }
@@ -237,8 +224,6 @@ class TemplateHelper
     public function render($template, array $additionalVariables = null)
     {
         $variables = $this->getVariables();
-
-        // Pass the helper to the template:
         $variables["tpl"] = $this;
 
         if ($additionalVariables !== null) {

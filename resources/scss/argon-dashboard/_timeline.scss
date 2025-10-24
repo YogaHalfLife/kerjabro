@@ -1,12 +1,7 @@
-//
-// Timeline
-//
 
 
 .timeline {
     position: relative;
-
-    // Axis
 
     &:before {
         content: '';
@@ -17,10 +12,6 @@
         border-right: $timeline-axis-width solid $timeline-axis-color;
     }
 }
-
-
-
-// Timeline blocks
 
 .timeline-block {
     position: relative;
@@ -40,8 +31,6 @@
     }
 }
 
-// Timeline steps
-
 .timeline-step {
     position: absolute;
     display: inline-flex;
@@ -52,7 +41,6 @@
     height: $timeline-step-height;
     border-radius: $timeline-step-radius;
     background: $timeline-step-bg;
-    // border: $timeline-step-border-width solid $timeline-step-border-color;
     text-align: center;
     transform: $timeline-step-transform;
     font-size: $font-size-base;
@@ -63,10 +51,6 @@
         line-height: $timeline-step-line-height;
     }
 }
-
-
-
-// Timeline content and body
 .timeline-content {
     position: relative;
     margin-left: $timeline-content-margin-left;
@@ -103,8 +87,6 @@
         float: right;
     }
 }
-
-// One side timeline
 
 .timeline-one-side {
     &:before {

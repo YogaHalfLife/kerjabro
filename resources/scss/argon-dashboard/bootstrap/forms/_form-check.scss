@@ -1,6 +1,3 @@
-//
-// Check/radio
-//
 
 .form-check {
   display: block;
@@ -33,7 +30,6 @@
   }
 
   &[type="radio"] {
-    // stylelint-disable-next-line property-disallowed-list
     border-radius: $form-check-radio-border-radius;
   }
 
@@ -84,9 +80,6 @@
     filter: none;
     opacity: $form-check-input-disabled-opacity;
   }
-
-  // Use disabled attribute in addition of :disabled pseudo-class
-  // See: https://github.com/twbs/bootstrap/issues/28247
   &[disabled],
   &:disabled {
     ~ .form-check-label {
@@ -99,10 +92,6 @@
   color: $form-check-label-color;
   cursor: $form-check-label-cursor;
 }
-
-//
-// Switch
-//
 
 .form-switch {
   padding-left: $form-switch-padding-start;

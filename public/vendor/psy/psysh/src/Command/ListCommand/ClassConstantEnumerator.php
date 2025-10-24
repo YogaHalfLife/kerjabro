@@ -24,18 +24,12 @@ class ClassConstantEnumerator extends Enumerator
      */
     protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null): array
     {
-        // only list constants when a Reflector is present.
         if ($reflector === null) {
             return [];
         }
-
-        // We can only list constants on actual class (or object) reflectors.
         if (!$reflector instanceof \ReflectionClass) {
-            // @todo handle ReflectionExtension as well
             return [];
         }
-
-        // only list constants if we are specifically asked
         if (!$input->getOption('constants')) {
             return [];
         }
@@ -90,7 +84,6 @@ class ClassConstantEnumerator extends Enumerator
      */
     protected function prepareConstants(array $constants): array
     {
-        // My kingdom for a generator.
         $ret = [];
 
         foreach ($constants as $name => $constant) {

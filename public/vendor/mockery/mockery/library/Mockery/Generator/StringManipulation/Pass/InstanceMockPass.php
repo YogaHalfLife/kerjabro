@@ -41,7 +41,6 @@ class InstanceMockPass
 
         \$directors = \$associatedRealObject->mockery_getExpectations();
         foreach (\$directors as \$method=>\$director) {
-            // get the director method needed
             \$existingDirector = \$this->mockery_getExpectationsFor(\$method);
             if (!\$existingDirector) {
                 \$existingDirector = new \Mockery\ExpectationDirector(\$method, \$this);

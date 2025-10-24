@@ -36,9 +36,6 @@ final class NativeTransportFactory extends AbstractTransportFactory
         if ('\\' !== \DIRECTORY_SEPARATOR) {
             throw new TransportException('sendmail_path is not configured in php.ini.');
         }
-
-        // Only for windows hosts; at this point non-windows
-        // host have already thrown an exception or returned a transport
         $host = ini_get('SMTP');
         $port = (int) ini_get('smtp_port');
 

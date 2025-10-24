@@ -197,7 +197,6 @@ class EntityPopulator
     {
         foreach ($this->columnFormatters as $field => $format) {
             if (null !== $format) {
-                // Add some extended debugging information to any errors thrown by the formatter
                 try {
                     $value = is_callable($format) ? $format($insertedEntities, $obj) : $format;
                 } catch (\InvalidArgumentException $ex) {
@@ -208,7 +207,6 @@ class EntityPopulator
                         $ex->getMessage()
                     ));
                 }
-                // Try a standard setter if it's available, otherwise fall back on reflection
                 $setter = sprintf('set%s', ucfirst($field));
 
                 if (is_callable([$obj, $setter])) {

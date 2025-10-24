@@ -92,6 +92,5 @@ class Authenticate implements AuthenticatesRequests
      */
     protected function redirectTo($request)
     {
-        //
     }
 }

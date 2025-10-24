@@ -38,7 +38,6 @@ class ExplicitOctalEmulator extends TokenEmulator {
     }
 
     public function reverseEmulate(string $code, array $tokens): array {
-        // Explicit octals were not legal code previously, don't bother.
         return $tokens;
     }
 }

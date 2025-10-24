@@ -46,7 +46,6 @@ class InstanceOfPass extends CodeCleanerPass
      */
     public function enterNode(Node $node)
     {
-        // Basically everything is allowed in PHP 7.3 :)
         if ($this->atLeastPhp73) {
             return;
         }

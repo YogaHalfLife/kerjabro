@@ -102,32 +102,17 @@ class Person extends \Faker\Provider\Person
      */
     public static function ssn()
     {
-        // random birth date
         $birthdate = DateTime::dateTimeThisCentury();
-
-        // last four buffer
         $lastFour = null;
-
-        // security variable reference
         $ref = '32765432';
-
-        // valid flag
         $valid = false;
 
         while (!$valid) {
-            // make two random numbers
             $rand = static::randomDigit() . static::randomDigit();
-
-            // 8 char string with birth date and two random numbers
             $tmp = $birthdate->format('dmy') . $rand;
-
-            // loop through temp string
             for ($i = 7, $sum = 0; $i >= 0; --$i) {
-                // calculate security variable
                 $sum += ($tmp[$i] * $ref[$i]);
             }
-
-            // subtract 11 if not 11
             $chk = ($sum % 11 === 0) ? 0 : (11 - ($sum % 11));
 
             if ($chk < 10) {

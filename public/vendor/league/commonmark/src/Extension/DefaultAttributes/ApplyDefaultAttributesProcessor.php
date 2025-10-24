@@ -26,14 +26,11 @@ final class ApplyDefaultAttributesProcessor implements ConfigurationAwareInterfa
     {
         /** @var array<string, array<string, mixed>> $map */
         $map = $this->config->get('default_attributes');
-
-        // Don't bother iterating if no default attributes are configured
         if (! $map) {
             return;
         }
 
         foreach ($event->getDocument()->iterator() as $node) {
-            // Check to see if any default attributes were defined
             if (($attributesToApply = $map[\get_class($node)] ?? []) === []) {
                 continue;
             }
@@ -42,7 +39,6 @@ final class ApplyDefaultAttributesProcessor implements ConfigurationAwareInterfa
             foreach ($attributesToApply as $name => $value) {
                 if (\is_callable($value)) {
                     $value = $value($node);
-                    // Callables are allowed to return `null` indicating that no changes should be made
                     if ($value !== null) {
                         $newAttributes[$name] = $value;
                     }
@@ -50,8 +46,6 @@ final class ApplyDefaultAttributesProcessor implements ConfigurationAwareInterfa
                     $newAttributes[$name] = $value;
                 }
             }
-
-            // Merge these attributes into the node
             if (\count($newAttributes) > 0) {
                 $node->data->set('attributes', AttributesHelper::mergeAttributes($node, $newAttributes));
             }

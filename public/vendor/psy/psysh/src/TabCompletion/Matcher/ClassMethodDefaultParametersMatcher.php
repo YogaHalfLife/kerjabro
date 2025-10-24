@@ -24,7 +24,6 @@ class ClassMethodDefaultParametersMatcher extends AbstractDefaultParametersMatch
         try {
             $reflection = new \ReflectionClass($class);
         } catch (\ReflectionException $e) {
-            // In this case the class apparently does not exist, so we can do nothing
             return [];
         }
 

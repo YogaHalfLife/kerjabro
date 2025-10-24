@@ -26,8 +26,6 @@ class MatchesPattern extends SubstringMatcher
         return new self($pattern);
     }
 
-    // -- Protected Methods
-
     protected function evalSubstringOf($item)
     {
         return preg_match($this->_substring, (string) $item) >= 1;

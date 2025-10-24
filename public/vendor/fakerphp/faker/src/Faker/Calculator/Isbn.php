@@ -23,8 +23,6 @@ class Isbn
      */
     public static function checksum(string $input): string
     {
-        // We're calculating check digit for ISBN-10
-        // so, the length of the input should be 9
         $length = 9;
 
         if (strlen($input) !== $length) {
@@ -39,8 +37,6 @@ class Isbn
             }
         );
         $result = (11 - array_sum($digits) % 11) % 11;
-
-        // 10 is replaced by X
         return ($result < 10) ? (string) $result : 'X';
     }
 

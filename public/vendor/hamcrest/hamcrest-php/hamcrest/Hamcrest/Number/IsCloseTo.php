@@ -58,8 +58,6 @@ class IsCloseTo extends TypeSafeMatcher
         return new self($value, $delta);
     }
 
-    // -- Private Methods
-
     private function _actualDelta($item)
     {
         return (abs(($item - $this->_value)) - $this->_delta);

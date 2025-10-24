@@ -52,8 +52,6 @@ class AutoCompleter
      */
     public function processCallback(string $input, int $index, array $info = []): array
     {
-        // Some (Windows?) systems provide incomplete `readline_info`, so let's
-        // try to work around it.
         $line = $info['line_buffer'];
         if (isset($info['end'])) {
             $line = \substr($line, 0, $info['end']);
@@ -63,12 +61,9 @@ class AutoCompleter
         }
 
         $tokens = \token_get_all('<?php '.$line);
-
-        // remove whitespaces
         $tokens = \array_filter($tokens, function ($token) {
             return !AbstractMatcher::tokenIs($token, AbstractMatcher::T_WHITESPACE);
         });
-        // reset index from 0 to remove missing index number
         $tokens = \array_values($tokens);
 
         $matches = [];
@@ -103,8 +98,6 @@ class AutoCompleter
      */
     public function __destruct()
     {
-        // PHP didn't implement the whole readline API when they first switched
-        // to libedit. And they still haven't.
         if (\function_exists('readline_callback_handler_remove')) {
             \readline_callback_handler_remove();
         }

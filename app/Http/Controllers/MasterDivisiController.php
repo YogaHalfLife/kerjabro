@@ -21,7 +21,6 @@ class MasterDivisiController extends Controller
         return view('master.divisi.index', compact('divisi', 'q'));
     }
 
-    // form create tidak dipakai (form ada di index) -> boleh dihapus
     public function create() {}
 
     public function store(Request $request)
@@ -75,8 +74,7 @@ class MasterDivisiController extends Controller
 
         return redirect()->route('divisi.index')->with('success', 'Divisi berhasil dihapus (soft delete).');
     }
-
-    // Toggle aktif/nonaktif
+    
     public function toggle($id)
     {
         $item = MasterDivisi::findOrFail($id);

@@ -32,18 +32,11 @@ class ViewServiceProvider extends ServiceProvider
     public function registerFactory()
     {
         $this->app->singleton('view', function ($app) {
-            // Next we need to grab the engine resolver instance that will be used by the
-            // environment. The resolver will be used by an environment to get each of
-            // the various engine implementations such as plain PHP or Blade engine.
             $resolver = $app['view.engine.resolver'];
 
             $finder = $app['view.finder'];
 
             $factory = $this->createFactory($resolver, $finder, $app['events']);
-
-            // We will also set the container instance on this view environment since the
-            // view composers may be classes registered in the container, which allows
-            // for great testable, flexible composers for the application developer.
             $factory->setContainer($app);
 
             $factory->share('app', $app);
@@ -104,10 +97,6 @@ class ViewServiceProvider extends ServiceProvider
     {
         $this->app->singleton('view.engine.resolver', function () {
             $resolver = new EngineResolver;
-
-            // Next, we will register the various view engines with the resolver so that the
-            // environment will resolve the engines needed for various views based on the
-            // extension of view file. We call a method for each of the view's engines.
             foreach (['file', 'php', 'blade'] as $engine) {
                 $this->{'register'.ucfirst($engine).'Engine'}($resolver);
             }

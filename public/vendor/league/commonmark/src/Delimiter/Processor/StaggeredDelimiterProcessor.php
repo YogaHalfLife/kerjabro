@@ -92,14 +92,11 @@ final class StaggeredDelimiterProcessor implements DelimiterProcessorInterface
 
     private function findProcessor(int $len): DelimiterProcessorInterface
     {
-        // Find the "longest" processor which can handle this length
         foreach ($this->processors as $processor) {
             if ($processor->getMinLength() <= $len) {
                 return $processor;
             }
         }
-
-        // Just use the first one in our list
         $first = \reset($this->processors);
         \assert($first instanceof DelimiterProcessorInterface);
 

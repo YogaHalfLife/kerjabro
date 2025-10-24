@@ -52,8 +52,6 @@ class IsEqualIgnoringWhiteSpace extends TypeSafeMatcher
         return new self($string);
     }
 
-    // -- Private Methods
-
     private function _stripSpace($string)
     {
         $parts = preg_split("/[\r\n\t ]+/", $string);

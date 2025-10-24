@@ -51,7 +51,6 @@ class DirectoryLoader extends FileLoader
      */
     public function supports(mixed $resource, string $type = null): bool
     {
-        // only when type is forced to directory, not to conflict with AnnotationLoader
 
         return 'directory' === $type;
     }

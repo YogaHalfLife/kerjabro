@@ -60,16 +60,12 @@ class IntrospectionProcessor implements ProcessorInterface
      */
     public function __invoke(array $record): array
     {
-        // return if the level is not high enough
         if ($record['level'] < $this->level) {
             return $record;
         }
 
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-
-        // skip first since it's always the current method
         array_shift($trace);
-        // the call_user_func call is also skipped
         array_shift($trace);
 
         $i = 0;
@@ -93,8 +89,6 @@ class IntrospectionProcessor implements ProcessorInterface
         }
 
         $i += $this->skipStackFramesCount;
-
-        // we should have the call source now
         $record['extra'] = array_merge(
             $record['extra'],
             [

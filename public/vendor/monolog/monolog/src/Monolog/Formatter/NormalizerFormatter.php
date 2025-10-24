@@ -178,7 +178,6 @@ class NormalizerFormatter implements FormatterInterface
                 /** @var string $value */
                 $value = $data->__toString();
             } else {
-                // the rest is normalized by json encoding and decoding it
                 /** @var null|scalar|array<array|scalar|null> $value */
                 $value = json_decode($this->toJson($data, true), true);
             }
@@ -258,8 +257,6 @@ class NormalizerFormatter implements FormatterInterface
      */
     protected function formatDate(\DateTimeInterface $date)
     {
-        // in case the date format isn't custom then we defer to the custom DateTimeImmutable
-        // formatting logic, which will pick the right format based on whether useMicroseconds is on
         if ($this->dateFormat === self::SIMPLE_DATE && $date instanceof DateTimeImmutable) {
             return (string) $date;
         }

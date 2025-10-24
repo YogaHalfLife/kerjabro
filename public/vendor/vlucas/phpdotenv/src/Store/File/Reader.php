@@ -22,7 +22,6 @@ final class Reader
      */
     private function __construct()
     {
-        //
     }
 
     /**

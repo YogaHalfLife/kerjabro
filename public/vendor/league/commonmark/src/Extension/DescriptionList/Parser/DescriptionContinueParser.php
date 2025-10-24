@@ -41,7 +41,6 @@ final class DescriptionContinueParser extends AbstractBlockContinueParser
     {
         if ($cursor->isBlank()) {
             if ($this->block->firstChild() === null) {
-                // Blank line after empty item
                 return BlockContinue::none();
             }
 

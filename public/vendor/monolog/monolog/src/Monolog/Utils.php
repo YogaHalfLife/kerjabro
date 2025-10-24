@@ -51,13 +51,9 @@ final class Utils
             $streamUrl = substr($streamUrl, 7);
             $prefix = 'file://';
         }
-
-        // other type of stream, not supported
         if (false !== strpos($streamUrl, '://')) {
             return $streamUrl;
         }
-
-        // already absolute
         if (substr($streamUrl, 0, 1) === '/' || substr($streamUrl, 1, 1) === ':' || substr($streamUrl, 0, 2) === '\\\\') {
             return $prefix.$streamUrl;
         }
@@ -238,8 +234,6 @@ final class Utils
         if (!is_string($val)) {
             return false;
         }
-
-        // support -1
         if ((int) $val < 0) {
             return (int) $val;
         }
@@ -276,7 +270,6 @@ final class Utils
                 $extra = "\nExtra: " . json_encode($record['extra']);
             }
         } catch (\Throwable $e) {
-            // noop
         }
 
         return "\nThe exception occurred while attempting to log: " . $record['message'] . $context . $extra;

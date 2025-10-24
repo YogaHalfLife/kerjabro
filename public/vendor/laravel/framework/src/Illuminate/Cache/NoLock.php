@@ -31,7 +31,6 @@ class NoLock extends Lock
      */
     public function forceRelease()
     {
-        //
     }
 
     /**

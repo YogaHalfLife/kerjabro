@@ -31,8 +31,6 @@ final class ThematicBreakStartParser implements BlockStartParserInterface
         if ($match === null) {
             return BlockStart::none();
         }
-
-        // Advance to the end of the string, consuming the entire line (of the thematic break)
         $cursor->advanceToEnd();
 
         return BlockStart::of(new ThematicBreakParser())->at($cursor);

@@ -100,7 +100,6 @@ class ClosureStream
     public function stream_stat()
     {
         $stat = stat(__FILE__);
-        // @phpstan-ignore-next-line
         $stat[7] = $stat['size'] = $this->length;
 
         return $stat;
@@ -116,7 +115,6 @@ class ClosureStream
     public function url_stat($path, $flags)
     {
         $stat = stat(__FILE__);
-        // @phpstan-ignore-next-line
         $stat[7] = $stat['size'] = $this->length;
 
         return $stat;

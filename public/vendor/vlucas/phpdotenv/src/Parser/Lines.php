@@ -18,7 +18,6 @@ final class Lines
      */
     private function __construct()
     {
-        //
     }
 
     /**
@@ -58,7 +57,6 @@ final class Lines
      */
     private static function multilineProcess(bool $multiline, string $line, array $buffer)
     {
-        // check if $line can be multiline variable
         if ($started = self::looksLikeMultilineStart($line)) {
             $multiline = true;
         }

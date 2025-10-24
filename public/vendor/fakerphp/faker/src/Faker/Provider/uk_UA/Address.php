@@ -299,13 +299,11 @@ class Address extends \Faker\Provider\Address
 
     public static function citySuffix()
     {
-        // We don't use city suffix
         return '';
     }
 
     public static function streetSuffix()
     {
-        // We don't use street suffix
         return '';
     }
 

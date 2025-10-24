@@ -38,8 +38,6 @@ class MarkdownInput implements MarkdownInputInterface
         if (! \mb_check_encoding($content, 'UTF-8')) {
             throw new UnexpectedEncodingException('Unexpected encoding - UTF-8 or ASCII was expected');
         }
-
-        // Strip any leading UTF-8 BOM
         if (\substr($content, 0, 3) === "\xEF\xBB\xBF") {
             $content = \substr($content, 3);
         }
@@ -89,10 +87,6 @@ class MarkdownInput implements MarkdownInputInterface
         }
 
         $this->lines = $lines;
-
-        // Remove any newline which appears at the very end of the string.
-        // We've already split the document by newlines, so we can simply drop
-        // any empty element which appears on the end.
         if (\end($this->lines) === '') {
             \array_pop($this->lines);
         }

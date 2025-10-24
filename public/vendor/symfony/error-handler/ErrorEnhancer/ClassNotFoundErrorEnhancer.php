@@ -26,7 +26,6 @@ class ClassNotFoundErrorEnhancer implements ErrorEnhancerInterface
      */
     public function enhance(\Throwable $error): ?\Throwable
     {
-        // Some specific versions of PHP produce a fatal error when extending a not found class.
         $message = !$error instanceof FatalError ? $error->getMessage() : $error->getError()['message'];
         if (!preg_match('/^(Class|Interface|Trait) [\'"]([^\'"]+)[\'"] not found$/', $message, $matches)) {
             return null;
@@ -73,15 +72,12 @@ class ClassNotFoundErrorEnhancer implements ErrorEnhancerInterface
         if (!\is_array($functions = spl_autoload_functions())) {
             return [];
         }
-
-        // find Symfony and Composer autoloaders
         $classes = [];
 
         foreach ($functions as $function) {
             if (!\is_array($function)) {
                 continue;
             }
-            // get class loaders wrapped by DebugClassLoader
             if ($function[0] instanceof DebugClassLoader) {
                 $function = $function[0]->getClassLoader();
 
@@ -128,27 +124,17 @@ class ClassNotFoundErrorEnhancer implements ErrorEnhancerInterface
     private function convertFileToClass(string $path, string $file, string $prefix): ?string
     {
         $candidates = [
-            // namespaced class
             $namespacedClass = str_replace([$path.\DIRECTORY_SEPARATOR, '.php', '/'], ['', '', '\\'], $file),
-            // namespaced class (with target dir)
             $prefix.$namespacedClass,
-            // namespaced class (with target dir and separator)
             $prefix.'\\'.$namespacedClass,
-            // PEAR class
             str_replace('\\', '_', $namespacedClass),
-            // PEAR class (with target dir)
             str_replace('\\', '_', $prefix.$namespacedClass),
-            // PEAR class (with target dir and separator)
             str_replace('\\', '_', $prefix.'\\'.$namespacedClass),
         ];
 
         if ($prefix) {
             $candidates = array_filter($candidates, function ($candidate) use ($prefix) { return str_starts_with($candidate, $prefix); });
         }
-
-        // We cannot use the autoloader here as most of them use require; but if the class
-        // is not found, the new autoloader call will require the file again leading to a
-        // "cannot redeclare class" error.
         foreach ($candidates as $candidate) {
             if ($this->classExists($candidate)) {
                 return $candidate;

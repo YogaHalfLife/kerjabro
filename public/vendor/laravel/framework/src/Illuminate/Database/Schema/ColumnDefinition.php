@@ -34,5 +34,4 @@ use Illuminate\Support\Fluent;
  */
 class ColumnDefinition extends Fluent
 {
-    //
 }

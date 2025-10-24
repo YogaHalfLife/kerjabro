@@ -91,7 +91,6 @@ $data = [
 ];
 
 $normalized = $processor->process($schema, $data); // OK, it passes
-// $normalized = {'processRefund' => null, 'refundAmount' => 17}
 ```
 
 The fact that the default value is `null` does not mean that it would be accepted in the input data `'processRefund' => null`. No, the input must be boolean, i.e. only `true` or `false`. We would have to explicitly allow `null` via `Expect::bool()->nullable()`.
@@ -216,10 +215,8 @@ $schema = Expect::structure([
 ]);
 
 $processor->process($schema, ['optional' => '']);
-// ERROR: item 'required' is missing
 
 $processor->process($schema, ['required' => 'foo']);
-// OK, returns {'required' => 'foo', 'optional' => null}
 ```
 
 Although `null` is the default value of the `optional` property, it is not allowed in the input data (the value must be a string). Properties accepting `null` are defined using `nullable()`:
@@ -231,10 +228,8 @@ $schema = Expect::structure([
 ]);
 
 $processor->process($schema, ['optional' => null]);
-// ERROR: 'optional' expects to be string, null given.
 
 $processor->process($schema, ['nullable' => null]);
-// OK, returns {'optional' => null, 'nullable' => null}
 ```
 
 By default, there can be no extra items in the input data:
@@ -245,7 +240,6 @@ $schema = Expect::structure([
 ]);
 
 $processor->process($schema, ['additional' => 1]);
-// ERROR: Unexpected item 'additional'
 ```
 
 Which we can change with `otherItems()`. As a parameter, we will specify the schema for each extra element:
@@ -279,28 +273,24 @@ Ranges: min() max()
 Use `min()` and `max()` to limit the number of elements for arrays:
 
 ```php
-// array, at least 10 items, maximum 20 items
 Expect::array()->min(10)->max(20);
 ```
 
 For strings, limit their length:
 
 ```php
-// string, at least 10 characters long, maximum 20 characters
 Expect::string()->min(10)->max(20);
 ```
 
 For numbers, limit their value:
 
 ```php
-// integer, between 10 and 20 inclusive
 Expect::int()->min(10)->max(20);
 ```
 
 Of course, it is possible to mention only `min()`, or only `max()`:
 
 ```php
-// string, maximum 20 characters
 Expect::string()->max(20);
 ```
 
@@ -311,7 +301,6 @@ Regular Expressions: pattern()
 Using `pattern()`, you can specify a regular expression which the **whole** input string must match (i.e. as if it were wrapped in characters `^` a `$`):
 
 ```php
-// just 9 digits
 Expect::string()->pattern('\d{9}');
 ```
 
@@ -344,7 +333,6 @@ $schema = Expect::arrayOf('string')
 	->assert($countIsEven, 'Even items in array');
 
 $processor->process($schema, ['a', 'b', 'c']);
-// Failed assertion "Even items in array" for item with value array.
 ```
 
 The method can be called repeatedly to add more assertions.
@@ -373,8 +361,6 @@ $data = [
 ];
 
 $normalized = $processor->process($schema, $data);
-// $normalized instanceof Config
-// $normalized = {'name' => 'jeff', 'password' => null, 'admin' => false}
 ```
 
 If you are using PHP 7.4 or higher, you can use native types:
@@ -437,5 +423,4 @@ $schema = Expect::arrayOf('string')
 	->before($explode);
 
 $normalized = $processor->process($schema, 'a b c');
-// OK, returns ['a', 'b', 'c']
 ```

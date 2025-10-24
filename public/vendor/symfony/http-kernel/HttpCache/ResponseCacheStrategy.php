@@ -97,14 +97,9 @@ class ResponseCacheStrategy implements ResponseCacheStrategyInterface
      */
     public function update(Response $response)
     {
-        // if we have no embedded Response, do nothing
         if (0 === $this->embeddedResponses) {
             return;
         }
-
-        // Remove validation related headers of the master response,
-        // because some of the response content comes from at least
-        // one embedded response (which likely has a different caching strategy).
         $response->setEtag(null);
         $response->setLastModified(null);
 
@@ -159,26 +154,17 @@ class ResponseCacheStrategy implements ResponseCacheStrategyInterface
      */
     private function willMakeFinalResponseUncacheable(Response $response): bool
     {
-        // RFC2616: A response received with a status code of 200, 203, 300, 301 or 410
-        // MAY be stored by a cache […] unless a cache-control directive prohibits caching.
         if ($response->headers->hasCacheControlDirective('no-cache')
             || $response->headers->getCacheControlDirective('no-store')
         ) {
             return true;
         }
-
-        // Last-Modified and Etag headers cannot be merged, they render the response uncacheable
-        // by default (except if the response also has max-age etc.).
         if (\in_array($response->getStatusCode(), [200, 203, 300, 301, 410])
             && null === $response->getLastModified()
             && null === $response->getEtag()
         ) {
             return false;
         }
-
-        // RFC2616: A response received with any other status code (e.g. status codes 302 and 307)
-        // MUST NOT be returned in a reply to a subsequent request unless there are
-        // cache-control directives or another header(s) that explicitly allow it.
         $cacheControl = ['max-age', 's-maxage', 'must-revalidate', 'proxy-revalidate', 'public', 'private'];
         foreach ($cacheControl as $key) {
             if ($response->headers->hasCacheControlDirective($key)) {

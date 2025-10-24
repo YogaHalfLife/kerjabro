@@ -38,7 +38,6 @@ class FallbackGroupHandler extends GroupHandler
                 $handler->handle($record);
                 break;
             } catch (Throwable $e) {
-                // What throwable?
             }
         }
 
@@ -64,7 +63,6 @@ class FallbackGroupHandler extends GroupHandler
                 $handler->handleBatch($records);
                 break;
             } catch (Throwable $e) {
-                // What throwable?
             }
         }
     }

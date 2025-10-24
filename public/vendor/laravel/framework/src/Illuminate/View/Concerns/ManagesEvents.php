@@ -93,10 +93,6 @@ trait ManagesEvents
     protected function addClassEvent($view, $class, $prefix)
     {
         $name = $prefix.$view;
-
-        // When registering a class based view "composer", we will simply resolve the
-        // classes from the application IoC container then call the compose method
-        // on the instance. This allows for convenient, testable view composers.
         $callback = $this->buildClassEventCallback(
             $class, $prefix
         );
@@ -116,10 +112,6 @@ trait ManagesEvents
     protected function buildClassEventCallback($class, $prefix)
     {
         [$class, $method] = $this->parseClassEvent($class, $prefix);
-
-        // Once we have the class and method name, we can build the Closure to resolve
-        // the instance out of the IoC container and call the method on it with the
-        // given arguments that are passed to the Closure as the composer's data.
         return function () use ($class, $method) {
             return $this->container->make($class)->{$method}(...func_get_args());
         };

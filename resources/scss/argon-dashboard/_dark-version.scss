@@ -192,15 +192,10 @@
       box-shadow: $dark-version-card-box-shadow;
     }
   }
-
-  // Fullcalendar changes
   .fc-theme-standard td,
   .fc-theme-standard th {
     border-color: $fc-theme-standard-dark-border-color;
   }
-
-
-  // Datatable changes
   .dataTable-sorter::after{
     border-bottom-color: $white;
   }
@@ -208,8 +203,6 @@
   .dataTable-sorter::before{
     border-top-color: $white;
   }
-
-  // Quill changes
   .ql-snow .ql-stroke {
     stroke: $light;
   }

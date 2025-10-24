@@ -56,8 +56,6 @@ class LabelContextPass extends CodeCleanerPass
 
             return;
         }
-
-        // node is inside function context
         if ($this->functionDepth !== 0) {
             return;
         }

@@ -36,8 +36,6 @@ final class BangParser implements InlineParserInterface
 
         $node = new Text('![', ['delim' => true]);
         $inlineContext->getContainer()->appendChild($node);
-
-        // Add entry to stack for this opener
         $delimiter = new Delimiter('!', 1, $node, true, false, $cursor->getPosition());
         $inlineContext->getDelimiterStack()->push($delimiter);
 

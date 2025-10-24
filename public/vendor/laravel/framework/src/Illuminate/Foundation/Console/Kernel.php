@@ -156,7 +156,6 @@ class Kernel implements KernelContract
      */
     protected function schedule(Schedule $schedule)
     {
-        //
     }
 
     /**
@@ -178,7 +177,6 @@ class Kernel implements KernelContract
      */
     protected function commands()
     {
-        //
     }
 
     /**

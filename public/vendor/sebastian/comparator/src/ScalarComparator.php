@@ -35,7 +35,6 @@ class ScalarComparator extends Comparator
     {
         return ((is_scalar($expected) xor null === $expected) &&
                (is_scalar($actual) xor null === $actual))
-               // allow comparison between strings and objects featuring __toString()
                || (is_string($expected) && is_object($actual) && method_exists($actual, '__toString'))
                || (is_object($expected) && method_exists($expected, '__toString') && is_string($actual));
     }
@@ -55,9 +54,6 @@ class ScalarComparator extends Comparator
     {
         $expectedToCompare = $expected;
         $actualToCompare   = $actual;
-
-        // always compare as strings to avoid strange behaviour
-        // otherwise 0 == 'Foobar'
         if (is_string($expected) || is_string($actual)) {
             $expectedToCompare = (string) $expectedToCompare;
             $actualToCompare   = (string) $actualToCompare;
@@ -83,7 +79,6 @@ class ScalarComparator extends Comparator
             throw new ComparisonFailure(
                 $expected,
                 $actual,
-                // no diff is required
                 '',
                 '',
                 false,

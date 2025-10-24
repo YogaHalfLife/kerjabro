@@ -419,10 +419,6 @@ class Gate implements GateContract
         $arguments = Arr::wrap($arguments);
 
         $user = $this->resolveUser();
-
-        // First we will call the "before" callbacks for the Gate. If any of these give
-        // back a non-null response, we will immediately return that result in order
-        // to let the developers override all checks for some authorization cases.
         $result = $this->callBeforeCallbacks(
             $user, $ability, $arguments
         );
@@ -430,10 +426,6 @@ class Gate implements GateContract
         if (is_null($result)) {
             $result = $this->callAuthCallback($user, $ability, $arguments);
         }
-
-        // After calling the authorization callback, we will call the "after" callbacks
-        // that are registered with the Gate, which allows a developer to do logging
-        // if that is required for this application. Then we'll return the result.
         return tap($this->callAfterCallbacks(
             $user, $ability, $arguments, $result
         ), function ($result) use ($user, $ability, $arguments) {
@@ -629,7 +621,6 @@ class Gate implements GateContract
         }
 
         return function () {
-            //
         };
     }
 
@@ -733,16 +724,9 @@ class Gate implements GateContract
         }
 
         return function () use ($user, $ability, $arguments, $policy) {
-            // This callback will be responsible for calling the policy's before method and
-            // running this policy method if necessary. This is used to when objects are
-            // mapped to policy objects in the user's configurations or on this class.
             $result = $this->callPolicyBefore(
                 $policy, $user, $ability, $arguments
             );
-
-            // When we receive a non-null result from this before method, we will return it
-            // as the "final" results. This will allow developers to override the checks
-            // in this policy to return the result for all rules defined in the class.
             if (! is_null($result)) {
                 return $result;
             }
@@ -784,9 +768,6 @@ class Gate implements GateContract
      */
     protected function callPolicyMethod($policy, $method, $user, array $arguments)
     {
-        // If this first argument is a string, that means they are passing a class name
-        // to the policy. We will remove the first argument from this argument array
-        // because this policy already knows what type of models it can authorize.
         if (isset($arguments[0]) && is_string($arguments[0])) {
             array_shift($arguments);
         }

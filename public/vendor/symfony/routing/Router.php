@@ -130,8 +130,6 @@ class Router implements RouterInterface, RequestMatcherInterface
             'resource_type' => null,
             'strict_requirements' => true,
         ];
-
-        // check option names and live merge, if errors are encountered Exception will be thrown
         $invalid = [];
         foreach ($options as $key => $value) {
             if (\array_key_exists($key, $this->options)) {
@@ -240,7 +238,6 @@ class Router implements RouterInterface, RequestMatcherInterface
     {
         $matcher = $this->getMatcher();
         if (!$matcher instanceof RequestMatcherInterface) {
-            // fallback to the default UrlMatcherInterface
             return $matcher->match($request->getPathInfo());
         }
 

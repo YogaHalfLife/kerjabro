@@ -23,12 +23,9 @@ class GlobalVariableEnumerator extends Enumerator
      */
     protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null): array
     {
-        // only list globals when no Reflector is present.
         if ($reflector !== null || $target !== null) {
             return [];
         }
-
-        // only list globals if we are specifically asked
         if (!$input->getOption('globals')) {
             return [];
         }
@@ -73,7 +70,6 @@ class GlobalVariableEnumerator extends Enumerator
      */
     protected function prepareGlobals(array $globals): array
     {
-        // My kingdom for a generator.
         $ret = [];
 
         foreach ($globals as $name => $value) {

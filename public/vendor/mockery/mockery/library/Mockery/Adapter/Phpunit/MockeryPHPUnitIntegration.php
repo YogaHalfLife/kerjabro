@@ -83,7 +83,6 @@ trait MockeryPHPUnitIntegration
     protected function purgeMockeryContainer()
     {
         if ($this->mockeryOpen) {
-            // post conditions wasn't called, so test probably failed
             Mockery::close();
         }
     }

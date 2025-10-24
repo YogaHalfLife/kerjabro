@@ -57,13 +57,9 @@ class StringHandler implements HandlerInterface
         if (!$match) {
             throw new InternalErrorException(sprintf('Should have found at least an empty match at %d.', $reader->getPosition()));
         }
-
-        // check unclosed strings
         if (\strlen($match[0]) === $reader->getRemainingLength()) {
             throw SyntaxErrorException::unclosedString($reader->getPosition() - 1);
         }
-
-        // check quotes pairs validity
         if ($quote !== $reader->getSubstring(1, \strlen($match[0]))) {
             throw SyntaxErrorException::unclosedString($reader->getPosition() - 1);
         }

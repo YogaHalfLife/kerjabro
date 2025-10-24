@@ -67,12 +67,8 @@ If you create an employee with an invalid ID, an exception is thrown:
 
 ```php
 new Employee('foobar');
-// => Webmozart\Assert\InvalidArgumentException:
-//    The employee ID must be an integer. Got: string
 
 new Employee(-10);
-// => Webmozart\Assert\InvalidArgumentException:
-//    The employee ID must be a positive integer. Got: -10
 ```
 
 Assertions

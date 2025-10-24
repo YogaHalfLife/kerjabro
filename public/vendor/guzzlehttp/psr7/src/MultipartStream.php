@@ -70,8 +70,6 @@ final class MultipartStream implements StreamInterface
         foreach ($elements as $element) {
             $this->addElement($stream, $element);
         }
-
-        // Add the trailing boundary with CRLF
         $stream->addStream(Utils::streamFor("--{$this->boundary}--\r\n"));
 
         return $stream;
@@ -108,7 +106,6 @@ final class MultipartStream implements StreamInterface
 
     private function createElement(string $name, StreamInterface $stream, ?string $filename, array $headers): array
     {
-        // Set a default content-disposition header if one was no provided
         $disposition = $this->getHeader($headers, 'content-disposition');
         if (!$disposition) {
             $headers['Content-Disposition'] = ($filename === '0' || $filename)
@@ -119,16 +116,12 @@ final class MultipartStream implements StreamInterface
                 )
                 : "form-data; name=\"{$name}\"";
         }
-
-        // Set a default content-length header if one was no provided
         $length = $this->getHeader($headers, 'content-length');
         if (!$length) {
             if ($length = $stream->getSize()) {
                 $headers['Content-Length'] = (string) $length;
             }
         }
-
-        // Set a default Content-Type if one was not supplied
         $type = $this->getHeader($headers, 'content-type');
         if (!$type && ($filename === '0' || $filename)) {
             if ($type = MimeType::fromFilename($filename)) {

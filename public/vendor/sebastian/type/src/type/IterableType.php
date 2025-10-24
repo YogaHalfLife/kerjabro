@@ -50,14 +50,12 @@ final class IterableType extends Type
 
             try {
                 return (new ReflectionClass($className))->isIterable();
-                // @codeCoverageIgnoreStart
             } catch (ReflectionException $e) {
                 throw new RuntimeException(
                     $e->getMessage(),
                     (int) $e->getCode(),
                     $e
                 );
-                // @codeCoverageIgnoreEnd
             }
         }
 

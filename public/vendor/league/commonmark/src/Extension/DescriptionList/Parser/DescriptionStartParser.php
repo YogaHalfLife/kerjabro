@@ -38,23 +38,18 @@ final class DescriptionStartParser implements BlockStartParserInterface
         $activeBlock = $parserState->getActiveBlockParser()->getBlock();
 
         if ($terms !== null && $terms !== '') {
-            // New description; tight; term(s) sitting in pending block that we will replace
             return BlockStart::of(...[new DescriptionListContinueParser()], ...self::splitTerms($terms), ...[new DescriptionContinueParser(true, $cursor->getPosition())])
                 ->at($cursor)
                 ->replaceActiveBlockParser();
         }
 
         if ($activeBlock instanceof Paragraph && $activeBlock->parent() instanceof Description) {
-            // Additional description in the same list as the parent description
             return BlockStart::of(new DescriptionContinueParser(true, $cursor->getPosition()))->at($cursor);
         }
 
         if ($activeBlock->lastChild() instanceof Paragraph) {
-            // New description; loose; term(s) sitting in previous closed paragraph block
             return BlockStart::of(new DescriptionContinueParser(false, $cursor->getPosition()))->at($cursor);
         }
-
-        // No preceding terms
         return BlockStart::none();
     }
 

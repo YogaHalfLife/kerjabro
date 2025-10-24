@@ -38,7 +38,6 @@ class HttpKernelBrowser extends AbstractBrowser
      */
     public function __construct(HttpKernelInterface $kernel, array $server = [], History $history = null, CookieJar $cookieJar = null)
     {
-        // These class properties must be set before calling the parent constructor, as it may depend on it.
         $this->kernel = $kernel;
         $this->followRedirects = false;
 
@@ -192,7 +191,6 @@ EOF;
      */
     protected function filterResponse(object $response): DomResponse
     {
-        // this is needed to support StreamedResponse
         ob_start();
         $response->sendContent();
         $content = ob_get_clean();

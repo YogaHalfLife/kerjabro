@@ -209,18 +209,10 @@ class PostgresBuilder extends Builder
         $parts = explode('.', $reference);
 
         $database = $this->connection->getConfig('database');
-
-        // If the reference contains a database name, we will use that instead of the
-        // default database name for the connection. This allows the database name
-        // to be specified in the query instead of at the full connection level.
         if (count($parts) === 3) {
             $database = $parts[0];
             array_shift($parts);
         }
-
-        // We will use the default schema unless the schema has been specified in the
-        // query. If the schema has been specified in the query then we can use it
-        // instead of a default schema configured in the connection search path.
         $schema = $searchPath[0];
 
         if (count($parts) === 2) {

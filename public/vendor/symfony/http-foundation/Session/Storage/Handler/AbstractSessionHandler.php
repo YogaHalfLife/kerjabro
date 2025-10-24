@@ -74,7 +74,6 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
 
     public function write(string $sessionId, string $data): bool
     {
-        // see https://github.com/igbinary/igbinary/issues/146
         $this->igbinaryEmptyData ??= \function_exists('igbinary_serialize') ? igbinary_serialize([]) : '';
         if ('' === $data || $this->igbinaryEmptyData === $data) {
             return $this->destroy($sessionId);

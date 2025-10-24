@@ -76,12 +76,6 @@ final class Json
     private static function recursiveSort(&$json): void
     {
         if (!is_array($json)) {
-            // If the object is not empty, change it to an associative array
-            // so we can sort the keys (and we will still re-encode it
-            // correctly, since PHP encodes associative arrays as JSON objects.)
-            // But EMPTY objects MUST remain empty objects. (Otherwise we will
-            // re-encode it as a JSON array rather than a JSON object.)
-            // See #2919.
             if (is_object($json) && count((array) $json) > 0) {
                 $json = (array) $json;
             } else {

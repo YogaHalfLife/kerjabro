@@ -14,9 +14,6 @@ trait HasParameters
      */
     protected function specifyParameters()
     {
-        // We will loop through all of the arguments and options for the command and
-        // set them all on the base command instance. This specifies what can get
-        // passed into these commands as "parameters" to control the execution.
         foreach ($this->getArguments() as $arguments) {
             if ($arguments instanceof InputArgument) {
                 $this->getDefinition()->addArgument($arguments);

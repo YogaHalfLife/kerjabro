@@ -85,8 +85,6 @@ abstract class AbstractSyslogHandler extends AbstractProcessingHandler
             $this->facilities['local6'] = 176; // LOG_LOCAL6
             $this->facilities['local7'] = 184; // LOG_LOCAL7
         }
-
-        // convert textual description of facility to syslog constant
         if (is_string($facility) && array_key_exists(strtolower($facility), $this->facilities)) {
             $facility = $this->facilities[strtolower($facility)];
         } elseif (!in_array($facility, array_values($this->facilities), true)) {

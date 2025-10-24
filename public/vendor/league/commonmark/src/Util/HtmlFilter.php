@@ -18,11 +18,8 @@ namespace League\CommonMark\Util;
  */
 final class HtmlFilter
 {
-    // Return the entire string as-is
     public const ALLOW = 'allow';
-    // Escape the entire string so any HTML/JS won't be interpreted as such
     public const ESCAPE = 'escape';
-    // Return an empty string
     public const STRIP = 'strip';
 
     /**

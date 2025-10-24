@@ -133,8 +133,6 @@ class ShellOutput extends ConsoleOutput
             foreach ($messages as $i => $line) {
                 $messages[$i] = \sprintf($template, $i, $line);
             }
-
-            // clean this up for super.
             $type = $type & ~self::NUMBER_LINES & ~self::OUTPUT_RAW;
         }
 
@@ -182,8 +180,6 @@ class ShellOutput extends ConsoleOutput
         $formatter->setStyle('return', new OutputFormatterStyle('cyan'));
         $formatter->setStyle('urgent', new OutputFormatterStyle('red'));
         $formatter->setStyle('hidden', new OutputFormatterStyle('black'));
-
-        // Visibility
         $formatter->setStyle('public', new OutputFormatterStyle(null, null, ['bold']));
         $formatter->setStyle('protected', new OutputFormatterStyle('yellow'));
         $formatter->setStyle('private', new OutputFormatterStyle('red'));
@@ -192,8 +188,6 @@ class ShellOutput extends ConsoleOutput
         $formatter->setStyle('class', new OutputFormatterStyle('blue', null, ['underscore']));
         $formatter->setStyle('function', new OutputFormatterStyle(null));
         $formatter->setStyle('default', new OutputFormatterStyle(null));
-
-        // Types
         $formatter->setStyle('number', new OutputFormatterStyle('magenta'));
         $formatter->setStyle('integer', new OutputFormatterStyle('magenta'));
         $formatter->setStyle('float', new OutputFormatterStyle('yellow'));
@@ -203,8 +197,6 @@ class ShellOutput extends ConsoleOutput
         $formatter->setStyle('comment', new OutputFormatterStyle('blue'));
         $formatter->setStyle('object', new OutputFormatterStyle('blue'));
         $formatter->setStyle('resource', new OutputFormatterStyle('yellow'));
-
-        // Code-specific formatting
         $formatter->setStyle('inline_html', new OutputFormatterStyle('cyan'));
     }
 }

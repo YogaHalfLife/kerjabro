@@ -51,12 +51,9 @@ final class HtmlBlockStartParser implements BlockStartParserInterface
 
     private function isType7BlockAllowed(Cursor $cursor, MarkdownParserStateInterface $parserState): bool
     {
-        // Type 7 blocks can't interrupt paragraphs
         if ($parserState->getLastMatchedBlockParser()->getBlock() instanceof Paragraph) {
             return false;
         }
-
-        // Even lazy ones
         return ! $parserState->getActiveBlockParser()->canHaveLazyContinuationLines();
     }
 }

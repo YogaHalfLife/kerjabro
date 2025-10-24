@@ -44,7 +44,6 @@ final class ClassHasStaticAttribute extends ClassHasAttribute
             if ($class->hasProperty($this->attributeName())) {
                 return $class->getProperty($this->attributeName())->isStatic();
             }
-            // @codeCoverageIgnoreStart
         } catch (ReflectionException $e) {
             throw new Exception(
                 $e->getMessage(),
@@ -52,7 +51,6 @@ final class ClassHasStaticAttribute extends ClassHasAttribute
                 $e
             );
         }
-        // @codeCoverageIgnoreEnd
 
         return false;
     }

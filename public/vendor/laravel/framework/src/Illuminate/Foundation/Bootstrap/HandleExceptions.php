@@ -164,7 +164,6 @@ class HandleExceptions
 
             $this->getExceptionHandler()->report($e);
         } catch (Exception $e) {
-            //
         }
 
         if (static::$app->runningInConsole()) {

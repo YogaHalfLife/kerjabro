@@ -126,11 +126,6 @@ class DceSecurityGenerator implements DceSecurityGeneratorInterface
         }
 
         $identifierHex = $this->numberConverter->toHex($localIdentifier->toString());
-
-        // The maximum value for the local identifier is 0xffffffff, or
-        // 4294967295. This is 8 hexadecimal digits, so if the length of
-        // hexadecimal digits is greater than 8, we know the value is greater
-        // than 0xffffffff.
         if (strlen($identifierHex) > 8) {
             throw new DceSecurityException(
                 'Local identifier out of bounds; it must be a value between 0 and 4294967295'
@@ -143,15 +138,11 @@ class DceSecurityGenerator implements DceSecurityGeneratorInterface
         if ($node instanceof Hexadecimal) {
             $node = $node->toString();
         }
-
-        // Shift the clock sequence 8 bits to the left, so it matches 0x3f00.
         if ($clockSeq !== null) {
             $clockSeq = $clockSeq << 8;
         }
 
         $bytes = $this->timeGenerator->generate($node, $clockSeq);
-
-        // Replace bytes in the time-based UUID with DCE Security values.
         $bytes = substr_replace($bytes, $identifierBytes, 0, 4);
         $bytes = substr_replace($bytes, $domainByte, 9, 1);
 

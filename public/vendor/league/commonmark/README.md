@@ -33,8 +33,6 @@ $converter = new CommonMarkConverter([
 ]);
 
 echo $converter->convert('# Hello World!');
-
-// <h1>Hello World!</h1>
 ```
 
 Or if you want GitHub-Flavored Markdown, use the `GithubFlavoredMarkdownConverter` class instead:
@@ -48,8 +46,6 @@ $converter = new GithubFlavoredMarkdownConverter([
 ]);
 
 echo $converter->convert('# Hello World!');
-
-// <h1>Hello World!</h1>
 ```
 
 Please note that only UTF-8 and ASCII encodings are supported.  If your Markdown uses a different encoding please convert it to UTF-8 before running it through this library.

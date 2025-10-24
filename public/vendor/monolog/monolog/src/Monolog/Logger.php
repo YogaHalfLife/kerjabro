@@ -295,7 +295,6 @@ class Logger implements LoggerInterface, ResettableInterface
 
         foreach ($this->handlers as $handler) {
             if (null === $record) {
-                // skip creating the record as long as no handler is going to handle it
                 if (!$handler->isHandling(['level' => $level])) {
                     continue;
                 }
@@ -322,8 +321,6 @@ class Logger implements LoggerInterface, ResettableInterface
                     return true;
                 }
             }
-
-            // once the record exists, send it to all handlers as long as the bubbling chain is not interrupted
             try {
                 if (true === $handler->handle($record)) {
                     break;
@@ -424,9 +421,6 @@ class Logger implements LoggerInterface, ResettableInterface
                 /** @phpstan-ignore-next-line */
                 return intval($level);
             }
-
-            // Contains chars of all log levels and avoids using strtoupper() which may have
-            // strange results depending on locale (for example, "i" will become "İ" in Turkish locale)
             $upper = strtr($level, 'abcdefgilmnortuwy', 'ABCDEFGILMNORTUWY');
             if (defined(__CLASS__.'::'.$upper)) {
                 return constant(__CLASS__ . '::' . $upper);

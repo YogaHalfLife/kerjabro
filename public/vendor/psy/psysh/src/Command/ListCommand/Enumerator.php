@@ -22,7 +22,6 @@ use Symfony\Component\Console\Input\InputInterface;
  */
 abstract class Enumerator
 {
-    // Output styles
     const IS_PUBLIC = 'public';
     const IS_PROTECTED = 'protected';
     const IS_PRIVATE = 'private';
@@ -96,7 +95,6 @@ abstract class Enumerator
 
     protected function presentSignature($target)
     {
-        // This might get weird if the signature is actually for a reflector. Hrm.
         if (!$target instanceof \Reflector) {
             $target = Mirror::get($target);
         }

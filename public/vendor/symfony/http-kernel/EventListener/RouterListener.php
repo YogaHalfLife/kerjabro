@@ -95,13 +95,9 @@ class RouterListener implements EventSubscriberInterface
         $this->setCurrentRequest($request);
 
         if ($request->attributes->has('_controller')) {
-            // routing is already done
             return;
         }
-
-        // add attributes based on the request (routing)
         try {
-            // matching a request is more powerful than matching a URL path + context, so try that first
             if ($this->matcher instanceof RequestMatcherInterface) {
                 $parameters = $this->matcher->matchRequest($request);
             } else {

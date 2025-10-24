@@ -21,8 +21,6 @@ final class QpContentEncoder implements ContentEncoderInterface
         if (!\is_resource($stream)) {
             throw new \TypeError(sprintf('Method "%s" takes a stream as a first argument.', __METHOD__));
         }
-
-        // we don't use PHP stream filters here as the content should be small enough
         yield $this->encodeString(stream_get_contents($stream), 'utf-8', 0, $maxLineLength);
     }
 
@@ -41,9 +39,7 @@ final class QpContentEncoder implements ContentEncoderInterface
      */
     private function standardize(string $string): string
     {
-        // transform CR or LF to CRLF
         $string = preg_replace('~=0D(?!=0A)|(?<!=0D)=0A~', '=0D=0A', $string);
-        // transform =0D=0A to CRLF
         $string = str_replace(["\t=0D=0A", ' =0D=0A', '=0D=0A'], ["=09\r\n", "=20\r\n", "\r\n"], $string);
 
         switch (\ord(substr($string, -1))) {

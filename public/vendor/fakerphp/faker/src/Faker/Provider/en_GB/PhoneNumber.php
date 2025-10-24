@@ -27,7 +27,6 @@ class PhoneNumber extends \Faker\Provider\PhoneNumber
      * @var array
      */
     protected static $mobileFormats = [
-        // Local
         '07#########',
         '07### ######',
         '07### ### ###',

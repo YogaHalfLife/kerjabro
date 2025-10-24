@@ -126,7 +126,6 @@ class UrlMatcher implements UrlMatcherInterface, RequestMatcherInterface
      */
     protected function matchCollection(string $pathinfo, RouteCollection $routes): array
     {
-        // HEAD and GET are equivalent as per RFC
         if ('HEAD' === $method = $this->context->getMethod()) {
             $method = 'GET';
         }
@@ -137,8 +136,6 @@ class UrlMatcher implements UrlMatcherInterface, RequestMatcherInterface
             $compiledRoute = $route->compile();
             $staticPrefix = rtrim($compiledRoute->getStaticPrefix(), '/');
             $requiredMethods = $route->getMethods();
-
-            // check the static prefix of the URL first. Only use the more expensive preg_match when it matches
             if ('' !== $staticPrefix && !str_starts_with($trimmedPathinfo, $staticPrefix)) {
                 continue;
             }
@@ -222,7 +219,6 @@ class UrlMatcher implements UrlMatcherInterface, RequestMatcherInterface
      */
     protected function handleRouteRequirements(string $pathinfo, string $name, Route $route): array
     {
-        // expression condition
         if ($route->getCondition() && !$this->getExpressionLanguage()->evaluate($route->getCondition(), ['context' => $this->context, 'request' => $this->request ?: $this->createRequest($pathinfo)])) {
             return [self::REQUIREMENT_MISMATCH, null];
         }

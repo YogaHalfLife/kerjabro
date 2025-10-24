@@ -56,8 +56,6 @@ comparison, which means only the same ``$object`` will match:
     $mock = \Mockery::mock('MyClass');
     $mock->shouldReceive("foo")
         ->with($object);
-
-    // Hamcrest equivalent
     $mock->shouldReceive("foo")
         ->with(identicalTo($object));
 
@@ -83,8 +81,6 @@ that any argument is present, we use ``any()``:
     $mock = \Mockery::mock('MyClass');
     $mock->shouldReceive("foo")
         ->with(\Mockery::any());
-
-    // Hamcrest equivalent
     $mock->shouldReceive("foo")
         ->with(anything())
 
@@ -103,8 +99,6 @@ To match any PHP resource, we could do the following:
     $mock = \Mockery::mock('MyClass');
     $mock->shouldReceive("foo")
         ->with(\Mockery::type('resource'));
-
-    // Hamcrest equivalents
     $mock->shouldReceive("foo")
         ->with(resourceValue());
     $mock->shouldReceive("foo")
@@ -209,8 +203,6 @@ the ``\Mockery::pattern()``:
     $mock = \Mockery::mock('MyClass');
     $mock->shouldReceive('foo')
         ->with(\Mockery::pattern('/^foo/'));
-
-    // Hamcrest equivalent
     $mock->shouldReceive('foo')
         ->with(matchesPattern('/^foo/'));
 
@@ -261,8 +253,6 @@ the matcher's parameter:
     $mock = \Mockery::mock('MyClass');
     $mock->shouldReceive('foo')
         ->with(\Mockery::not(2));
-
-    // Hamcrest equivalent
     $mock->shouldReceive('foo')
         ->with(not(2));
 
@@ -273,8 +263,6 @@ the matcher's parameter:
     $mock = \Mockery::mock('MyClass');
     $mock->shouldReceive('foo')
         ->with(\Mockery::anyOf(1, 2));
-
-    // Hamcrest equivalent
     $mock->shouldReceive('foo')
         ->with(anyOf(1,2));
 

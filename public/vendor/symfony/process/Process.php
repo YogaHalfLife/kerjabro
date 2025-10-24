@@ -42,8 +42,6 @@ class Process implements \IteratorAggregate
     public const STDIN = 0;
     public const STDOUT = 1;
     public const STDERR = 2;
-
-    // Timeout Precision in seconds.
     public const TIMEOUT_PRECISION = 0.2;
 
     public const ITER_NON_BLOCKING = 1; // By default, iterating over outputs is a blocking call, use this flag to make it non-blocking
@@ -96,8 +94,6 @@ class Process implements \IteratorAggregate
         126 => 'Invoked command cannot execute',
         127 => 'Command not found',
         128 => 'Invalid exit argument',
-
-        // signals
         129 => 'Hangup',
         130 => 'Interrupt',
         131 => 'Quit and dump core',
@@ -113,7 +109,6 @@ class Process implements \IteratorAggregate
         141 => 'Write to pipe with no one reading',
         142 => 'Signal raised by alarm',
         143 => 'Termination (request to terminate)',
-        // 144 - not defined
         145 => 'Child process terminated, stopped (or continued*)',
         146 => 'Continue if stopped',
         147 => 'Stop executing temporarily',
@@ -125,9 +120,7 @@ class Process implements \IteratorAggregate
         153 => 'File size limit exceeded',
         154 => 'Signal raised by timer counting virtual time: "virtual timer expired"',
         155 => 'Profiling timer expired',
-        // 156 - not defined
         157 => 'Pollable event',
-        // 158 - not defined
         159 => 'Bad syscall',
     ];
 
@@ -148,11 +141,6 @@ class Process implements \IteratorAggregate
 
         $this->commandline = $command;
         $this->cwd = $cwd;
-
-        // on Windows, if the cwd changed via chdir(), proc_open defaults to the dir where PHP was started
-        // on Gnu/Linux, PHP builds with --enable-maintainer-zts are also affected
-        // @see : https://bugs.php.net/51800
-        // @see : https://bugs.php.net/50524
         if (null === $this->cwd && (\defined('ZEND_THREAD_SAFE') || '\\' === \DIRECTORY_SEPARATOR)) {
             $this->cwd = getcwd();
         }
@@ -311,7 +299,6 @@ class Process implements \IteratorAggregate
             $commandline = implode(' ', array_map([$this, 'escapeArgument'], $commandline));
 
             if ('\\' !== \DIRECTORY_SEPARATOR) {
-                // exec is mandatory to deal with sending a signal to the process
                 $commandline = 'exec '.$commandline;
             }
         } else {
@@ -321,15 +308,9 @@ class Process implements \IteratorAggregate
         if ('\\' === \DIRECTORY_SEPARATOR) {
             $commandline = $this->prepareWindowsCommandLine($commandline, $env);
         } elseif (!$this->useFileHandles && $this->isSigchildEnabled()) {
-            // last exit code is output on the fourth pipe and caught to work around --enable-sigchild
             $descriptors[3] = ['pipe', 'w'];
-
-            // See https://unix.stackexchange.com/questions/71205/background-process-pipe-input
             $commandline = '{ ('.$commandline.') <&3 3<&- 3>/dev/null & } 3<&0;';
             $commandline .= 'pid=$!; echo $pid >&3; wait $pid; code=$?; echo $code >&3; exit $code';
-
-            // Workaround for the bug, when PTS functionality is enabled.
-            // @see : https://bugs.php.net/69442
             $ptsWorkaround = fopen(__FILE__, 'r');
         }
 
@@ -880,15 +861,12 @@ class Process implements \IteratorAggregate
     {
         $timeoutMicro = microtime(true) + $timeout;
         if ($this->isRunning()) {
-            // given SIGTERM may not be defined and that "proc_terminate" uses the constant value and not the constant itself, we use the same here
             $this->doSignal(15, false);
             do {
                 usleep(1000);
             } while ($this->isRunning() && microtime(true) < $timeoutMicro);
 
             if ($this->isRunning()) {
-                // Avoid exception here: process is supposed to be running, but it might have stopped just
-                // after this line. In any case, let's silently discard the error, we cannot do anything.
                 $this->doSignal($signal ?: 9, false);
             }
         }
@@ -1058,8 +1036,6 @@ class Process implements \IteratorAggregate
     public function getWorkingDirectory(): ?string
     {
         if (null === $this->cwd) {
-            // getcwd() will return false if any one of the parent directories does not have
-            // the readable or search mode set, even if the current directory does
             return getcwd() ?: null;
         }
 
@@ -1392,17 +1368,12 @@ class Process implements \IteratorAggregate
 
         if (-1 === $this->exitcode) {
             if ($this->processInformation['signaled'] && 0 < $this->processInformation['termsig']) {
-                // if process has been signaled, no exitcode but a valid termsig, apply Unix convention
                 $this->exitcode = 128 + $this->processInformation['termsig'];
             } elseif ($this->isSigchildEnabled()) {
                 $this->processInformation['signaled'] = true;
                 $this->processInformation['termsig'] = -1;
             }
         }
-
-        // Free memory from self-reference callback created by buildCallback
-        // Doing so in other contexts like __destruct or by garbage collector is ineffective
-        // Now pipes are closed, so the callback is no longer necessary
         $this->callback = null;
 
         return $this->exitcode;

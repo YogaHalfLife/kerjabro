@@ -46,8 +46,6 @@ class ArgvInput extends Input
     public function __construct(array $argv = null, InputDefinition $definition = null)
     {
         $argv = $argv ?? $_SERVER['argv'] ?? [];
-
-        // strip the application name
         array_shift($argv);
 
         $this->tokens = $argv;
@@ -98,7 +96,6 @@ class ArgvInput extends Input
 
         if (\strlen($name) > 1) {
             if ($this->definition->hasShortcut($name[0]) && $this->definition->getOptionForShortcut($name[0])->acceptValue()) {
-                // an option with a value (with no space)
                 $this->addShortOption($name[0], substr($name, 1));
             } else {
                 $this->parseShortOptionSet($name);
@@ -158,18 +155,12 @@ class ArgvInput extends Input
     private function parseArgument(string $token)
     {
         $c = \count($this->arguments);
-
-        // if input is expecting another argument, add it
         if ($this->definition->hasArgument($c)) {
             $arg = $this->definition->getArgument($c);
             $this->arguments[$arg->getName()] = $arg->isArray() ? [$token] : $token;
-
-        // if last argument isArray(), append token to last argument
         } elseif ($this->definition->hasArgument($c - 1) && $this->definition->getArgument($c - 1)->isArray()) {
             $arg = $this->definition->getArgument($c - 1);
             $this->arguments[$arg->getName()][] = $token;
-
-        // unexpected argument
         } else {
             $all = $this->definition->getArguments();
             $symfonyCommandName = null;
@@ -236,8 +227,6 @@ class ArgvInput extends Input
         }
 
         if (\in_array($value, ['', null], true) && $option->acceptValue() && \count($this->parsed)) {
-            // if option accepts an optional or mandatory argument
-            // let's see if there is one provided
             $next = array_shift($this->parsed);
             if ((isset($next[0]) && '-' !== $next[0]) || \in_array($next, ['', null], true)) {
                 $value = $next;
@@ -274,12 +263,8 @@ class ArgvInput extends Input
                 if (str_contains($token, '=') || !isset($this->tokens[$i + 1])) {
                     continue;
                 }
-
-                // If it's a long option, consider that everything after "--" is the option name.
-                // Otherwise, use the last char (if it's a short option set, only the last one can take a value with space separator)
                 $name = '-' === $token[1] ? substr($token, 2) : substr($token, -1);
                 if (!isset($this->options[$name]) && !$this->definition->hasShortcut($name)) {
-                    // noop
                 } elseif ((isset($this->options[$name]) || isset($this->options[$name = $this->definition->shortcutToName($name)])) && $this->tokens[$i + 1] === $this->options[$name]) {
                     $isOption = true;
                 }
@@ -310,9 +295,6 @@ class ArgvInput extends Input
                 return false;
             }
             foreach ($values as $value) {
-                // Options with values:
-                //   For long options, test for '--option=' at beginning
-                //   For short options, test for '-o' at beginning
                 $leading = str_starts_with($value, '--') ? $value.'=' : $value;
                 if ($token === $value || '' !== $leading && str_starts_with($token, $leading)) {
                     return true;
@@ -341,9 +323,6 @@ class ArgvInput extends Input
                 if ($token === $value) {
                     return array_shift($tokens);
                 }
-                // Options with values:
-                //   For long options, test for '--option=' at beginning
-                //   For short options, test for '-o' at beginning
                 $leading = str_starts_with($value, '--') ? $value.'=' : $value;
                 if ('' !== $leading && str_starts_with($token, $leading)) {
                     return substr($token, \strlen($leading));

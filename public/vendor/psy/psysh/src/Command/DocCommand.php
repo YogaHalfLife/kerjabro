@@ -76,8 +76,6 @@ HELP
         if ($output instanceof ShellOutput) {
             $output->startPaging();
         }
-
-        // Maybe include the declaring class
         if ($reflector instanceof \ReflectionMethod || $reflector instanceof \ReflectionProperty) {
             $output->writeln(SignatureFormatter::format($reflector->getDeclaringClass()));
         }
@@ -92,16 +90,12 @@ HELP
         } else {
             $output->writeln($doc);
         }
-
-        // Implicit --all if the original docblock has an {@inheritdoc} tag.
         if ($input->getOption('all') || \stripos($doc, self::INHERIT_DOC_TAG) !== false) {
             $parent = $reflector;
             foreach ($this->getParentReflectors($reflector) as $parent) {
                 $output->writeln('');
                 $output->writeln('---');
                 $output->writeln('');
-
-                // Maybe include the declaring class
                 if ($parent instanceof \ReflectionMethod || $parent instanceof \ReflectionProperty) {
                     $output->writeln(SignatureFormatter::format($parent->getDeclaringClass()));
                 }
@@ -118,8 +112,6 @@ HELP
         if ($output instanceof ShellOutput) {
             $output->stopPaging();
         }
-
-        // Set some magic local variables
         $this->setCommandScopeVariables($reflector);
 
         return 0;
@@ -144,9 +136,6 @@ HELP
 
             case \ReflectionClassConstant::class:
             case ReflectionClassConstant::class:
-                // @todo this is going to collide with ReflectionMethod ids
-                // someday... start running the query by id + type if the DB
-                // supports it.
                 $id = $reflector->class.'::'.$reflector->name;
                 break;
 

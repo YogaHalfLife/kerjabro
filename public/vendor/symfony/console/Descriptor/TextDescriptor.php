@@ -45,7 +45,6 @@ class TextDescriptor extends Descriptor
         $this->writeText(sprintf('  <info>%s</info>  %s%s%s',
             $argument->getName(),
             str_repeat(' ', $spacingWidth),
-            // + 4 = 2 spaces before <info>, 2 spaces after </info>
             preg_replace('/\s*[\r\n]\s*/', "\n".str_repeat(' ', $totalWidth + 4), $argument->getDescription()),
             $default
         ), $options);
@@ -82,7 +81,6 @@ class TextDescriptor extends Descriptor
         $this->writeText(sprintf('  <info>%s</info>  %s%s%s%s',
             $synopsis,
             str_repeat(' ', $spacingWidth),
-            // + 4 = 2 spaces before <info>, 2 spaces after </info>
             preg_replace('/\s*[\r\n]\s*/', "\n".str_repeat(' ', $totalWidth + 4), $option->getDescription()),
             $default,
             $option->isArray() ? '<comment> (multiple values allowed)</comment>' : ''
@@ -200,14 +198,11 @@ class TextDescriptor extends Descriptor
             $commands = $description->getCommands();
             $namespaces = $description->getNamespaces();
             if ($describedNamespace && $namespaces) {
-                // make sure all alias commands are included when describing a specific namespace
                 $describedNamespaceInfo = reset($namespaces);
                 foreach ($describedNamespaceInfo['commands'] as $name) {
                     $commands[$name] = $description->getCommand($name);
                 }
             }
-
-            // calculate max. width based on available commands per namespace
             $width = $this->getColumnWidth(array_merge(...array_values(array_map(function ($namespace) use ($commands) {
                 return array_intersect($namespace['commands'], array_keys($commands));
             }, array_values($namespaces)))));
@@ -321,7 +316,6 @@ class TextDescriptor extends Descriptor
     {
         $totalWidth = 0;
         foreach ($options as $option) {
-            // "-" + shortcut + ", --" + name
             $nameLength = 1 + max(Helper::width($option->getShortcut()), 1) + 4 + Helper::width($option->getName());
             if ($option->isNegatable()) {
                 $nameLength += 6 + Helper::width($option->getName()); // |--no- + name

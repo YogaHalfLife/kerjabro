@@ -121,11 +121,9 @@ class Container
 
         while (count($args) > 0) {
             $arg = array_shift($args);
-            // check for multiple interfaces
             if (is_string($arg)) {
                 foreach (explode('|', $arg) as $type) {
                     if ($arg === 'null') {
-                        // skip PHP 8 'null's
                     } elseif (strpos($type, ',') && !strpos($type, ']')) {
                         $interfaces = explode(',', str_replace(' ', '', $type));
                         $builder->addTargets($interfaces);
@@ -171,7 +169,6 @@ class Container
                 $builder->addTarget($arg);
             } elseif (is_array($arg)) {
                 if (!empty($arg) && array_keys($arg) !== range(0, count($arg) - 1)) {
-                    // if associative array
                     if (array_key_exists(self::BLOCKS, $arg)) {
                         $blocks = $arg[self::BLOCKS];
                     }
@@ -526,7 +523,6 @@ class Container
         if ($pos === 0) {
             $className = substr($className, 1); // remove the first backslash
         }
-        // all the namespaces and class name should match the regex
         $invalidNames = array_filter(explode('\\', $className), function ($name) {
             return !preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $name);
         });

@@ -56,8 +56,6 @@ abstract class TypeSafeMatcher extends BaseMatcher
         }
     }
 
-    // -- Protected Methods
-
     /**
      * The item will already have been checked for the specific type and subtype.
      */
@@ -67,8 +65,6 @@ abstract class TypeSafeMatcher extends BaseMatcher
      * The item will already have been checked for the specific type and subtype.
      */
     abstract protected function describeMismatchSafely($item, Description $mismatchDescription);
-
-    // -- Private Methods
 
     private function _isSafeType($value)
     {

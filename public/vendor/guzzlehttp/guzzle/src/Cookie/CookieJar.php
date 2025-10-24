@@ -159,14 +159,10 @@ class CookieJar implements CookieJarInterface
      */
     public function setCookie(SetCookie $cookie): bool
     {
-        // If the name string is empty (but not 0), ignore the set-cookie
-        // string entirely.
         $name = $cookie->getName();
         if (!$name && $name !== '0') {
             return false;
         }
-
-        // Only allow cookies with set and valid domain, name, value
         $result = $cookie->validate();
         if ($result !== true) {
             if ($this->strictMode) {
@@ -175,40 +171,25 @@ class CookieJar implements CookieJarInterface
             $this->removeCookieIfEmpty($cookie);
             return false;
         }
-
-        // Resolve conflicts with previously set cookies
         foreach ($this->cookies as $i => $c) {
-
-            // Two cookies are identical, when their path, and domain are
-            // identical.
             if ($c->getPath() != $cookie->getPath() ||
                 $c->getDomain() != $cookie->getDomain() ||
                 $c->getName() != $cookie->getName()
             ) {
                 continue;
             }
-
-            // The previously set cookie is a discard cookie and this one is
-            // not so allow the new cookie to be set
             if (!$cookie->getDiscard() && $c->getDiscard()) {
                 unset($this->cookies[$i]);
                 continue;
             }
-
-            // If the new cookie's expiration is further into the future, then
-            // replace the old cookie
             if ($cookie->getExpires() > $c->getExpires()) {
                 unset($this->cookies[$i]);
                 continue;
             }
-
-            // If the value has changed, we better change it
             if ($cookie->getValue() !== $c->getValue()) {
                 unset($this->cookies[$i]);
                 continue;
             }
-
-            // The cookie exists, so no need to continue
             return false;
         }
 

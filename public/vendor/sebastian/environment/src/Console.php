@@ -59,18 +59,14 @@ final class Console
         }
 
         if ($this->isWindows()) {
-            // @codeCoverageIgnoreStart
             return (defined('STDOUT') && function_exists('sapi_windows_vt100_support') && @sapi_windows_vt100_support(STDOUT))
                 || false !== getenv('ANSICON')
                 || 'ON' === getenv('ConEmuANSI')
                 || 'xterm' === getenv('TERM');
-            // @codeCoverageIgnoreEnd
         }
 
         if (!defined('STDOUT')) {
-            // @codeCoverageIgnoreStart
             return false;
-            // @codeCoverageIgnoreEnd
         }
 
         return $this->isInteractive(STDOUT);
@@ -105,12 +101,9 @@ final class Console
     public function isInteractive($fileDescriptor = self::STDOUT): bool
     {
         if (is_resource($fileDescriptor)) {
-            // These functions require a descriptor that is a real resource, not a numeric ID of it
             if (function_exists('stream_isatty') && @stream_isatty($fileDescriptor)) {
                 return true;
             }
-
-            // Check if formatted mode is S_IFCHR
             if (function_exists('fstat') && @stream_isatty($fileDescriptor)) {
                 $stat = @fstat(STDOUT);
 

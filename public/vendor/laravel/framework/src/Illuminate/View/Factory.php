@@ -136,10 +136,6 @@ class Factory implements FactoryContract
         $path = $this->finder->find(
             $view = $this->normalizeName($view)
         );
-
-        // Next, we will create the view instance and call the view creator for the view
-        // which can set any data, etc. Then we will return the view instance back to
-        // the caller for rendering or performing other view manipulations on this.
         $data = array_merge($mergeData, $this->parseData($data));
 
         return tap($this->viewInstance($view, $path, $data), function ($view) {
@@ -214,10 +210,6 @@ class Factory implements FactoryContract
     public function renderEach($view, $data, $iterator, $empty = 'raw|')
     {
         $result = '';
-
-        // If is actually data in the array, we will loop through the data and append
-        // an instance of the partial view to the final result HTML passing in the
-        // iterated value of this data array, allowing the views to access them.
         if (count($data) > 0) {
             foreach ($data as $key => $value) {
                 $result .= $this->make(
@@ -225,10 +217,6 @@ class Factory implements FactoryContract
                 )->render();
             }
         }
-
-        // If there is no data in the array, we will render the contents of the empty
-        // view. Alternatively, the "empty view" could be a raw string that begins
-        // with "raw|" for convenience and to let this know that it is a string.
         else {
             $result = str_starts_with($empty, 'raw|')
                         ? substr($empty, 4)

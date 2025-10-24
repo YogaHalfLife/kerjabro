@@ -104,10 +104,7 @@ class ShellInput extends StringInput
                     \stripcslashes(\substr($input, $cursor)),
                 ];
             } else {
-                // should never happen
-                // @codeCoverageIgnoreStart
                 throw new \InvalidArgumentException(\sprintf('Unable to parse input near "... %s ..."', \substr($input, $cursor, 10)));
-                // @codeCoverageIgnoreEnd
             }
 
             $cursor += \strlen($match[0]);
@@ -124,8 +121,6 @@ class ShellInput extends StringInput
         $parseOptions = true;
         $this->parsed = $this->tokenPairs;
         while (null !== $tokenPair = \array_shift($this->parsed)) {
-            // token is what you'd expect. rest is the remainder of the input
-            // string, including token, and will be used if this is a code arg.
             list($token, $rest) = $tokenPair;
 
             if ($parseOptions && '' === $token) {
@@ -153,14 +148,10 @@ class ShellInput extends StringInput
     private function parseShellArgument(string $token, string $rest)
     {
         $c = \count($this->arguments);
-
-        // if input is expecting another argument, add it
         if ($this->definition->hasArgument($c)) {
             $arg = $this->definition->getArgument($c);
 
             if ($arg instanceof CodeArgument) {
-                // When we find a code argument, we're done parsing. Add the
-                // remaining input to the current argument and call it a day.
                 $this->parsed = [];
                 $this->arguments[$arg->getName()] = $rest;
             } else {
@@ -169,31 +160,19 @@ class ShellInput extends StringInput
 
             return;
         }
-
-        // (copypasta)
-        //
-        // @codeCoverageIgnoreStart
-
-        // if last argument isArray(), append token to last argument
         if ($this->definition->hasArgument($c - 1) && $this->definition->getArgument($c - 1)->isArray()) {
             $arg = $this->definition->getArgument($c - 1);
             $this->arguments[$arg->getName()][] = $token;
 
             return;
         }
-
-        // unexpected argument
         $all = $this->definition->getArguments();
         if (\count($all)) {
             throw new \RuntimeException(\sprintf('Too many arguments, expected arguments "%s".', \implode('" "', \array_keys($all))));
         }
 
         throw new \RuntimeException(\sprintf('No arguments expected, got "%s".', $token));
-        // @codeCoverageIgnoreEnd
     }
-
-    // Everything below this is copypasta from ArgvInput private methods
-    // @codeCoverageIgnoreStart
 
     /**
      * Parses a short option.
@@ -206,7 +185,6 @@ class ShellInput extends StringInput
 
         if (\strlen($name) > 1) {
             if ($this->definition->hasShortcut($name[0]) && $this->definition->getOptionForShortcut($name[0])->acceptValue()) {
-                // an option with a value (with no space)
                 $this->addShortOption($name[0], \substr($name, 1));
             } else {
                 $this->parseShortOptionSet($name);
@@ -299,8 +277,6 @@ class ShellInput extends StringInput
         }
 
         if (\in_array($value, ['', null], true) && $option->acceptValue() && \count($this->parsed)) {
-            // if option accepts an optional or mandatory argument
-            // let's see if there is one provided
             $next = \array_shift($this->parsed);
             $nextToken = $next[0];
             if ((isset($nextToken[0]) && '-' !== $nextToken[0]) || \in_array($nextToken, ['', null], true)) {
@@ -326,6 +302,4 @@ class ShellInput extends StringInput
             $this->options[$name] = $value;
         }
     }
-
-    // @codeCoverageIgnoreEnd
 }

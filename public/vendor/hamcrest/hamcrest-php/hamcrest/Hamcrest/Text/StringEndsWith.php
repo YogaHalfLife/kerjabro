@@ -26,8 +26,6 @@ class StringEndsWith extends SubstringMatcher
         return new self($substring);
     }
 
-    // -- Protected Methods
-
     protected function evalSubstringOf($string)
     {
         return (substr($string, (-1 * strlen($this->_substring))) === $this->_substring);

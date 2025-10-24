@@ -42,7 +42,6 @@ class VarCloner extends AbstractCloner
         $cookie = (object) [];          // Unique object used to detect hard references
         $a = null;                      // Array cast for nested structures
         $stub = null;                   // Stub capturing the main properties of an original item value
-                                        // or null if the original value is used directly
 
         $gid = self::$gid ??= md5(random_bytes(6)); // Unique string used to detect the special $GLOBALS variable
         $arrayStub = new Stub();
@@ -50,7 +49,6 @@ class VarCloner extends AbstractCloner
         $fromObjCast = false;
 
         for ($i = 0; $i < $len; ++$i) {
-            // Detect when we move on to the next tree depth
             if ($i > $currentDepthFinalIndex) {
                 ++$currentDepth;
                 $currentDepthFinalIndex = $len - 1;
@@ -61,7 +59,6 @@ class VarCloner extends AbstractCloner
 
             $refs = $vals = $queue[$i];
             foreach ($vals as $k => $v) {
-                // $v is the original value or a stub object in case of hard references
 
                 $zvalRef = ($r = \ReflectionReference::fromArrayElement($vals, $k)) ? $r->getId() : null;
 
@@ -81,8 +78,6 @@ class VarCloner extends AbstractCloner
                     $vals[$k]->handle = ++$refsCounter;
                     $hardRefs[$zvalRef] = $vals[$k];
                 }
-                // Create $stub when the original value $v cannot be used directly
-                // If $v is a nested structure, put that structure in array $a
                 switch (true) {
                     case null === $v:
                     case \is_bool($v):
@@ -138,9 +133,6 @@ class VarCloner extends AbstractCloner
                                 break;
                             }
                         }
-
-                        // Copies of $GLOBALS have very strange behavior,
-                        // let's detect them with some black magic
                         if (isset($v[$gid])) {
                             unset($v[$gid]);
                             $a = [];

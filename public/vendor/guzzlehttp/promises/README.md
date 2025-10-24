@@ -48,11 +48,9 @@ use GuzzleHttp\Promise\Promise;
 
 $promise = new Promise();
 $promise->then(
-    // $onFulfilled
     function ($value) {
         echo 'The promise was fulfilled.';
     },
-    // $onRejected
     function ($reason) {
         echo 'The promise was rejected.';
     }
@@ -78,17 +76,11 @@ use GuzzleHttp\Promise\Promise;
 $promise = new Promise();
 $promise
     ->then(function ($value) {
-        // Return a value and don't break the chain
         return "Hello, " . $value;
     })
-    // This then is executed after the first then and receives the value
-    // returned from the first then.
     ->then(function ($value) {
         echo $value;
     });
-
-// Resolving the promise triggers the $onFulfilled callbacks and outputs
-// "Hello, reader."
 $promise->resolve('reader.');
 ```
 
@@ -116,10 +108,7 @@ $promise
     ->then(function ($value) {
         echo $value;
     });
-
-// Triggers the first callback and outputs "A"
 $promise->resolve('A');
-// Triggers the second callback and outputs "B"
 $nextPromise->resolve('B');
 ```
 
@@ -137,7 +126,6 @@ $promise->then(null, function ($reason) {
 });
 
 $promise->reject('Error!');
-// Outputs "Error!"
 ```
 
 ## Rejection forwarding
@@ -209,8 +197,6 @@ of the promise is called.
 $promise = new Promise(function () use (&$promise) {
     $promise->resolve('foo');
 });
-
-// Calling wait will return the value of the promise.
 echo $promise->wait(); // outputs "foo"
 ```
 
@@ -262,8 +248,6 @@ by passing `false` to the first argument of the `wait` function:
 ```php
 $promise = new Promise();
 $promise->reject('foo');
-// This will not throw an exception. It simply ensures the promise has
-// been resolved.
 $promise->wait(false);
 ```
 
@@ -302,8 +286,6 @@ $promise = new Promise(
         $promise->resolve('waited');
     },
     function () {
-        // do something that will cancel the promise computation (e.g., close
-        // a socket, cancel a database query, etc...)
     }
 );
 
@@ -358,8 +340,6 @@ fulfilled.
 use GuzzleHttp\Promise\FulfilledPromise;
 
 $promise = new FulfilledPromise('value');
-
-// Fulfilled callbacks are immediately invoked.
 $promise->then(function ($value) {
     echo $value;
 });
@@ -375,8 +355,6 @@ rejected.
 use GuzzleHttp\Promise\RejectedPromise;
 
 $promise = new RejectedPromise('Error');
-
-// Rejected callbacks are immediately invoked.
 $promise->then(null, function ($reason) {
     echo $reason;
 });
@@ -391,15 +369,10 @@ for example. When a foreign promise is returned inside of a then method
 callback, promise resolution will occur recursively.
 
 ```php
-// Create a React promise
 $deferred = new React\Promise\Deferred();
 $reactPromise = $deferred->promise();
-
-// Create a Guzzle promise that is fulfilled with a React promise.
 $guzzlePromise = new GuzzleHttp\Promise\Promise();
 $guzzlePromise->then(function ($value) use ($reactPromise) {
-    // Do something something with the value...
-    // Return the React promise
     return $reactPromise;
 });
 ```
@@ -422,7 +395,6 @@ You can run the task queue using the `run()` method of the global task queue
 instance.
 
 ```php
-// Get the global task queue
 $queue = GuzzleHttp\Promise\Utils::queue();
 $queue->run();
 ```
@@ -456,7 +428,6 @@ $p = $parent;
 
 for ($i = 0; $i < 1000; $i++) {
     $p = $p->then(function ($v) {
-        // The stack size remains constant (a good thing)
         echo xdebug_get_stack_depth() . ', ';
         return $v + 1;
     });
@@ -497,9 +468,7 @@ deferred, it is a small price to pay for keeping the stack size constant.
 ```php
 $promise = new Promise();
 $promise->then(function ($value) { echo $value; });
-// The promise is the deferred value, so you can deliver a value to it.
 $promise->resolve('foo');
-// prints "foo"
 ```
 
 

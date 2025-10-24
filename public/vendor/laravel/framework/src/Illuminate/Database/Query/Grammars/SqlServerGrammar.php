@@ -40,10 +40,6 @@ class SqlServerGrammar extends Grammar
         if (! empty($components['orders'])) {
             return parent::compileSelect($query)." offset {$query->offset} rows fetch next {$query->limit} rows only";
         }
-
-        // If an offset is present on the query, we will need to wrap the query in
-        // a big "ANSI" offset syntax block. This is very nasty compared to the
-        // other database systems but is necessary for implementing features.
         return $this->compileAnsiOffset(
             $query, $components
         );
@@ -63,10 +59,6 @@ class SqlServerGrammar extends Grammar
         }
 
         $select = $query->distinct ? 'select distinct ' : 'select ';
-
-        // If there is a limit on the query, but not an offset, we will add the top
-        // clause to the query, which serves as a "limit" type clause within the
-        // SQL Server system similar to the limit keywords available in MySQL.
         if (is_numeric($query->limit) && $query->limit > 0 && $query->offset <= 0) {
             $select .= 'top '.((int) $query->limit).' ';
         }
@@ -219,16 +211,9 @@ class SqlServerGrammar extends Grammar
      */
     protected function compileAnsiOffset(Builder $query, $components)
     {
-        // An ORDER BY clause is required to make this offset query work, so if one does
-        // not exist we'll just create a dummy clause to trick the database and so it
-        // does not complain about the queries for not having an "order by" clause.
         if (empty($components['orders'])) {
             $components['orders'] = 'order by (select 0)';
         }
-
-        // We need to add the row number to the query so we can compare it to the offset
-        // and limit values given for the statements. So we will add an expression to
-        // the "select" that will give back the row numbers on each of the records.
         $components['columns'] .= $this->compileOver($components['orders']);
 
         unset($components['orders']);
@@ -236,10 +221,6 @@ class SqlServerGrammar extends Grammar
         if ($this->queryOrderContainsSubquery($query)) {
             $query->bindings = $this->sortBindingsForSubqueryOrderBy($query);
         }
-
-        // Next we need to calculate the constraints that should be placed on the query
-        // to get the right offset and limit from our query but if there is no limit
-        // set we will just handle the offset only since that is all that matters.
         $sql = $this->concatenate($components);
 
         return $this->compileTableExpression($sql, $query);

@@ -82,10 +82,7 @@ final class ProgressBar
         }
 
         if (!$this->output->isDecorated()) {
-            // disable overwrite when output does not support ANSI codes.
             $this->overwrite = false;
-
-            // set a reasonable redraw frequency so output isn't flooded
             $this->redrawFreq = null;
         }
 
@@ -349,20 +346,14 @@ final class ProgressBar
         $this->step = $step;
         $this->percent = $this->max ? (float) $this->step / $this->max : 0;
         $timeInterval = microtime(true) - $this->lastWriteTime;
-
-        // Draw regardless of other limits
         if ($this->max === $step) {
             $this->display();
 
             return;
         }
-
-        // Throttling
         if ($timeInterval < $this->minSecondsBetweenRedraws) {
             return;
         }
-
-        // Draw each step period, but not too late
         if ($prevPeriod !== $currPeriod || $timeInterval >= $this->maxSecondsBetweenRedraws) {
             $this->display();
         }
@@ -385,7 +376,6 @@ final class ProgressBar
         }
 
         if ($this->step === $this->max && !$this->overwrite) {
-            // prevent double 100% output
             return;
         }
 
@@ -430,7 +420,6 @@ final class ProgressBar
 
     private function setRealFormat(string $format)
     {
-        // try to use the _nomax variant if available
         if (!$this->max && null !== self::getFormatDefinition($format.'_nomax')) {
             $this->format = self::getFormatDefinition($format.'_nomax');
         } elseif (null !== self::getFormatDefinition($format)) {
@@ -490,7 +479,6 @@ final class ProgressBar
     private function determineBestFormat(): string
     {
         switch ($this->output->getVerbosity()) {
-            // OutputInterface::VERBOSITY_QUIET: display is disabled anyway
             case OutputInterface::VERBOSITY_VERBOSE:
                 return $this->max ? self::FORMAT_VERBOSE : self::FORMAT_VERBOSE_NOMAX;
             case OutputInterface::VERBOSITY_VERY_VERBOSE:
@@ -585,8 +573,6 @@ final class ProgressBar
             return $text;
         };
         $line = preg_replace_callback($regex, $callback, $this->format);
-
-        // gets string length for each sub line with multiline format
         $linesLength = array_map(function ($subLine) {
             return Helper::width(Helper::removeDecoration($this->output->getFormatter(), rtrim($subLine, "\r")));
         }, explode("\n", $line));

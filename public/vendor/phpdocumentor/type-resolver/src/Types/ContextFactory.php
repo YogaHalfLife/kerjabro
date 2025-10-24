@@ -80,7 +80,6 @@ final class ContextFactory
     public function createFromReflector(Reflector $reflector): Context
     {
         if ($reflector instanceof ReflectionClass) {
-            //phpcs:ignore SlevomatCodingStandard.Commenting.InlineDocCommentDeclaration.MissingVariable
             /** @var ReflectionClass<object> $reflector */
 
             return $this->createFromReflectionClass($reflector);
@@ -131,7 +130,6 @@ final class ContextFactory
 
     private function createFromReflectionClassConstant(ReflectionClassConstant $constant): Context
     {
-        //phpcs:ignore SlevomatCodingStandard.Commenting.InlineDocCommentDeclaration.MissingVariable
         /** @phpstan-var ReflectionClass<object> $class */
         $class = $constant->getDeclaringClass();
 
@@ -181,9 +179,6 @@ final class ContextFactory
                     $currentNamespace = $this->parseNamespace($tokens);
                     break;
                 case T_CLASS:
-                    // Fast-forward the iterator through the class so that any
-                    // T_USE tokens found within are skipped - these are not
-                    // valid namespace use statements so should be ignored.
                     $braceLevel      = 0;
                     $firstBraceFound = false;
                     while ($tokens->valid() && ($braceLevel > 0 || !$firstBraceFound)) {
@@ -228,7 +223,6 @@ final class ContextFactory
      */
     private function parseNamespace(ArrayIterator $tokens): string
     {
-        // skip to the first string or namespace separator
         $this->skipToNextStringOrNamespaceSeparator($tokens);
 
         $name = '';

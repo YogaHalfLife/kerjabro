@@ -90,16 +90,6 @@ final class Method extends BaseTag implements Factory\StaticMethod
         Assert::stringNotEmpty($body);
         Assert::notNull($typeResolver);
         Assert::notNull($descriptionFactory);
-
-        // 1. none or more whitespace
-        // 2. optionally the keyword "static" followed by whitespace
-        // 3. optionally a word with underscores followed by whitespace : as
-        //    type for the return value
-        // 4. then optionally a word with underscores followed by () and
-        //    whitespace : as method name as used by phpDocumentor
-        // 5. then a word with underscores, followed by ( and any character
-        //    until a ) and whitespace : as method name with signature
-        // 6. any remaining text : as description
         if (
             !preg_match(
                 '/^

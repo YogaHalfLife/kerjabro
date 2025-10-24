@@ -13,6 +13,5 @@ class {{ class }} extends Exception
      */
     public function report()
     {
-        //
     }
 }

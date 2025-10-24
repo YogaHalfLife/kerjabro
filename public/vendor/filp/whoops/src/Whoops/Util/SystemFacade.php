@@ -26,7 +26,6 @@ class SystemFacade
      */
     public function setErrorHandler(callable $handler, $types = 'use-php-defaults')
     {
-        // Since PHP 5.4 the constant E_ALL contains all errors (even E_STRICT)
         if ($types === 'use-php-defaults') {
             $types = E_ALL;
         }
@@ -125,9 +124,6 @@ class SystemFacade
     public function setHttpResponseCode($httpCode)
     {
         if (!headers_sent()) {
-            // Ensure that no 'location' header is present as otherwise this
-            // will override the HTTP code being set here, and mask the
-            // expected error page.
             header_remove('location');
         }
 

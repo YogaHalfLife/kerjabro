@@ -114,9 +114,7 @@ final class Mapper
 
                 foreach ($this->reflectorForClass($unit)->getTraits() as $trait) {
                     if (!$trait->isUserDefined()) {
-                        // @codeCoverageIgnoreStart
                         continue;
-                        // @codeCoverageIgnoreEnd
                     }
 
                     $units[] = CodeUnit::forTrait($trait->getName());
@@ -245,9 +243,7 @@ final class Mapper
 
         foreach ($this->reflectorForClass($className)->getTraits() as $trait) {
             if (!$trait->isUserDefined()) {
-                // @codeCoverageIgnoreStart
                 continue;
-                // @codeCoverageIgnoreEnd
             }
 
             $units[] = CodeUnit::forTrait($trait->getName());
@@ -262,9 +258,7 @@ final class Mapper
 
             foreach ($reflector->getTraits() as $trait) {
                 if (!$trait->isUserDefined()) {
-                    // @codeCoverageIgnoreStart
                     continue;
-                    // @codeCoverageIgnoreEnd
                 }
 
                 $units[] = CodeUnit::forTrait($trait->getName());
@@ -283,7 +277,6 @@ final class Mapper
     {
         try {
             return new ReflectionClass($className);
-            // @codeCoverageIgnoreStart
         } catch (\ReflectionException $e) {
             throw new ReflectionException(
                 $e->getMessage(),
@@ -291,7 +284,6 @@ final class Mapper
                 $e
             );
         }
-        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -305,7 +297,6 @@ final class Mapper
 
         try {
             return (new ReflectionFunction($functionName))->isUserDefined();
-            // @codeCoverageIgnoreStart
         } catch (\ReflectionException $e) {
             throw new ReflectionException(
                 $e->getMessage(),
@@ -313,7 +304,6 @@ final class Mapper
                 $e
             );
         }
-        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -327,7 +317,6 @@ final class Mapper
 
         try {
             return (new ReflectionClass($className))->isUserDefined();
-            // @codeCoverageIgnoreStart
         } catch (\ReflectionException $e) {
             throw new ReflectionException(
                 $e->getMessage(),
@@ -335,7 +324,6 @@ final class Mapper
                 $e
             );
         }
-        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -349,7 +337,6 @@ final class Mapper
 
         try {
             return (new ReflectionClass($interfaceName))->isUserDefined();
-            // @codeCoverageIgnoreStart
         } catch (\ReflectionException $e) {
             throw new ReflectionException(
                 $e->getMessage(),
@@ -357,7 +344,6 @@ final class Mapper
                 $e
             );
         }
-        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -371,7 +357,6 @@ final class Mapper
 
         try {
             return (new ReflectionClass($traitName))->isUserDefined();
-            // @codeCoverageIgnoreStart
         } catch (\ReflectionException $e) {
             throw new ReflectionException(
                 $e->getMessage(),
@@ -379,7 +364,6 @@ final class Mapper
                 $e
             );
         }
-        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -388,20 +372,15 @@ final class Mapper
     private function isUserDefinedMethod(string $className, string $methodName): bool
     {
         if (!class_exists($className)) {
-            // @codeCoverageIgnoreStart
             return false;
-            // @codeCoverageIgnoreEnd
         }
 
         if (!method_exists($className, $methodName)) {
-            // @codeCoverageIgnoreStart
             return false;
-            // @codeCoverageIgnoreEnd
         }
 
         try {
             return (new ReflectionMethod($className, $methodName))->isUserDefined();
-            // @codeCoverageIgnoreStart
         } catch (\ReflectionException $e) {
             throw new ReflectionException(
                 $e->getMessage(),
@@ -409,6 +388,5 @@ final class Mapper
                 $e
             );
         }
-        // @codeCoverageIgnoreEnd
     }
 }

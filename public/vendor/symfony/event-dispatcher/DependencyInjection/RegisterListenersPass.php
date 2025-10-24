@@ -114,8 +114,6 @@ class RegisterListenersPass implements CompilerPassInterface
 
         foreach ($container->findTaggedServiceIds('kernel.event_subscriber', true) as $id => $tags) {
             $def = $container->getDefinition($id);
-
-            // We must assume that the class value has been correctly filled, even if the service is created by a factory
             $class = $def->getClass();
 
             if (!$r = $container->getReflectionClass($class)) {

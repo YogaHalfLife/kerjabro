@@ -58,8 +58,6 @@ final class See extends BaseTag implements Factory\StaticMethod
 
         $parts = Utils::pregSplit('/\s+/Su', $body, 2);
         $description = isset($parts[1]) ? $descriptionFactory->create($parts[1], $context) : null;
-
-        // https://tools.ietf.org/html/rfc2396#section-3
         if (preg_match('#\w://\w#', $parts[0])) {
             return new static(new Url($parts[0]), $description);
         }

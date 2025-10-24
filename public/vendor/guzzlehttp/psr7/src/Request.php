@@ -140,8 +140,6 @@ class Request implements RequestInterface
             $header = 'Host';
             $this->headerNames['host'] = 'Host';
         }
-        // Ensure Host is the first header.
-        // See: http://tools.ietf.org/html/rfc7230#section-5.4
         $this->headers = [$header => [$host]] + $this->headers;
     }
 

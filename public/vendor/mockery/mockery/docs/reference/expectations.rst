@@ -81,7 +81,6 @@ argument list:
     $mock = \Mockery::mock('MyClass');
     $mock->shouldReceive('name_of_method')
         ->with($arg1, $arg2, ...);
-    // or
     $mock->shouldReceive('name_of_method')
         ->withArgs([$arg1, $arg2, ...]);
 
@@ -244,7 +243,6 @@ The following two options are primarily for communication with test readers:
     $mock = \Mockery::mock('MyClass');
     $mock->shouldReceive('name_of_method')
         ->andReturnNull();
-    // or
     $mock->shouldReceive('name_of_method')
         ->andReturn([null]);
 
@@ -326,7 +324,6 @@ a mock object's public property to be set to a specified value, by using
     $mock = \Mockery::mock('MyClass');
     $mock->shouldReceive('name_of_method')
         ->andSet($property, $value);
-    // or
     $mock->shouldReceive('name_of_method')
         ->set($property, $value);
 

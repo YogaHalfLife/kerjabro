@@ -40,9 +40,7 @@ final class ReferenceMap implements ReferenceMapInterface
 
     public function add(ReferenceInterface $reference): void
     {
-        // Normalize the key
         $key = $this->normalizer->normalize($reference->getLabel());
-        // Store the reference
         $this->references[$key] = $reference;
     }
 

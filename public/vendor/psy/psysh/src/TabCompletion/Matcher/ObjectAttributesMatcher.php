@@ -32,7 +32,6 @@ class ObjectAttributesMatcher extends AbstractContextAwareMatcher
 
         $firstToken = \array_pop($tokens);
         if (self::tokenIs($firstToken, self::T_STRING)) {
-            // second token is the object operator
             \array_pop($tokens);
         }
         $objectToken = \array_pop($tokens);

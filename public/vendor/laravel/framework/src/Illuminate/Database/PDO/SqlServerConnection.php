@@ -121,8 +121,6 @@ class SqlServerConnection implements ServerInfoAwareConnection
     public function quote($value, $type = ParameterType::STRING)
     {
         $val = $this->connection->quote($value, $type);
-
-        // Fix for a driver version terminating all values with null byte...
         if (\is_string($val) && str_contains($val, "\0")) {
             $val = \substr($val, 0, -1);
         }

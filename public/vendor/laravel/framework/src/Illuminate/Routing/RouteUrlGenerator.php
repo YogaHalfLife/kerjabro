@@ -76,10 +76,6 @@ class RouteUrlGenerator
     public function to($route, $parameters = [], $absolute = false)
     {
         $domain = $this->getRouteDomain($route, $parameters);
-
-        // First we will construct the entire URI including the root and query string. Once it
-        // has been constructed, we'll make sure we don't have any missing parameters or we
-        // will need to throw the exception to let the developers know one was not given.
         $uri = $this->addQueryString($this->url->format(
             $root = $this->replaceRootParameters($route, $domain, $parameters),
             $this->replaceRouteParameters($route->uri(), $parameters),
@@ -89,10 +85,6 @@ class RouteUrlGenerator
         if (preg_match_all('/{(.*?)}/', $uri, $matchedMissingParameters)) {
             throw UrlGenerationException::forMissingParameters($route, $matchedMissingParameters[1]);
         }
-
-        // Once we have ensured that there are no missing parameters in the URI we will encode
-        // the URI and prepare it for returning to the developer. If the URI is supposed to
-        // be absolute, we will return it as-is. Otherwise we will remove the URL's root.
         $uri = strtr(rawurlencode($uri), $this->dontEncode);
 
         if (! $absolute) {
@@ -196,7 +188,6 @@ class RouteUrlGenerator
         $path = $this->replaceNamedParameters($path, $parameters);
 
         $path = preg_replace_callback('/\{.*?\}/', function ($match) use (&$parameters) {
-            // Reset only the numeric keys...
             $parameters = array_merge($parameters);
 
             return (! isset($parameters[0]) && ! str_ends_with($match[0], '?}'))
@@ -238,9 +229,6 @@ class RouteUrlGenerator
      */
     protected function addQueryString($uri, array $parameters)
     {
-        // If the URI has a fragment we will move it to the end of this URI since it will
-        // need to come after any query string that may be added to the URL else it is
-        // not going to be available. We will remove it then append it back on here.
         if (! is_null($fragment = parse_url($uri, PHP_URL_FRAGMENT))) {
             $uri = preg_replace('/#.*/', '', $uri);
         }
@@ -258,9 +246,6 @@ class RouteUrlGenerator
      */
     protected function getRouteQueryString(array $parameters)
     {
-        // First we will get all of the string parameters that are remaining after we
-        // have replaced the route wildcards. We'll then build a query string from
-        // these string parameters then use it as a starting point for the rest.
         if (count($parameters) === 0) {
             return '';
         }
@@ -268,10 +253,6 @@ class RouteUrlGenerator
         $query = Arr::query(
             $keyed = $this->getStringParameters($parameters)
         );
-
-        // Lastly, if there are still parameters remaining, we will fetch the numeric
-        // parameters that are in the array and add them to the query string or we
-        // will make the initial query string if it wasn't started with strings.
         if (count($keyed) < count($parameters)) {
             $query .= '&'.implode(
                 '&', $this->getNumericParameters($parameters)

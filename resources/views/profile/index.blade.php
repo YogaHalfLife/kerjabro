@@ -21,11 +21,9 @@
                             $divisiText = '—';
 
                             if ($user) {
-                                // jika admin, tampilkan "Administrator"
                                 if ($user->username === 'admin') {
                                     $divisiText = 'Administrator';
                                 } else {
-                                    // cari pegawai dari username (kode_pegawai) atau fallback pegawai_id
                                     $pegawai =
                                         \App\Models\MasterPegawai::where('kode_pegawai', $user->username)->first() ??
                                         (isset($user->pegawai_id)
@@ -210,7 +208,6 @@
 
 @push('js')
     <script>
-        // auto-dismiss alert setelah 4 detik
         window.addEventListener('load', function() {
             document.querySelectorAll('.alert').forEach(function(el) {
                 setTimeout(function() {

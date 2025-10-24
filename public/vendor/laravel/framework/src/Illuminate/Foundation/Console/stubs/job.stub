@@ -15,7 +15,6 @@ class {{ class }}
      */
     public function __construct()
     {
-        //
     }
 
     /**
@@ -25,6 +24,5 @@ class {{ class }}
      */
     public function handle()
     {
-        //
     }
 }

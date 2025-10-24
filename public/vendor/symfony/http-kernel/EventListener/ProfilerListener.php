@@ -107,7 +107,6 @@ class ProfilerListener implements EventSubscriberInterface
 
     public function onKernelTerminate(TerminateEvent $event)
     {
-        // attach children to parents
         foreach ($this->profiles as $request) {
             if (null !== $parentRequest = $this->parents[$request]) {
                 if (isset($this->profiles[$parentRequest])) {
@@ -115,8 +114,6 @@ class ProfilerListener implements EventSubscriberInterface
                 }
             }
         }
-
-        // save profiles
         foreach ($this->profiles as $request) {
             $this->profiler->saveProfile($this->profiles[$request]);
         }

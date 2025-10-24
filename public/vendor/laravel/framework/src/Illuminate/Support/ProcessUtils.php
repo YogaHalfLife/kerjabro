@@ -17,10 +17,6 @@ class ProcessUtils
      */
     public static function escapeArgument($argument)
     {
-        // Fix for PHP bug #43784 escapeshellarg removes % from given string
-        // Fix for PHP bug #49446 escapeshellarg doesn't work on Windows
-        // @see https://bugs.php.net/bug.php?id=43784
-        // @see https://bugs.php.net/bug.php?id=49446
         if ('\\' === DIRECTORY_SEPARATOR) {
             if ($argument === '') {
                 return '""';
@@ -33,10 +29,8 @@ class ProcessUtils
                 if ($part === '"') {
                     $escapedArgument .= '\\"';
                 } elseif (self::isSurroundedBy($part, '%')) {
-                    // Avoid environment variable expansion
                     $escapedArgument .= '^%"'.substr($part, 1, -1).'"^%';
                 } else {
-                    // escape trailing backslash
                     if (str_ends_with($part, '\\')) {
                         $part .= '\\';
                     }

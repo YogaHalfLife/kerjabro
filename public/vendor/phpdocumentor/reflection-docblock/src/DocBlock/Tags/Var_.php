@@ -62,16 +62,11 @@ final class Var_ extends TagWithType implements Factory\StaticMethod
         $parts = Utils::pregSplit('/(\s+)/Su', $body, 2, PREG_SPLIT_DELIM_CAPTURE);
         $type         = null;
         $variableName = '';
-
-        // if the first item that is encountered is not a variable; it is a type
         if ($firstPart && $firstPart[0] !== '$') {
             $type = $typeResolver->resolve($firstPart, $context);
         } else {
-            // first part is not a type; we should prepend it to the parts array for further processing
             array_unshift($parts, $firstPart);
         }
-
-        // if the next item starts with a $ it must be the variable name
         if (isset($parts[0]) && strpos($parts[0], '$') === 0) {
             $variableName = array_shift($parts);
             if ($type) {

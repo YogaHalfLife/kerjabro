@@ -100,16 +100,12 @@ class Inspector
             'message' => $message,
             'url' => null,
         ];
-
-        // php embbeds urls to the manual into the Exception message with the following ini-settings defined
-        // http://php.net/manual/en/errorfunc.configuration.php#ini.docref-root
         if (!ini_get('html_errors') || !ini_get('docref_root')) {
             return $docref;
         }
 
         $pattern = "/\[<a href='([^']+)'>(?:[^<]+)<\/a>\]/";
         if (preg_match($pattern, $message, $matches)) {
-            // -> strip those automatically generated links from the exception message
             $docref['message'] = preg_replace($pattern, '', $message, 1);
             $docref['url'] = $matches[1];
         }
@@ -173,11 +169,8 @@ class Inspector
     {
         if ($this->frames === null) {
             $frames = $this->getTrace($this->exception);
-
-            // Fill empty line/file info for call_user_func_array usages (PHP Bug #44428)
             foreach ($frames as $k => $frame) {
                 if (empty($frame['file'])) {
-                    // Default values when file and line are missing
                     $file = '[internal]';
                     $line = 0;
 
@@ -192,16 +185,12 @@ class Inspector
                     $frames[$k]['line'] = $line;
                 }
             }
-
-            // Find latest non-error handling frame index ($i) used to remove error handling frames
             $i = 0;
             foreach ($frames as $k => $frame) {
                 if ($frame['file'] == $this->exception->getFile() && $frame['line'] == $this->exception->getLine()) {
                     $i = $k;
                 }
             }
-
-            // Remove error handling frames
             if ($i > 0) {
                 array_splice($frames, 0, $i);
             }
@@ -212,10 +201,8 @@ class Inspector
             $this->frames = new FrameCollection($frames);
 
             if ($previousInspector = $this->getPreviousExceptionInspector()) {
-                // Keep outer frame on top of the inner one
                 $outerFrames = $this->frames;
                 $newFrames = clone $previousInspector->getFrames();
-                // I assume it will always be set, but let's be safe
                 if (isset($newFrames[0])) {
                     $newFrames[0]->addComment(
                         $previousInspector->getExceptionMessage(),
@@ -241,8 +228,6 @@ class Inspector
     protected function getTrace($e)
     {
         $traces = $e->getTrace();
-
-        // Get trace from xdebug if enabled, failure exceptions only trace to the shutdown handler by default
         if (!$e instanceof \ErrorException) {
             return $traces;
         }
@@ -254,8 +239,6 @@ class Inspector
         if (!extension_loaded('xdebug') || !function_exists('xdebug_is_enabled') || !xdebug_is_enabled()) {
             return $traces;
         }
-
-        // Use xdebug to get the full stack trace and remove the shutdown handler stack trace
         $stack = array_reverse(xdebug_get_function_stack());
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
         $traces = array_diff_key($stack, $trace);

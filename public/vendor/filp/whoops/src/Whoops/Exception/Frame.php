@@ -50,18 +50,12 @@ class Frame implements Serializable
         }
 
         $file = $this->frame['file'];
-
-        // Check if this frame occurred within an eval().
-        // @todo: This can be made more reliable by checking if we've entered
-        // eval() in a previous trace, but will need some more work on the upper
-        // trace collector(s).
         if (preg_match('/^(.*)\((\d+)\) : (?:eval\(\)\'d|assert) code$/', $file, $matches)) {
             $file = $this->frame['file'] = $matches[1];
             $this->frame['line'] = (int) $matches[2];
         }
 
         if ($shortened && is_string($file)) {
-            // Replace the part of the path that all frames have in common, and add 'soft hyphens' for smoother line-breaks.
             $dirname = dirname(dirname(dirname(dirname(dirname(dirname(__DIR__))))));
             if ($dirname !== '/') {
                 $file = str_replace($dirname, "&hellip;", $file);
@@ -112,9 +106,6 @@ class Frame implements Serializable
     public function getFileContents()
     {
         if ($this->fileContentsCache === null && $filePath = $this->getFile()) {
-            // Leave the stage early when 'Unknown' or '[internal]' is passed
-            // this would otherwise raise an exception when
-            // open_basedir is enabled.
             if ($filePath === "Unknown" || $filePath === '[internal]') {
                 return null;
             }
@@ -122,7 +113,6 @@ class Frame implements Serializable
             try {
                 $this->fileContentsCache = file_get_contents($filePath);
             } catch (ErrorException $exception) {
-                // Internal file paths of PHP extensions cannot be opened
             }
         }
 
@@ -202,8 +192,6 @@ class Frame implements Serializable
     {
         if (null !== ($contents = $this->getFileContents())) {
             $lines = explode("\n", $contents);
-
-            // Get a subset of lines from $start to $end
             if ($length !== null) {
                 $start  = (int) $start;
                 $length = (int) $length;

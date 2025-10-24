@@ -25,9 +25,6 @@ namespace voku\helper;
  */
 final class ASCII
 {
-    //
-    // INFO: https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
-    //
 
     const UZBEK_LANGUAGE_CODE = 'uz';
 
@@ -191,23 +188,14 @@ final class ASCII
      * @var array<int, string>
      */
     private static $BIDI_UNI_CODE_CONTROLS_TABLE = [
-        // LEFT-TO-RIGHT EMBEDDING (use -> dir = "ltr")
         8234 => "\xE2\x80\xAA",
-        // RIGHT-TO-LEFT EMBEDDING (use -> dir = "rtl")
         8235 => "\xE2\x80\xAB",
-        // POP DIRECTIONAL FORMATTING // (use -> </bdo>)
         8236 => "\xE2\x80\xAC",
-        // LEFT-TO-RIGHT OVERRIDE // (use -> <bdo dir = "ltr">)
         8237 => "\xE2\x80\xAD",
-        // RIGHT-TO-LEFT OVERRIDE // (use -> <bdo dir = "rtl">)
         8238 => "\xE2\x80\xAE",
-        // LEFT-TO-RIGHT ISOLATE // (use -> dir = "ltr")
         8294 => "\xE2\x81\xA6",
-        // RIGHT-TO-LEFT ISOLATE // (use -> dir = "rtl")
         8295 => "\xE2\x81\xA7",
-        // FIRST STRONG ISOLATE // (use -> dir = "auto")
         8296 => "\xE2\x81\xA8",
-        // POP DIRECTIONAL ISOLATE
         8297 => "\xE2\x81\xA9",
     ];
 
@@ -220,7 +208,6 @@ final class ASCII
      */
     public static function getAllLanguages(): array
     {
-        // init
         static $LANGUAGES = [];
 
         if ($LANGUAGES !== []) {
@@ -295,8 +282,6 @@ final class ASCII
         if (isset($CHARS_ARRAY[$cacheKey])) {
             return $CHARS_ARRAY[$cacheKey];
         }
-
-        // init
         $return = [];
         $language_all_chars = self::charsArrayWithSingleLanguageValues(
             $replace_extra_symbols,
@@ -352,13 +337,9 @@ final class ASCII
         bool $asOrigReplaceArray = true
     ): array {
         $language = self::get_language($language);
-
-        // init
         /** @var array<string, array<string, array<string, string>|array{orig: string[], replace: string[]}>> */
         static $CHARS_ARRAY = [];
         $cacheKey = '' . $replace_extra_symbols . '-' . $asOrigReplaceArray;
-
-        // check static cache
         if (isset($CHARS_ARRAY[$cacheKey][$language])) {
             return $CHARS_ARRAY[$cacheKey][$language];
         }
@@ -444,7 +425,6 @@ final class ASCII
         bool $replace_extra_symbols = false,
         bool $asOrigReplaceArray = true
     ): array {
-        // init
         /** @var array<string, array<string, string>|array{orig: string[], replace: string[]}> */
         static $CHARS_ARRAY = [];
         $cacheKey = '' . $replace_extra_symbols . '-' . $asOrigReplaceArray;
@@ -511,8 +491,6 @@ final class ASCII
         bool $normalize_msword = true,
         bool $remove_invisible_characters = true
     ): string {
-        // http://stackoverflow.com/questions/1401317/remove-non-utf8-characters-from-string
-        // caused connection reset problem on larger strings
 
         $regex = '/
           (
@@ -708,13 +686,7 @@ final class ASCII
         string $replacement = '',
         bool $keep_basic_control_characters = true
     ): string {
-        // init
         $non_displayables = [];
-
-        // every control character except:
-        // - newline (dec 10),
-        // - carriage return (dec 13),
-        // - horizontal tab (dec 09)
         if ($url_encoded) {
             $non_displayables[] = '/%0[0-8bcefBCEF]/'; // url encoded 00-08, 11, 12, 14, 15
             $non_displayables[] = '/%1[0-9a-fA-F]/'; // url encoded 16-31
@@ -864,14 +836,9 @@ final class ASCII
                             &&
                             \strpos($str, $fiveChars) !== false
                         ) {
-                            // DEBUG
-                            //\var_dump($str, $fiveChars, $REPLACE_HELPER_CACHE[$cacheKey][$fiveChars]);
 
                             $charDone[$fiveChars] = true;
                             $str = \str_replace($fiveChars, $REPLACE_HELPER_CACHE[$cacheKey][$fiveChars], $str);
-
-                            // DEBUG
-                            //\var_dump($str, "\n");
                         }
                     }
                 }
@@ -892,14 +859,9 @@ final class ASCII
                             &&
                             \strpos($str, $fourChars) !== false
                         ) {
-                            // DEBUG
-                            //\var_dump($str, $fourChars, $REPLACE_HELPER_CACHE[$cacheKey][$fourChars]);
 
                             $charDone[$fourChars] = true;
                             $str = \str_replace($fourChars, $REPLACE_HELPER_CACHE[$cacheKey][$fourChars], $str);
-
-                            // DEBUG
-                            //\var_dump($str, "\n");
                         }
                     }
                 }
@@ -919,14 +881,9 @@ final class ASCII
                         &&
                         \strpos($str, $threeChars) !== false
                     ) {
-                        // DEBUG
-                        //\var_dump($str, $threeChars, $REPLACE_HELPER_CACHE[$cacheKey][$threeChars]);
 
                         $charDone[$threeChars] = true;
                         $str = \str_replace($threeChars, $REPLACE_HELPER_CACHE[$cacheKey][$threeChars], $str);
-
-                        // DEBUG
-                        //\var_dump($str, "\n");
                     }
                 }
 
@@ -945,14 +902,9 @@ final class ASCII
                         &&
                         \strpos($str, $twoChars) !== false
                     ) {
-                        // DEBUG
-                        //\var_dump($str, $twoChars, $REPLACE_HELPER_CACHE[$cacheKey][$twoChars]);
 
                         $charDone[$twoChars] = true;
                         $str = \str_replace($twoChars, $REPLACE_HELPER_CACHE[$cacheKey][$twoChars], $str);
-
-                        // DEBUG
-                        //\var_dump($str, "\n");
                     }
                 }
             }
@@ -965,14 +917,9 @@ final class ASCII
                     &&
                     \strpos($str, $char) !== false
                 ) {
-                    // DEBUG
-                    //\var_dump($str, $char, $REPLACE_HELPER_CACHE[$cacheKey][$char]);
 
                     $charDone[$char] = true;
                     $str = \str_replace($char, $REPLACE_HELPER_CACHE[$cacheKey][$char], $str);
-
-                    // DEBUG
-                    //\var_dump($str, "\n");
                 }
             }
         }
@@ -1159,16 +1106,12 @@ final class ASCII
         if ($SUPPORT_INTL === null) {
             $SUPPORT_INTL = \extension_loaded('intl');
         }
-
-        // check if we only have ASCII, first (better performance)
         $str_tmp = $str;
         if (self::is_ascii($str)) {
             return $str;
         }
 
         $str = self::clean($str);
-
-        // check again, if we only have ASCII, now ...
         if (
             $str_tmp !== $str
             &&
@@ -1183,17 +1126,12 @@ final class ASCII
             $SUPPORT_INTL === true
         ) {
             if (!isset($TRANSLITERATOR)) {
-                // INFO: see "*-Latin" rules via "transliterator_list_ids()"
                 /** @var \Transliterator */
                 $TRANSLITERATOR = \transliterator_create('NFKC; [:Nonspacing Mark:] Remove; NFKC; Any-Latin; Latin-ASCII;');
             }
-
-            // INFO: https://unicode.org/cldr/utility/character.jsp
             $str_tmp = \transliterator_transliterate($TRANSLITERATOR, $str);
 
             if ($str_tmp !== false) {
-
-                // check again, if we only have ASCII, now ...
                 if (
                     $str_tmp !== $str
                     &&
@@ -1224,8 +1162,6 @@ final class ASCII
             }
 
             $ordC1 = self::$ORD[$c[1]];
-
-            // ASCII - next please
             if ($ordC0 >= 192 && $ordC0 <= 223) {
                 $ord = ($ordC0 - 192) * 64 + ($ordC1 - 128);
             }
@@ -1243,8 +1179,6 @@ final class ASCII
                     if ($ordC0 <= 247) {
                         $ord = ($ordC0 - 240) * 262144 + ($ordC1 - 128) * 4096 + ($ordC2 - 128) * 64 + ($ordC3 - 128);
                     }
-
-                    // We only process valid UTF-8 chars (<= 4 byte), so we don't need this code here ...
                     /*
                     if ($ordC0 >= 248) {
                         $ordC4 = self::$ORD[$c[4]];
@@ -1285,8 +1219,6 @@ final class ASCII
             $new_char = $ord & 255;
 
             if (isset($UTF8_TO_TRANSLIT[$bank][$new_char])) {
-
-                // keep for debugging
                 /*
                 echo "file: " . sprintf('x%02x', $bank) . "\n";
                 echo "char: " . $c . "\n";
@@ -1302,7 +1234,6 @@ final class ASCII
                 /** @noinspection MissingOrEmptyGroupStatementInspection */
                 /** @noinspection PhpStatementHasEmptyBodyInspection */
                 if ($unknown === null && $new_char === '') {
-                    // nothing
                 } elseif (
                     $new_char === '[?]'
                     ||
@@ -1313,8 +1244,6 @@ final class ASCII
                     $c = $new_char;
                 }
             } else {
-
-                // keep for debugging missing chars
                 /*
                 echo "file: " . sprintf('x%02x', $bank) . "\n";
                 echo "char: " . $c . "\n";
@@ -1358,13 +1287,10 @@ final class ASCII
      */
     private static function to_ascii_remap_intern(string $str, array &$map): string
     {
-        // find all utf-8 characters
         $matches = [];
         if (!\preg_match_all('/[\xC0-\xF7][\x80-\xBF]+/', $str, $matches)) {
             return $str; // plain ascii string
         }
-
-        // update the encoding map with the characters not already met
         $mapCount = \count($map);
         foreach ($matches[0] as $mbc) {
             if (!isset($map[$mbc])) {
@@ -1372,8 +1298,6 @@ final class ASCII
                 ++$mapCount;
             }
         }
-
-        // finally, remap non-ascii characters
         return \strtr($str, $map);
     }
 

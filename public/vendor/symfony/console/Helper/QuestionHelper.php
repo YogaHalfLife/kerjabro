@@ -249,22 +249,13 @@ class QuestionHelper extends Helper
         $isStdin = 'php://stdin' === (stream_get_meta_data($inputStream)['uri'] ?? null);
         $r = [$inputStream];
         $w = [];
-
-        // Disable icanon (so we can fread each keypress) and echo (we'll do echoing here instead)
         shell_exec('stty -icanon -echo');
-
-        // Add highlighted text style
         $output->getFormatter()->setStyle('hl', new OutputFormatterStyle('black', 'white'));
-
-        // Read a keypress
         while (!feof($inputStream)) {
             while ($isStdin && 0 === @stream_select($r, $w, $w, 0, 100)) {
-                // Give signal handlers a chance to run
                 $r = [$inputStream];
             }
             $c = fread($inputStream, 1);
-
-            // as opposed to fgets(), fread() returns an empty string when the stream content is empty, not false.
             if (false === $c || ('' === $ret && '' === $c && null === $question->getDefault())) {
                 shell_exec('stty '.$sttyMode);
                 throw new MissingInputException('Aborted.');
@@ -283,14 +274,9 @@ class QuestionHelper extends Helper
                 } else {
                     $numMatches = 0;
                 }
-
-                // Pop the last character off the end of our string
                 $ret = self::substr($ret, 0, $i);
             } elseif ("\033" === $c) {
-                // Did we read an escape sequence?
                 $c .= fread($inputStream, 2);
-
-                // A = Up Arrow. B = Down Arrow
                 if (isset($c[2]) && ('A' === $c[2] || 'B' === $c[2])) {
                     if ('A' === $c[2] && -1 === $ofs) {
                         $ofs = 0;
@@ -307,7 +293,6 @@ class QuestionHelper extends Helper
                 if ("\t" === $c || "\n" === $c) {
                     if ($numMatches > 0 && -1 !== $ofs) {
                         $ret = (string) $matches[$ofs];
-                        // Echo out remaining chars for current match
                         $remainingCharacters = substr($ret, \strlen(trim($this->mostRecentlyEnteredValue($fullChoice))));
                         $output->write($remainingCharacters);
                         $fullChoice .= $remainingCharacters;
@@ -352,7 +337,6 @@ class QuestionHelper extends Helper
                 $ofs = 0;
 
                 foreach ($autocomplete($ret) as $value) {
-                    // If typed characters match the beginning chunk of value (e.g. [AcmeDe]moBundle)
                     if (str_starts_with($value, $tempRet)) {
                         $matches[$numMatches++] = $value;
                     }
@@ -363,14 +347,11 @@ class QuestionHelper extends Helper
 
             if ($numMatches > 0 && -1 !== $ofs) {
                 $cursor->savePosition();
-                // Write highlighted text, complete the partially entered response
                 $charactersEntered = \strlen(trim($this->mostRecentlyEnteredValue($fullChoice)));
                 $output->write('<hl>'.OutputFormatter::escapeTrailingBackslash(substr($matches[$ofs], $charactersEntered)).'</hl>');
                 $cursor->restorePosition();
             }
         }
-
-        // Reset stty so it behaves normally again
         shell_exec('stty '.$sttyMode);
 
         return $fullChoice;
@@ -378,7 +359,6 @@ class QuestionHelper extends Helper
 
     private function mostRecentlyEnteredValue(string $entered): string
     {
-        // Determine the most recent value that the user entered
         if (!str_contains($entered, ',')) {
             return $entered;
         }
@@ -403,8 +383,6 @@ class QuestionHelper extends Helper
     {
         if ('\\' === \DIRECTORY_SEPARATOR) {
             $exe = __DIR__.'/../Resources/bin/hiddeninput.exe';
-
-            // handle code running from a phar
             if ('phar:' === substr(__FILE__, 0, 5)) {
                 $tmpExe = sys_get_temp_dir().'/hiddeninput.exe';
                 copy($exe, $tmpExe);
@@ -581,9 +559,6 @@ class QuestionHelper extends Helper
         }
 
         $cloneStream = fopen($uri, $mode);
-
-        // For seekable and writable streams, add all the same data to the
-        // cloned stream and then seek to the same offset.
         if (true === $seekable && !\in_array($mode, ['r', 'rb', 'rt'])) {
             $offset = ftell($inputStream);
             rewind($inputStream);

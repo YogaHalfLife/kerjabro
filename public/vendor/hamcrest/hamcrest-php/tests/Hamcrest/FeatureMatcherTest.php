@@ -64,8 +64,6 @@ class FeatureMatcherTest extends \Hamcrest\AbstractMatcherTest
         $this->assertMismatchDescription('result was null', $this->_resultMatcher, null);
     }
 
-    // -- Creation Methods
-
     private function _resultMatcher()
     {
         return new \Hamcrest\ResultMatcher();

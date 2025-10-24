@@ -50,10 +50,6 @@ class PhpEngine implements Engine
         $obLevel = ob_get_level();
 
         ob_start();
-
-        // We'll evaluate the contents of the view inside a try/catch block so we can
-        // flush out any stray output that might get out before an error occurs or
-        // an exception is thrown. This prevents any partial views from leaking.
         try {
             $this->files->getRequire($path, $data);
         } catch (Throwable $e) {

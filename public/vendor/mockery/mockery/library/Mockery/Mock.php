@@ -245,8 +245,6 @@ class Mock implements MockInterface
         );
         return $lastExpectation;
     }
-
-    // start method allows
     /**
      * @param mixed $something  String method name or map of method => return
      * @return self|\Mockery\ExpectationInterface|\Mockery\Expectation|\Mockery\HigherOrderMessage
@@ -267,9 +265,6 @@ class Mock implements MockInterface
 
         return $this;
     }
-    // end method allows
-
-    // start method expects
     /**
     /**
      * @param mixed $something  String method name (optional)
@@ -283,7 +278,6 @@ class Mock implements MockInterface
 
         return new ExpectsHigherOrderMessage($this);
     }
-    // end method expects
 
     /**
      * Shortcut method for setting an expectation that a method should not be called.
@@ -666,8 +660,6 @@ class Mock implements MockInterface
     public function mockery_isAnonymous()
     {
         $rfc = new \ReflectionClass($this);
-
-        // PHP 8 has Stringable interface
         $interfaces = array_filter($rfc->getInterfaces(), function ($i) {
             return $i->getName() !== 'Stringable';
         });
@@ -876,7 +868,6 @@ class Mock implements MockInterface
                     return;
                 }
             } catch (\ReflectionException $re) {
-                // noop - there is no hasPrototype method
             }
 
             return call_user_func_array("parent::$method", $args);
@@ -904,9 +895,6 @@ class Mock implements MockInterface
         } elseif ($this->_mockery_deferMissing && get_parent_class($this) && method_exists(get_parent_class($this), '__call')) {
             return call_user_func('parent::__call', $method, $args);
         } elseif ($method == '__toString') {
-            // __toString is special because we force its addition to the class API regardless of the
-            // original implementation.  Thus, we should always return a string rather than honor
-            // _mockery_ignoreMissing and break the API with an error.
             return sprintf("%s#%s", __CLASS__, spl_object_hash($this));
         } elseif ($this->_mockery_ignoreMissing) {
             if (\Mockery::getConfiguration()->mockingNonExistentMethodsAllowed() || (!is_null($this->_mockery_partial) && method_exists($this->_mockery_partial, $method)) || is_callable("parent::$method")) {
@@ -956,7 +944,6 @@ class Mock implements MockInterface
 
     private function hasMethodOverloadingInParentClass()
     {
-        // if there's __call any name would be callable
         return is_callable('parent::aFunctionNameThatNoOneWouldEverUseInRealLife12345');
     }
 

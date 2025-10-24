@@ -55,7 +55,6 @@ class ThrowUpCommand extends Command implements ContextAware
      */
     public function setContext(Context $context)
     {
-        // Do nothing
     }
 
     /**
@@ -115,7 +114,6 @@ HELP
     private function prepareArgs(string $code = null): array
     {
         if (!$code) {
-            // Default to last exception if nothing else was supplied
             return [new Arg(new Variable('_e'))];
         }
 
@@ -129,13 +127,9 @@ HELP
         }
 
         $node = $nodes[0];
-
-        // Make this work for PHP Parser v3.x
         $expr = isset($node->expr) ? $node->expr : $node;
 
         $args = [new Arg($expr, false, false, $node->getAttributes())];
-
-        // Allow throwing via a string, e.g. `throw-up "SUP"`
         if ($expr instanceof String_) {
             return [new New_(new FullyQualifiedName(\Exception::class), $args)];
         }
@@ -158,8 +152,6 @@ HELP
             if (\strpos($e->getMessage(), 'unexpected EOF') === false) {
                 throw $e;
             }
-
-            // If we got an unexpected EOF, let's try it again with a semicolon.
             return $this->parser->parse($code.';');
         }
     }

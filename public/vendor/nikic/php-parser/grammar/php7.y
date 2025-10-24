@@ -272,8 +272,6 @@ non_empty_statement:
     | expr semi {
         $e = $1;
         if ($e instanceof Expr\Throw_) {
-            // For backwards-compatibility reasons, convert throw in statement position into
-            // Stmt\Throw_ rather than Stmt\Expression(Expr\Throw_).
             $$ = Stmt\Throw_[$e->expr];
         } else {
             $$ = Stmt\Expression[$e];

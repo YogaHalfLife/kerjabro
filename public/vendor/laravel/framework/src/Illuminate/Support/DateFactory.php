@@ -198,34 +198,22 @@ class DateFactory
     public function __call($method, $parameters)
     {
         $defaultClassName = static::DEFAULT_CLASS_NAME;
-
-        // Using callable to generate dates...
         if (static::$callable) {
             return call_user_func(static::$callable, $defaultClassName::$method(...$parameters));
         }
-
-        // Using Carbon factory to generate dates...
         if (static::$factory) {
             return static::$factory->$method(...$parameters);
         }
 
         $dateClass = static::$dateClass ?: $defaultClassName;
-
-        // Check if the date can be created using the public class method...
         if (method_exists($dateClass, $method) ||
             method_exists($dateClass, 'hasMacro') && $dateClass::hasMacro($method)) {
             return $dateClass::$method(...$parameters);
         }
-
-        // If that fails, create the date with the default class...
         $date = $defaultClassName::$method(...$parameters);
-
-        // If the configured class has an "instance" method, we'll try to pass our date into there...
         if (method_exists($dateClass, 'instance')) {
             return $dateClass::instance($date);
         }
-
-        // Otherwise, assume the configured class has a DateTime compatible constructor...
         return new $dateClass($date->format('Y-m-d H:i:s.u'), $date->getTimezone());
     }
 }

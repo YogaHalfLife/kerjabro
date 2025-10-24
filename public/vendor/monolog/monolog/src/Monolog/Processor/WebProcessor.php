@@ -78,8 +78,6 @@ class WebProcessor implements ProcessorInterface
      */
     public function __invoke(array $record): array
     {
-        // skip processing if for some reason request data
-        // is not present (CLI or wonky SAPIs)
         if (!isset($this->serverData['REQUEST_URI'])) {
             return $record;
         }

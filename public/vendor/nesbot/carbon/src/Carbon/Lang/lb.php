@@ -61,7 +61,6 @@ return [
         'nextWeek' => 'dddd [um] LT',
         'lastDay' => '[Gëschter um] LT',
         'lastWeek' => function (CarbonInterface $date) {
-            // Different date string for 'Dënschdeg' (Tuesday) and 'Donneschdeg' (Thursday) due to phonological rule
             switch ($date->dayOfWeek) {
                 case 2:
                 case 4:

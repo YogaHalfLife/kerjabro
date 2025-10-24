@@ -152,8 +152,6 @@ HELP
             if (\strpos($e->getMessage(), 'unexpected EOF') === false) {
                 throw $e;
             }
-
-            // If we got an unexpected EOF, let's try it again with a semicolon.
             return $parser->parse($code.';');
         }
     }

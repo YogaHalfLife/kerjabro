@@ -58,8 +58,6 @@ return [
     'hour_from_now' => ':count цагийн дараа',
     'minute_from_now' => ':count минутын дараа',
     'second_from_now' => ':count секундын дараа',
-
-    // Does it required to make translation for before, after as follows? hmm, I think we've made it with ago and from now keywords already. Anyway, I've included it just in case of undesired action...
     'after' => ':timeн дараа',
     'year_after' => ':count жилий',
     'month_after' => ':count сары',

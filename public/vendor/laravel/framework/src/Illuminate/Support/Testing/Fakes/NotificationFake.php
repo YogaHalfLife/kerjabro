@@ -337,7 +337,6 @@ class NotificationFake implements NotificationDispatcher, NotificationFactory
      */
     public function channel($name = null)
     {
-        //
     }
 
     /**

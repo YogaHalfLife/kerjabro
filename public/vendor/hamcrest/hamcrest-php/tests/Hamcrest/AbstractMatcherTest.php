@@ -48,7 +48,6 @@ abstract class AbstractMatcherTest extends TestCase
 
     public function testIsNullSafe()
     {
-        //Should not generate any notices
         $this->createMatcher()->matches(null);
         $this->createMatcher()->describeMismatch(
             null,
@@ -58,7 +57,6 @@ abstract class AbstractMatcherTest extends TestCase
 
     public function testCopesWithUnknownTypes()
     {
-        //Should not generate any notices
         $this->createMatcher()->matches(new UnknownType());
         $this->createMatcher()->describeMismatch(
             new UnknownType(),

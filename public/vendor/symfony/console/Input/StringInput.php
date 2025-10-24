@@ -68,7 +68,6 @@ class StringInput extends ArgvInput
             } elseif (preg_match('/'.self::REGEX_UNQUOTED_STRING.'/A', $input, $match, 0, $cursor)) {
                 $token .= $match[1];
             } else {
-                // should never happen
                 throw new InvalidArgumentException(sprintf('Unable to parse input near "... %s ...".', substr($input, $cursor, 10)));
             }
 

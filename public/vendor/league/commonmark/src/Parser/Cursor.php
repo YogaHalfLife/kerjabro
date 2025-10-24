@@ -135,8 +135,6 @@ class Cursor
         if ($index === null) {
             $index = $this->currentPosition;
         }
-
-        // Index out-of-bounds, or we're at the end
         if ($index < 0 || $index >= $this->length) {
             return null;
         }
@@ -199,8 +197,6 @@ class Cursor
         $this->previousPosition = $this->currentPosition;
 
         $this->nextNonSpaceCache = null;
-
-        // Optimization to avoid tab handling logic if we have no tabs
         if (! $this->lineContainsTabs) {
             $this->advanceWithoutTabCharacters($characters);
 
@@ -214,8 +210,6 @@ class Cursor
         if ($nextFewChars === '') {
             return;
         }
-
-        // Optimization to avoid tab handling logic if we have no tabs
         if (\strpos($nextFewChars, "\t") === false) {
             $this->advanceWithoutTabCharacters($characters);
 
@@ -297,10 +291,6 @@ class Cursor
 
         $this->advanceBy($newPosition - $this->currentPosition);
         $this->partiallyConsumedTab = false;
-
-        // We've just advanced to where that non-space is,
-        // so any subsequent calls to find the next one will
-        // always return the current position.
         $this->nextNonSpaceCache = $this->currentPosition;
         $this->indent            = 0;
 
@@ -317,8 +307,6 @@ class Cursor
     public function advanceToNextNonSpaceOrNewline(): int
     {
         $remainder = $this->getRemainder();
-
-        // Optimization: Avoid the regex if we know there are no spaces or newlines
         if ($remainder === '' || ($remainder[0] !== ' ' && $remainder[0] !== "\n")) {
             $this->previousPosition = $this->currentPosition;
 
@@ -327,9 +315,6 @@ class Cursor
 
         $matches = [];
         \preg_match('/^ *(?:\n *)?/', $remainder, $matches, \PREG_OFFSET_CAPTURE);
-
-        // [0][0] contains the matched text
-        // [0][1] contains the index of that match
         $increment = $matches[0][1] + \strlen($matches[0][0]);
 
         $this->advanceBy($increment);
@@ -396,20 +381,13 @@ class Cursor
             return null;
         }
 
-        // $matches[0][0] contains the matched text
-        // $matches[0][1] contains the index of that match
-
         if ($this->isMultibyte) {
-            // PREG_OFFSET_CAPTURE always returns the byte offset, not the char offset, which is annoying
             $offset      = \mb_strlen(\substr($subject, 0, $matches[0][1]), 'UTF-8');
             $matchLength = \mb_strlen($matches[0][0], 'UTF-8');
         } else {
             $offset      = $matches[0][1];
             $matchLength = \strlen($matches[0][0]);
         }
-
-        // [0][0] contains the matched text
-        // [0][1] contains the index of that match
         $this->advanceBy($offset + $matchLength);
 
         return $matches[0][0];

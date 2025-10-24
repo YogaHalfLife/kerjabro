@@ -59,16 +59,9 @@ The `create` method will yield an object of type `\phpDocumentor\Reflection\DocB
 whose methods can be queried:
 
 ```php
-// Contains the summary for this DocBlock
 $summary = $docblock->getSummary();
-
-// Contains \phpDocumentor\Reflection\DocBlock\Description object
 $description = $docblock->getDescription();
-
-// You can either cast it to string
 $description = (string) $docblock->getDescription();
-
-// Or use the render method to get a string representation of the Description.
 $description = $docblock->getDescription()->render();
 ```
 

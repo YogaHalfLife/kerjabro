@@ -63,7 +63,6 @@ class ForgotPassword extends Notification
     public function toArray($notifiable)
     {
         return [
-            //
         ];
     }
 }

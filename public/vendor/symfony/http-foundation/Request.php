@@ -16,8 +16,6 @@ use Symfony\Component\HttpFoundation\Exception\JsonException;
 use Symfony\Component\HttpFoundation\Exception\SessionNotFoundException;
 use Symfony\Component\HttpFoundation\Exception\SuspiciousOperationException;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-
-// Help opcache.preload discover always-needed symbols
 class_exists(AcceptHeader::class);
 class_exists(FileBag::class);
 class_exists(HeaderBag::class);
@@ -379,7 +377,6 @@ class Request
                 if (!isset($server['CONTENT_TYPE'])) {
                     $server['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
                 }
-                // no break
             case 'PATCH':
                 $request = $parameters;
                 $query = [];
@@ -606,7 +603,6 @@ class Request
         self::$trustedHostPatterns = array_map(function ($hostPattern) {
             return sprintf('{%s}i', $hostPattern);
         }, $hostPatterns);
-        // we need to reset trusted hosts on trusted host patterns change
         self::$trustedHosts = [];
     }
 
@@ -711,7 +707,6 @@ class Request
      */
     public function hasPreviousSession(): bool
     {
-        // the check for $this->session avoids malicious users trying to fake a session cookie with proper name
         return $this->hasSession() && $this->cookies->has($this->getSession()->getName());
     }
 
@@ -854,8 +849,6 @@ class Request
     public function getBaseUrl(): string
     {
         $trustedPrefix = '';
-
-        // the proxy prefix must be prepended to any prefix being needed at the webserver level
         if ($this->isFromTrustedProxy() && $trustedPrefixValues = $this->getTrustedValues(self::HEADER_X_FORWARDED_PREFIX)) {
             $trustedPrefix = rtrim($trustedPrefixValues[0], '/');
         }
@@ -1035,7 +1028,6 @@ class Request
      */
     public function getRelativeUriForPath(string $path): string
     {
-        // be sure that we are dealing with an absolute path
         if (!isset($path[0]) || '/' !== $path[0]) {
             return $path;
         }
@@ -1059,11 +1051,6 @@ class Request
 
         $targetDirs[] = $targetFile;
         $path = str_repeat('../', \count($sourceDirs)).implode('/', $targetDirs);
-
-        // A reference to the same base directory or an empty subdirectory must be prefixed with "./".
-        // This also applies to a segment with a colon character (e.g., "file:colon") that cannot be used
-        // as the first segment of a relative-path reference, as it would be mistaken for a scheme name
-        // (see https://tools.ietf.org/html/rfc3986#section-4.2).
         return !isset($path[0]) || '/' === $path[0]
             || false !== ($colonPos = strpos($path, ':')) && ($colonPos < ($slashPos = strpos($path, '/')) || false === $slashPos)
             ? "./$path" : $path;
@@ -1120,14 +1107,7 @@ class Request
                 $host = $this->server->get('SERVER_ADDR', '');
             }
         }
-
-        // trim and remove port number from host
-        // host is lowercase as per RFC 952/2181
         $host = strtolower(preg_replace('/:\d+$/', '', trim($host)));
-
-        // as the host can come from the user (HTTP_HOST and depending on the configuration, SERVER_NAME too can come from the user)
-        // check that it does not contain forbidden characters (see RFC 952 and RFC 2181)
-        // use preg_replace() instead of preg_match() to prevent DoS attacks with long host names
         if ($host && '' !== preg_replace('/(?:^\[)?[a-zA-Z0-9-:\]_]+\.?/', '', $host)) {
             if (!$this->isHostValid) {
                 return '';
@@ -1138,7 +1118,6 @@ class Request
         }
 
         if (\count(self::$trustedHostPatterns) > 0) {
-            // to avoid host header injection attacks, you should provide a list of trusted host patterns
 
             if (\in_array($host, self::$trustedHosts)) {
                 return $host;
@@ -1443,8 +1422,6 @@ class Request
 
                 return $this->content;
             }
-
-            // Content passed in parameter (test)
             if (\is_string($this->content)) {
                 $resource = fopen('php://temp', 'r+');
                 fwrite($resource, $this->content);
@@ -1579,9 +1556,6 @@ class Request
             if (str_contains($lang, '-')) {
                 $codes = explode('-', $lang);
                 if ('i' === $codes[0]) {
-                    // Language not listed in ISO 639 that are not variants
-                    // of any listed language, which can be registered with the
-                    // i-prefix, such as i-cherokee
                     if (\count($codes) > 1) {
                         $lang = $codes[1];
                     }
@@ -1663,7 +1637,6 @@ class Request
         }
 
         if (!$this->isSecure()) {
-            // see https://tools.ietf.org/html/rfc8674#section-3
             return $this->isSafeContentPreferred = false;
         }
 
@@ -1683,7 +1656,6 @@ class Request
         $requestUri = '';
 
         if ('1' == $this->server->get('IIS_WasUrlRewritten') && '' != $this->server->get('UNENCODED_URL')) {
-            // IIS7 with URL Rewrite: make sure we get the unencoded URL (double slash problem)
             $requestUri = $this->server->get('UNENCODED_URL');
             $this->server->remove('UNENCODED_URL');
             $this->server->remove('IIS_WasUrlRewritten');
@@ -1691,13 +1663,10 @@ class Request
             $requestUri = $this->server->get('REQUEST_URI');
 
             if ('' !== $requestUri && '/' === $requestUri[0]) {
-                // To only use path and query remove the fragment.
                 if (false !== $pos = strpos($requestUri, '#')) {
                     $requestUri = substr($requestUri, 0, $pos);
                 }
             } else {
-                // HTTP proxy reqs setup request URI with scheme and host [and port] + the URL path,
-                // only use URL path.
                 $uriComponents = parse_url($requestUri);
 
                 if (isset($uriComponents['path'])) {
@@ -1709,15 +1678,12 @@ class Request
                 }
             }
         } elseif ($this->server->has('ORIG_PATH_INFO')) {
-            // IIS 5.0, PHP as CGI
             $requestUri = $this->server->get('ORIG_PATH_INFO');
             if ('' != $this->server->get('QUERY_STRING')) {
                 $requestUri .= '?'.$this->server->get('QUERY_STRING');
             }
             $this->server->remove('ORIG_PATH_INFO');
         }
-
-        // normalize the request URI to ease creating sub-requests from this request
         $this->server->set('REQUEST_URI', $requestUri);
 
         return $requestUri;
@@ -1737,8 +1703,6 @@ class Request
         } elseif (basename($this->server->get('ORIG_SCRIPT_NAME', '')) === $filename) {
             $baseUrl = $this->server->get('ORIG_SCRIPT_NAME'); // 1and1 shared hosting compatibility
         } else {
-            // Backtrack up the script_filename to find the portion matching
-            // php_self
             $path = $this->server->get('PHP_SELF', '');
             $file = $this->server->get('SCRIPT_FILENAME', '');
             $segs = explode('/', trim($file, '/'));
@@ -1752,20 +1716,16 @@ class Request
                 ++$index;
             } while ($last > $index && (false !== $pos = strpos($path, $baseUrl)) && 0 != $pos);
         }
-
-        // Does the baseUrl have anything in common with the request_uri?
         $requestUri = $this->getRequestUri();
         if ('' !== $requestUri && '/' !== $requestUri[0]) {
             $requestUri = '/'.$requestUri;
         }
 
         if ($baseUrl && null !== $prefix = $this->getUrlencodedPrefix($requestUri, $baseUrl)) {
-            // full $baseUrl matches
             return $prefix;
         }
 
         if ($baseUrl && null !== $prefix = $this->getUrlencodedPrefix($requestUri, rtrim(\dirname($baseUrl), '/'.\DIRECTORY_SEPARATOR).'/')) {
-            // directory portion of $baseUrl matches
             return rtrim($prefix, '/'.\DIRECTORY_SEPARATOR);
         }
 
@@ -1776,13 +1736,8 @@ class Request
 
         $basename = basename($baseUrl ?? '');
         if (empty($basename) || !strpos(rawurldecode($truncatedRequestUri), $basename)) {
-            // no match whatsoever; set it blank
             return '';
         }
-
-        // If using mod_rewrite or ISAPI_Rewrite strip the script filename
-        // out of baseUrl. $pos !== 0 makes sure it is not matching a value
-        // from PATH_INFO or QUERY_STRING
         if (\strlen($requestUri) >= \strlen($baseUrl) && (false !== $pos = strpos($requestUri, $baseUrl)) && 0 !== $pos) {
             $baseUrl = substr($requestUri, 0, $pos + \strlen($baseUrl));
         }
@@ -1822,8 +1777,6 @@ class Request
         if (null === ($requestUri = $this->getRequestUri())) {
             return '/';
         }
-
-        // Remove the query string from REQUEST_URI
         if (false !== $pos = strpos($requestUri, '?')) {
             $requestUri = substr($requestUri, 0, $pos);
         }
@@ -1837,7 +1790,6 @@ class Request
 
         $pathInfo = substr($requestUri, \strlen($baseUrl));
         if (false === $pathInfo || '' === $pathInfo) {
-            // If substr() returns false then PATH_INFO is set to an empty string
             return '/';
         }
 
@@ -1866,9 +1818,6 @@ class Request
 
     private function setPhpDefaultLocale(string $locale): void
     {
-        // if either the class Locale doesn't exist, or an exception is thrown when
-        // setting the default locale, the intl module is not installed, and
-        // the call can be ignored:
         try {
             if (class_exists(\Locale::class, false)) {
                 \Locale::setDefault($locale);
@@ -1983,14 +1932,11 @@ class Request
 
         foreach ($clientIps as $key => $clientIp) {
             if (strpos($clientIp, '.')) {
-                // Strip :port from IPv4 addresses. This is allowed in Forwarded
-                // and may occur in X-Forwarded-For.
                 $i = strpos($clientIp, ':');
                 if ($i) {
                     $clientIps[$key] = $clientIp = substr($clientIp, 0, $i);
                 }
             } elseif (str_starts_with($clientIp, '[')) {
-                // Strip brackets and :port from IPv6 addresses.
                 $i = strpos($clientIp, ']', 1);
                 $clientIps[$key] = $clientIp = substr($clientIp, 1, $i - 1);
             }
@@ -2003,15 +1949,11 @@ class Request
 
             if (IpUtils::checkIp($clientIp, self::$trustedProxies)) {
                 unset($clientIps[$key]);
-
-                // Fallback to this when the client IP falls into the range of trusted proxies
                 if (null === $firstTrustedIp) {
                     $firstTrustedIp = $clientIp;
                 }
             }
         }
-
-        // Now the IP chain contains only untrusted proxies and the client IP
         return $clientIps ? array_reverse($clientIps) : [$firstTrustedIp];
     }
 }

@@ -52,7 +52,6 @@ class Person extends \Faker\Provider\Person
             $checksumArr = ['X', 'W', 'U', 'T', 'R', 'Q', 'P', 'N', 'M', 'L', 'K'];
         } else {
             $prefix = ($issueDate < new \DateTime('2000-01-01')) ? 'S' : 'T';
-            // NRICs before 1968 did not contain YOB
             $result .= ($issueDate < new \DateTime('1968-01-01')) ? static::randomElement(['00', '01']) : $issueDate->format('y');
             $checksumArr = ['J', 'Z', 'I', 'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'];
         }

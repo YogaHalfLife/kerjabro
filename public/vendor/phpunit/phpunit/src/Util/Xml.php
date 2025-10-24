@@ -122,7 +122,6 @@ final class Xml
                         assert(class_exists($className));
 
                         $variable = (new ReflectionClass($className))->newInstanceArgs($constructorArgs);
-                        // @codeCoverageIgnoreStart
                     } catch (ReflectionException $e) {
                         throw new Exception(
                             $e->getMessage(),
@@ -130,7 +129,6 @@ final class Xml
                             $e
                         );
                     }
-                    // @codeCoverageIgnoreEnd
                 } else {
                     $variable = new $className;
                 }

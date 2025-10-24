@@ -33,27 +33,12 @@ $data->set('a.b.c', 'C');
 $data->set('a.b.d', 'D1');
 $data->append('a.b.d', 'D2');
 $data->set('a.b.e', ['E0', 'E1', 'E2']);
-
-// C
 $data->get('a.b.c');
-
-// ['D1', 'D2']
 $data->get('a.b.d');
-
-// ['E0', 'E1', 'E2']
 $data->get('a.b.e');
-
-// true
 $data->has('a.b.c');
-
-// false
 $data->has('a.b.d.j');
-
-
-// 'some-default-value'
 $data->get('some.path.that.does.not.exist', 'some-default-value');
-
-// throws a MissingPathException because no default was given
 $data->get('some.path.that.does.not.exist');
 ```
 
@@ -82,31 +67,16 @@ $data = new Data([
         ],
     ],
 ]);
-
-// hman
 $username = $data->get('hosts.hewey.username');
-// HPASS
 $password = $data->get('hosts.hewey.password');
-// ['web']
 $roles = $data->get('hosts.hewey.roles');
-// dewey dman
 $nick = $data->get('hosts.dewey.nick');
-// Unknown
 $nick = $data->get('hosts.lewey.nick', 'Unknown');
-
-// DataInterface instance
 $dewey = $data->getData('hosts.dewey');
-// dman
 $username = $dewey->get('username');
-// D---S
 $password = $dewey->get('password');
-// ['web', 'db']
 $roles = $dewey->get('roles');
-
-// No more lewey
 $data->remove('hosts.lewey');
-
-// Add DB to hewey's roles
 $data->append('hosts.hewey.roles', 'db');
 
 $data->set('hosts.april', [
@@ -114,24 +84,18 @@ $data->set('hosts.april', [
     'password' => '@---S',
     'roles'    => ['web'],
 ]);
-
-// Check if a key exists (true to this case)
 $hasKey = $data->has('hosts.dewey.username');
 ```
 
 `Data` may be used as an array, since it implements `ArrayAccess` interface:
 
 ```php
-// Get
 $data->get('name') === $data['name']; // true
 
 $data['name'] = 'Dewey';
-// is equivalent to
 $data->set($name, 'Dewey');
 
 isset($data['name']) === $data->has('name');
-
-// Remove key
 unset($data['name']);
 ```
 

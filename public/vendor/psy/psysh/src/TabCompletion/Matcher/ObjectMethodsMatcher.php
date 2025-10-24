@@ -32,7 +32,6 @@ class ObjectMethodsMatcher extends AbstractContextAwareMatcher
 
         $firstToken = \array_pop($tokens);
         if (self::tokenIs($firstToken, self::T_STRING)) {
-            // second token is the object operator
             \array_pop($tokens);
         }
         $objectToken = \array_pop($tokens);
@@ -55,7 +54,6 @@ class ObjectMethodsMatcher extends AbstractContextAwareMatcher
             \get_class_methods($object),
             function ($var) use ($input) {
                 return AbstractMatcher::startsWith($input, $var) &&
-                    // also check that we do not suggest invoking a super method(__construct, __wakeup, …)
                     !AbstractMatcher::startsWith('__', $var);
             }
         );

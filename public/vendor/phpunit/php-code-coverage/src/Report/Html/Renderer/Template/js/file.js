@@ -34,16 +34,10 @@
       var $container = $target.children().first();
 
       $target.data('popover-hover', true);
-
-      // popover already displayed
       if ($target.next('.popover').length) {
        return;
       }
-
-      // show the popover
       $container.popover('show');
-
-      // register mouse events on the popover
       $target.next('.popover:not(.popover-initialized)')
        .on({
         'mouseenter': function () {

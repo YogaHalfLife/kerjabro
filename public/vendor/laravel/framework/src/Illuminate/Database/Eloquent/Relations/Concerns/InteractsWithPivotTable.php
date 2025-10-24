@@ -25,10 +25,6 @@ trait InteractsWithPivotTable
         ];
 
         $records = $this->formatRecordsList($this->parseIds($ids));
-
-        // Next, we will determine which IDs should get removed from the join table by
-        // checking which of the given ID/records is in the list of current records
-        // and removing all of those rows from this "intermediate" joining table.
         $detach = array_values(array_intersect(
             $this->newPivotQuery()->pluck($this->relatedPivotKey)->all(),
             array_keys($records)
@@ -39,10 +35,6 @@ trait InteractsWithPivotTable
 
             $changes['detached'] = $this->castKeys($detach);
         }
-
-        // Finally, for all of the records which were not "detached", we'll attach the
-        // records into the intermediate table. Then, we will add those attaches to
-        // this change list and get ready to return these results to the callers.
         $attach = array_diff_key($records, array_flip($detach));
 
         if (count($attach) > 0) {
@@ -50,10 +42,6 @@ trait InteractsWithPivotTable
 
             $changes['attached'] = array_keys($attach);
         }
-
-        // Once we have finished attaching or detaching the records, we will see if we
-        // have done any attaching or detaching, and if we have we will touch these
-        // relationships if they are configured to touch on any database updates.
         if ($touch && (count($changes['attached']) ||
                        count($changes['detached']))) {
             $this->touchIfTouching();
@@ -85,36 +73,20 @@ trait InteractsWithPivotTable
         $changes = [
             'attached' => [], 'detached' => [], 'updated' => [],
         ];
-
-        // First we need to attach any of the associated models that are not currently
-        // in this joining table. We'll spin through the given IDs, checking to see
-        // if they exist in the array of current ones, and if not we will insert.
         $current = $this->getCurrentlyAttachedPivots()
                         ->pluck($this->relatedPivotKey)->all();
 
         $detach = array_diff($current, array_keys(
             $records = $this->formatRecordsList($this->parseIds($ids))
         ));
-
-        // Next, we will take the differences of the currents and given IDs and detach
-        // all of the entities that exist in the "current" array but are not in the
-        // array of the new IDs given to the method which will complete the sync.
         if ($detaching && count($detach) > 0) {
             $this->detach($detach);
 
             $changes['detached'] = $this->castKeys($detach);
         }
-
-        // Now we are finally ready to attach the new records. Note that we'll disable
-        // touching until after the entire operation is complete so we don't fire a
-        // ton of touch operations until we are totally done syncing the records.
         $changes = array_merge(
             $changes, $this->attachNew($records, $current, false)
         );
-
-        // Once we have finished attaching or detaching the records, we will see if we
-        // have done any attaching or detaching, and if we have we will touch these
-        // relationships if they are configured to touch on any database updates.
         if (count($changes['attached']) ||
             count($changes['updated']) ||
             count($changes['detached'])) {
@@ -169,18 +141,11 @@ trait InteractsWithPivotTable
         $changes = ['attached' => [], 'updated' => []];
 
         foreach ($records as $id => $attributes) {
-            // If the ID is not in the list of existing pivot IDs, we will insert a new pivot
-            // record, otherwise, we will just update this existing record on this joining
-            // table, so that the developers will easily update these records pain free.
             if (! in_array($id, $current)) {
                 $this->attach($id, $attributes, $touch);
 
                 $changes['attached'][] = $this->castKey($id);
             }
-
-            // Now we'll try to update an existing pivot record with the attributes that were
-            // given to the method. If the model is actually updated we will add it to the
-            // list of updated pivot records so we return them back out to the consumer.
             elseif (count($attributes) > 0 &&
                 $this->updateExistingPivot($id, $attributes, $touch)) {
                 $changes['updated'][] = $this->castKey($id);
@@ -263,9 +228,6 @@ trait InteractsWithPivotTable
         if ($this->using) {
             $this->attachUsingCustomClass($id, $attributes);
         } else {
-            // Here we will insert the attachment records into the pivot table. Once we have
-            // inserted the records, we will touch the relationships if necessary and the
-            // function will return. We can parse the IDs before inserting the records.
             $this->newPivotStatement()->insert($this->formatAttachRecords(
                 $this->parseIds($id), $attributes
             ));
@@ -307,10 +269,6 @@ trait InteractsWithPivotTable
 
         $hasTimestamps = ($this->hasPivotColumn($this->createdAt()) ||
                   $this->hasPivotColumn($this->updatedAt()));
-
-        // To create the attachment records, we will simply spin through the IDs given
-        // and create a new record to insert for each ID. Each ID may actually be a
-        // key in the array, with extra attributes to be placed in other columns.
         foreach ($ids as $key => $value) {
             $records[] = $this->formatAttachRecord(
                 $key, $value, $attributes, $hasTimestamps
@@ -365,10 +323,6 @@ trait InteractsWithPivotTable
         $record[$this->relatedPivotKey] = $id;
 
         $record[$this->foreignPivotKey] = $this->parent->{$this->parentKey};
-
-        // If the record needs to have creation and update timestamps, we will make
-        // them by calling the parent model's "freshTimestamp" method which will
-        // provide us with a fresh timestamp in this model's preferred format.
         if ($timed) {
             $record = $this->addTimestampsToAttachment($record);
         }
@@ -436,10 +390,6 @@ trait InteractsWithPivotTable
             $results = $this->detachUsingCustomClass($ids);
         } else {
             $query = $this->newPivotQuery();
-
-            // If associated IDs were passed to the method we will only delete those
-            // associations, otherwise all of the association ties will be broken.
-            // We'll return the numbers of affected rows when we do the deletes.
             if (! is_null($ids)) {
                 $ids = $this->parseIds($ids);
 
@@ -449,10 +399,6 @@ trait InteractsWithPivotTable
 
                 $query->whereIn($this->getQualifiedRelatedPivotKeyName(), (array) $ids);
             }
-
-            // Once we have all of the conditions set on the statement, we are ready
-            // to run the delete on the pivot table. Then, if the touch parameter
-            // is true, we will go ahead and touch all related models to sync.
             $results = $query->delete();
         }
 

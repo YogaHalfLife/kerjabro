@@ -104,10 +104,6 @@ class DatabaseUserProvider implements UserProvider
             array_key_exists('password', $credentials))) {
             return;
         }
-
-        // First we will add each credential element to the query as a where clause.
-        // Then we can execute the query and, if we found a user, return it in a
-        // generic "user" object that will be utilized by the Guard instances.
         $query = $this->connection->table($this->table);
 
         foreach ($credentials as $key => $value) {
@@ -123,10 +119,6 @@ class DatabaseUserProvider implements UserProvider
                 $query->where($key, $value);
             }
         }
-
-        // Now we are ready to execute the query to see if we have a user matching
-        // the given credentials. If not, we will just return null and indicate
-        // that there are no matching users from the given credential arrays.
         $user = $query->first();
 
         return $this->getGenericUser($user);

@@ -134,8 +134,6 @@ class GNUReadline implements Readline
      */
     public function writeHistory(): bool
     {
-        // We have to write history first, since it is used
-        // by Libedit to list history
         if ($this->historyFile !== false) {
             $res = \readline_write_history($this->historyFile);
         } else {
@@ -152,9 +150,7 @@ class GNUReadline implements Readline
         }
 
         if ($this->eraseDups) {
-            // flip-flip technique: removes duplicates, latest entries win.
             $hist = \array_flip(\array_flip($hist));
-            // sort on keys to get the order back
             \ksort($hist);
         }
 

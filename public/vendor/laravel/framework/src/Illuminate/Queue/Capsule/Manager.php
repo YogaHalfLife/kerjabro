@@ -31,10 +31,6 @@ class Manager
     public function __construct(Container $container = null)
     {
         $this->setupContainer($container ?: new Container);
-
-        // Once we have the container setup, we will set up the default configuration
-        // options in the container "config" bindings. This'll just make the queue
-        // manager behave correctly since all the correct bindings are in place.
         $this->setupDefaultConfiguration();
 
         $this->setupManager();

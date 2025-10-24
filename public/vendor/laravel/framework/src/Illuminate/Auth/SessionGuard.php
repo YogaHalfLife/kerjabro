@@ -132,26 +132,14 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
         if ($this->loggedOut) {
             return;
         }
-
-        // If we've already retrieved the user for the current request we can just
-        // return it back immediately. We do not want to fetch the user data on
-        // every call to this method because that would be tremendously slow.
         if (! is_null($this->user)) {
             return $this->user;
         }
 
         $id = $this->session->get($this->getName());
-
-        // First we will try to load the user using the identifier in the session if
-        // one exists. Otherwise we will check for a "remember me" cookie in this
-        // request, and if one exists, attempt to retrieve the user using that.
         if (! is_null($id) && $this->user = $this->provider->retrieveById($id)) {
             $this->fireAuthenticatedEvent($this->user);
         }
-
-        // If the user is null, but we decrypt a "recaller" cookie we can attempt to
-        // pull the user data on that cookie which serves as a remember cookie on
-        // the application. Once we have a user we can return it to the caller.
         if (is_null($this->user) && ! is_null($recaller = $this->recaller())) {
             $this->user = $this->userFromRecaller($recaller);
 
@@ -176,10 +164,6 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
         if (! $recaller->valid() || $this->recallAttempted) {
             return;
         }
-
-        // If the user is null, but we decrypt a "recaller" cookie we can attempt to
-        // pull the user data on that cookie which serves as a remember cookie on
-        // the application. Once we have a user we can return it to the caller.
         $this->recallAttempted = true;
 
         $this->viaRemember = ! is_null($user = $this->provider->retrieveByToken(
@@ -282,10 +266,6 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
         if ($this->check()) {
             return;
         }
-
-        // If a username is set on the HTTP basic request, we will return out without
-        // interrupting the request lifecycle. Otherwise, we'll need to generate a
-        // request indicating that the given credentials were invalid for login.
         if ($this->attemptBasic($this->getRequest(), $field, $extraConditions)) {
             return;
         }
@@ -364,19 +344,11 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
         $this->fireAttemptEvent($credentials, $remember);
 
         $this->lastAttempted = $user = $this->provider->retrieveByCredentials($credentials);
-
-        // If an implementation of UserInterface was returned, we'll ask the provider
-        // to validate the user against the given credentials, and if they are in
-        // fact valid we'll log the users into the application and return true.
         if ($this->hasValidCredentials($user, $credentials)) {
             $this->login($user, $remember);
 
             return true;
         }
-
-        // If the authentication attempt fails we will fire an event so that the user
-        // may be notified of any suspicious attempts to access their account from
-        // an unrecognized user. A developer may listen to this event as needed.
         $this->fireFailedEvent($user, $credentials);
 
         return false;
@@ -395,10 +367,6 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
         $this->fireAttemptEvent($credentials, $remember);
 
         $this->lastAttempted = $user = $this->provider->retrieveByCredentials($credentials);
-
-        // This method does the exact same thing as attempt, but also executes callbacks after
-        // the user is retrieved and validated. If one of the callbacks returns falsy we do
-        // not login the user. Instead, we will fail the specific authentication attempt.
         if ($this->hasValidCredentials($user, $credentials) && $this->shouldLogin($callbacks, $user)) {
             $this->login($user, $remember);
 
@@ -474,19 +442,11 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
     public function login(AuthenticatableContract $user, $remember = false)
     {
         $this->updateSession($user->getAuthIdentifier());
-
-        // If the user should be permanently "remembered" by the application we will
-        // queue a permanent cookie that contains the encrypted copy of the user
-        // identifier. We will then decrypt this later to retrieve the users.
         if ($remember) {
             $this->ensureRememberTokenIsSet($user);
 
             $this->queueRecallerCookie($user);
         }
-
-        // If we have an event dispatcher instance set we will fire an event so that
-        // any listeners will hook into the authentication events and run actions
-        // based on the login and logout events fired from the guard instances.
         $this->fireLoginEvent($user, $remember);
 
         $this->setUser($user);
@@ -556,17 +516,9 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
         if (! is_null($this->user) && ! empty($user->getRememberToken())) {
             $this->cycleRememberToken($user);
         }
-
-        // If we have an event dispatcher instance, we can fire off the logout event
-        // so any further processing can be done. This allows the developer to be
-        // listening for anytime a user signs out of this application manually.
         if (isset($this->events)) {
             $this->events->dispatch(new Logout($this->name, $user));
         }
-
-        // Once we have fired the logout event we will clear the users out of memory
-        // so they are no longer available as the user is no longer considered as
-        // being signed into this application and should not be available here.
         $this->user = null;
 
         $this->loggedOut = true;
@@ -584,17 +536,9 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
         $user = $this->user();
 
         $this->clearUserDataFromStorage();
-
-        // If we have an event dispatcher instance, we can fire off the logout event
-        // so any further processing can be done. This allows the developer to be
-        // listening for anytime a user signs out of this application manually.
         if (isset($this->events)) {
             $this->events->dispatch(new CurrentDeviceLogout($this->name, $user));
         }
-
-        // Once we have fired the logout event we will clear the users out of memory
-        // so they are no longer available as the user is no longer considered as
-        // being signed into this application and should not be available here.
         $this->user = null;
 
         $this->loggedOut = true;

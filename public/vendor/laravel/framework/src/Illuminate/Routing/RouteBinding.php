@@ -34,9 +34,6 @@ class RouteBinding
     protected static function createClassBinding($container, $binding)
     {
         return function ($value, $route) use ($container, $binding) {
-            // If the binding has an @ sign, we will assume it's being used to delimit
-            // the class name from the bind method name. This allows for bindings
-            // to run multiple bind methods in a single class for convenience.
             [$class, $method] = Str::parseCallback($binding, 'bind');
 
             $callable = [$container->make($class), $method];
@@ -61,19 +58,11 @@ class RouteBinding
             if (is_null($value)) {
                 return;
             }
-
-            // For model binders, we will attempt to retrieve the models using the first
-            // method on the model instance. If we cannot retrieve the models we'll
-            // throw a not found exception otherwise we will return the instance.
             $instance = $container->make($class);
 
             if ($model = $instance->resolveRouteBinding($value)) {
                 return $model;
             }
-
-            // If a callback was supplied to the method we will call that to determine
-            // what we should do when the model is not found. This just gives these
-            // developer a little greater flexibility to decide what will happen.
             if ($callback instanceof Closure) {
                 return $callback($value);
             }

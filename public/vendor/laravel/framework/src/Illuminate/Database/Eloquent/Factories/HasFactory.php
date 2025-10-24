@@ -27,6 +27,5 @@ trait HasFactory
      */
     protected static function newFactory()
     {
-        //
     }
 }

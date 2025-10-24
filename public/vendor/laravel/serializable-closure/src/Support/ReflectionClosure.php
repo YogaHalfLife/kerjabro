@@ -508,7 +508,6 @@ class ReflectionClosure extends ReflectionFunction
                     break;
                 case 'id_name':
                     switch ($token[0]) {
-                        // named arguments...
                         case ':':
                             if ($lastState === 'closure' && $context === 'root') {
                                 $state = 'ignore_next';
@@ -554,7 +553,6 @@ class ReflectionClosure extends ReflectionFunction
                                         $id_start = $functions[$id_start_ci];
                                     } elseif ($nsf !== '\\' && function_exists($nsf.'\\'.$id_start)) {
                                         $id_start = $nsf.'\\'.$id_start;
-                                        // Cache it to functions array
                                         $functions[$id_start_ci] = $id_start;
                                     }
                                 }
@@ -688,17 +686,12 @@ class ReflectionClosure extends ReflectionFunction
      */
     protected static function getBuiltinTypes()
     {
-        // PHP 8.1
         if (PHP_VERSION_ID >= 80100) {
             return ['array', 'callable', 'string', 'int', 'bool', 'float', 'iterable', 'void', 'object', 'mixed', 'false', 'null', 'never'];
         }
-
-        // PHP 8
         if (\PHP_MAJOR_VERSION === 8) {
             return ['array', 'callable', 'string', 'int', 'bool', 'float', 'iterable', 'void', 'object', 'mixed', 'false', 'null'];
         }
-
-        // PHP 7
         switch (\PHP_MINOR_VERSION) {
             case 0:
                 return ['array', 'callable', 'string', 'int', 'bool', 'float'];
@@ -1141,8 +1134,6 @@ class ReflectionClosure extends ReflectionFunction
     protected function getClosureNamespaceName()
     {
         $ns = $this->getNamespaceName();
-
-        // First class callables...
         if ($this->getName() !== '{closure}' && empty($ns) && ! is_null($this->getClosureScopeClass())) {
             $ns = $this->getClosureScopeClass()->getNamespaceName();
         }

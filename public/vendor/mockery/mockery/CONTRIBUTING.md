@@ -81,8 +81,6 @@ and you will be able to open the mock class in your editor.
 
 ``` php
 
-// tests/bootstrap.php
-
 Mockery::setLoader(new Mockery\Loader\RequireLoader(sys_get_temp_dir()));
 
 ```

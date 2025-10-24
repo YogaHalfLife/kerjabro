@@ -71,25 +71,20 @@ class StaticPrefixCollection
             [$commonPrefix, $commonStaticPrefix] = $this->getCommonPrefix($prefix, $this->prefixes[$i]);
 
             if ($this->prefix === $commonPrefix) {
-                // the new route and a previous one have no common prefix, let's see if they are exclusive to each others
 
                 if ($this->prefix !== $staticPrefix && $this->prefix !== $this->staticPrefixes[$i]) {
-                    // the new route and the previous one have exclusive static prefixes
                     continue;
                 }
 
                 if ($this->prefix === $staticPrefix && $this->prefix === $this->staticPrefixes[$i]) {
-                    // the new route and the previous one have no static prefix
                     break;
                 }
 
                 if ($this->prefixes[$i] !== $this->staticPrefixes[$i] && $this->prefix === $this->staticPrefixes[$i]) {
-                    // the previous route is non-static and has no static prefix
                     break;
                 }
 
                 if ($prefix !== $staticPrefix && $this->prefix === $staticPrefix) {
-                    // the new route is non-static and has no static prefix
                     break;
                 }
 
@@ -97,10 +92,8 @@ class StaticPrefixCollection
             }
 
             if ($item instanceof self && $this->prefixes[$i] === $commonPrefix) {
-                // the new route is a child of a previous one, let's nest it
                 $item->addRoute($prefix, $route);
             } else {
-                // the new route and a previous one have a common prefix, let's merge them
                 $child = new self($commonPrefix);
                 [$child->prefixes[0], $child->staticPrefixes[0]] = $child->getCommonPrefix($this->prefixes[$i], $this->prefixes[$i]);
                 [$child->prefixes[1], $child->staticPrefixes[1]] = $child->getCommonPrefix($prefix, $prefix);
@@ -113,9 +106,6 @@ class StaticPrefixCollection
 
             return;
         }
-
-        // No optimised case was found, in this case we simple add the route for possible
-        // grouping when new routes are added.
         $this->staticPrefixes[] = $staticPrefix;
         $this->prefixes[] = $prefix;
         $this->items[] = $route;
@@ -174,7 +164,6 @@ class StaticPrefixCollection
                     }
                     $subPattern = substr($prefix, $i, $j - $i);
                     if ($prefix !== $anotherPrefix && !preg_match('/^\(\[[^\]]++\]\+\+\)$/', $subPattern) && !preg_match('{(?<!'.$subPattern.')}', '')) {
-                        // sub-patterns of variable length are not considered as common prefixes because their greediness would break in-order matching
                         break;
                     }
                     $i = $j - 1;
@@ -188,7 +177,6 @@ class StaticPrefixCollection
         }
         if ($i < $end && 0b10 === (\ord($prefix[$i]) >> 6) && preg_match('//u', $prefix.' '.$anotherPrefix)) {
             do {
-                // Prevent cutting in the middle of an UTF-8 characters
                 --$i;
             } while (0b10 === (\ord($prefix[$i]) >> 6));
         }

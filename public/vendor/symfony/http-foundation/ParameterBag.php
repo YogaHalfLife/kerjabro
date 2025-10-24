@@ -121,7 +121,6 @@ class ParameterBag implements \IteratorAggregate, \Countable
      */
     public function getDigits(string $key, string $default = ''): string
     {
-        // we need to remove - and + because they're allowed in the filter
         return str_replace(['-', '+'], '', $this->filter($key, $default, \FILTER_SANITIZE_NUMBER_INT));
     }
 
@@ -151,13 +150,9 @@ class ParameterBag implements \IteratorAggregate, \Countable
     public function filter(string $key, mixed $default = null, int $filter = \FILTER_DEFAULT, mixed $options = []): mixed
     {
         $value = $this->get($key, $default);
-
-        // Always turn $options into an array - this allows filter_var option shortcuts.
         if (!\is_array($options) && $options) {
             $options = ['flags' => $options];
         }
-
-        // Add a convenience check for arrays.
         if (\is_array($value) && !isset($options['flags'])) {
             $options['flags'] = \FILTER_REQUIRE_ARRAY;
         }

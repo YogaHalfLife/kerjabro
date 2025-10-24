@@ -126,6 +126,5 @@ trait RefreshDatabase
      */
     protected function afterRefreshingDatabase()
     {
-        // ...
     }
 }

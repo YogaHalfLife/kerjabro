@@ -15,18 +15,10 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-
-// {{ site.product.name }} components
-
-// Variables
 @import "variables/navbar-vertical";
 @import "variables/social-buttons";
 @import "variables/breadcrumb";
-
-// Mixin
 @import "mixins/mixins";
-
-// Core Components - extra styling
 @import "alert";
 @import "avatars";
 @import "badge";
@@ -55,9 +47,5 @@
 @import "tilt";
 @import "tooltips";
 @import "typography";
-
-// Dark Mode
 @import "dark-version";
-
-// Plugins
 @import "plugins/free/plugins";

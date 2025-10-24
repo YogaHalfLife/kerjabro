@@ -35,7 +35,6 @@ class StreamHandler
      */
     public function __invoke(RequestInterface $request, array $options): PromiseInterface
     {
-        // Sleep if there is a delay specified.
         if (isset($options['delay'])) {
             \usleep($options['delay'] * 1000);
         }
@@ -43,11 +42,7 @@ class StreamHandler
         $startTime = isset($options['on_stats']) ? Utils::currentTime() : null;
 
         try {
-            // Does not support the expect header.
             $request = $request->withoutHeader('Expect');
-
-            // Append a content-length header if body size is zero to match
-            // cURL's behavior.
             if (0 === $request->getBody()->getSize()) {
                 $request = $request->withHeader('Content-Length', '0');
             }
@@ -61,9 +56,7 @@ class StreamHandler
         } catch (\InvalidArgumentException $e) {
             throw $e;
         } catch (\Exception $e) {
-            // Determine if the error was a networking error.
             $message = $e->getMessage();
-            // This list can probably get more comprehensive.
             if (false !== \strpos($message, 'getaddrinfo') // DNS lookup failed
                 || false !== \strpos($message, 'Connection refused')
                 || false !== \strpos($message, "couldn't connect to host") // error on HHVM
@@ -133,9 +126,6 @@ class StreamHandler
                 );
             }
         }
-
-        // Do not drain when the request is a HEAD request because they have
-        // no body.
         if ($sink !== $stream) {
             $this->drain($stream, $sink, $response->getHeaderLine('Content-Length'));
         }
@@ -161,7 +151,6 @@ class StreamHandler
      */
     private function checkDecode(array $options, array $headers, $stream): array
     {
-        // Automatically decode responses when instructed.
         if (!empty($options['decode_content'])) {
             $normalizedKeys = Utils::normalizeHeaderKeys($headers);
             if (isset($normalizedKeys['content-encoding'])) {
@@ -169,11 +158,7 @@ class StreamHandler
                 if ($encoding[0] === 'gzip' || $encoding[0] === 'deflate') {
                     $stream = new Psr7\InflateStream(Psr7\Utils::streamFor($stream));
                     $headers['x-encoded-content-encoding'] = $headers[$normalizedKeys['content-encoding']];
-
-                    // Remove content-encoding header
                     unset($headers[$normalizedKeys['content-encoding']]);
-
-                    // Fix content-length header
                     if (isset($normalizedKeys['content-length'])) {
                         $headers['x-encoded-content-length'] = $headers[$normalizedKeys['content-length']];
                         $length = (int) $stream->getSize();
@@ -200,10 +185,6 @@ class StreamHandler
      */
     private function drain(StreamInterface $source, StreamInterface $sink, string $contentLength): StreamInterface
     {
-        // If a content-length header is provided, then stop reading once
-        // that number of bytes has been read. This can prevent infinitely
-        // reading from a stream when dealing with servers that do not honor
-        // Connection: Close headers.
         Psr7\Utils::copyToStream(
             $source,
             $sink,
@@ -265,16 +246,11 @@ class StreamHandler
         if (!$methods) {
             $methods = \array_flip(\get_class_methods(__CLASS__));
         }
-
-        // HTTP/1.1 streams using the PHP stream wrapper require a
-        // Connection: close header
         if ($request->getProtocolVersion() == '1.1'
             && !$request->hasHeader('Connection')
         ) {
             $request = $request->withHeader('Connection', 'close');
         }
-
-        // Ensure SSL is verified by default
         if (!isset($options['verify'])) {
             $options['verify'] = true;
         }
@@ -301,8 +277,6 @@ class StreamHandler
             }
             $context = \array_replace_recursive($context, $options['stream_context']);
         }
-
-        // Microsoft NTLM authentication only supported with curl handler
         if (isset($options['auth'][2]) && 'ntlm' === $options['auth'][2]) {
             throw new \InvalidArgumentException('Microsoft NTLM authentication only supported with curl handler');
         }
@@ -383,7 +357,6 @@ class StreamHandler
 
         if (!empty($body)) {
             $context['http']['content'] = $body;
-            // Prevent the HTTP handler from adding a Content-Type header.
             if (!$request->hasHeader('Content-Type')) {
                 $context['http']['header'] .= "Content-Type:\r\n";
             }
@@ -447,8 +420,6 @@ class StreamHandler
                 ];
             }
         }
-
-        // Return proxy as-is.
         return [
             'proxy' => $url,
             'auth' => null,
@@ -517,8 +488,6 @@ class StreamHandler
             $params,
             static function ($code, $a, $b, $c, $transferred, $total) use ($value) {
                 if ($code == \STREAM_NOTIFY_PROGRESS) {
-                    // The upload progress cannot be determined. Use 0 for cURL compatibility:
-                    // https://curl.se/libcurl/c/CURLOPT_PROGRESSFUNCTION.html
                     $value($total, $transferred, 0, 0);
                 }
             }
@@ -564,7 +533,6 @@ class StreamHandler
 
     private static function addNotification(array &$params, callable $notify): void
     {
-        // Wrap the existing function if needed.
         if (!isset($params['notification'])) {
             $params['notification'] = $notify;
         } else {

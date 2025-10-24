@@ -61,16 +61,12 @@ class AddAnnotatedClassesToCachePass implements CompilerPassInterface
     private function expandClasses(array $patterns, array $classes): array
     {
         $expanded = [];
-
-        // Explicit classes declared in the patterns are returned directly
         foreach ($patterns as $key => $pattern) {
             if (!str_ends_with($pattern, '\\') && !str_contains($pattern, '*')) {
                 unset($patterns[$key]);
                 $expanded[] = ltrim($pattern, '\\');
             }
         }
-
-        // Match patterns with the classes list
         $regexps = $this->patternsToRegexps($patterns);
 
         foreach ($classes as $class) {
@@ -110,13 +106,8 @@ class AddAnnotatedClassesToCachePass implements CompilerPassInterface
         $regexps = [];
 
         foreach ($patterns as $pattern) {
-            // Escape user input
             $regex = preg_quote(ltrim($pattern, '\\'));
-
-            // Wildcards * and **
             $regex = strtr($regex, ['\\*\\*' => '.*?', '\\*' => '[^\\\\]*?']);
-
-            // If this class does not end by a slash, anchor the end
             if ('\\' !== substr($regex, -1)) {
                 $regex .= '$';
             }

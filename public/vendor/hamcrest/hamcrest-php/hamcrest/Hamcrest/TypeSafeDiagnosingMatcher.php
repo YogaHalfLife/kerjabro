@@ -19,8 +19,6 @@ abstract class TypeSafeDiagnosingMatcher extends TypeSafeMatcher
         $this->matchesSafelyWithDiagnosticDescription($item, $mismatchDescription);
     }
 
-    // -- Protected Methods
-
     /**
      * Subclasses should implement these. The item will already have been checked for
      * the specific type.

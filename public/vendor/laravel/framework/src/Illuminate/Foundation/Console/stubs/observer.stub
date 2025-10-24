@@ -14,7 +14,6 @@ class {{ class }}
      */
     public function created({{ model }} ${{ modelVariable }})
     {
-        //
     }
 
     /**
@@ -25,7 +24,6 @@ class {{ class }}
      */
     public function updated({{ model }} ${{ modelVariable }})
     {
-        //
     }
 
     /**
@@ -36,7 +34,6 @@ class {{ class }}
      */
     public function deleted({{ model }} ${{ modelVariable }})
     {
-        //
     }
 
     /**
@@ -47,7 +44,6 @@ class {{ class }}
      */
     public function restored({{ model }} ${{ modelVariable }})
     {
-        //
     }
 
     /**
@@ -58,6 +54,5 @@ class {{ class }}
      */
     public function forceDeleted({{ model }} ${{ modelVariable }})
     {
-        //
     }
 }

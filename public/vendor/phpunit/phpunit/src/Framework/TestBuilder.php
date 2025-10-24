@@ -62,8 +62,6 @@ final class TestBuilder
         }
 
         $parameters = $constructor->getParameters();
-
-        // TestCase() or TestCase($name)
         if (count($parameters) < 2) {
             $test = $this->buildTestWithoutData($className);
         } // TestCase($name, $data)
@@ -101,8 +99,6 @@ final class TestBuilder
 
                 $data = new ErrorTestCase($message);
             }
-
-            // Test method with @dataProvider.
             if (isset($data)) {
                 $test = $this->buildDataProviderTestSuite(
                     $methodName,

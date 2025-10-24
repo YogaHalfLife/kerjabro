@@ -148,7 +148,6 @@ class PushoverHandler extends SocketHandler
      */
     private function buildContent(array $record): string
     {
-        // Pushover has a limit of 512 characters on title and message combined.
         $maxMessageLength = 512 - strlen($this->title);
 
         $message = ($this->useFormattedMessage) ? $record['formatted'] : $record['message'];
@@ -171,15 +170,9 @@ class PushoverHandler extends SocketHandler
         } elseif (isset($record['level']) && $record['level'] >= $this->highPriorityLevel) {
             $dataArray['priority'] = 1;
         }
-
-        // First determine the available parameters
         $context = array_intersect_key($record['context'], $this->parameterNames);
         $extra = array_intersect_key($record['extra'], $this->parameterNames);
-
-        // Least important info should be merged with subsequent info
         $dataArray = array_merge($extra, $context, $dataArray);
-
-        // Only pass sounds that are supported by the API
         if (isset($dataArray['sound']) && !in_array($dataArray['sound'], $this->sounds)) {
             unset($dataArray['sound']);
         }
