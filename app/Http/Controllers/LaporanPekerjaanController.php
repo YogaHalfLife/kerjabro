@@ -33,7 +33,7 @@ class LaporanPekerjaanController extends Controller
         $divisis = MasterDivisi::query()
             ->when(!$isAdmin && $divisiLogin, function ($q2) use ($divisiLogin) {
                 $q2->where('id_divisi', $divisiLogin->id_divisi)
-                   ->orWhereRaw('LOWER(nama_divisi) = ?', ['all']);
+                    ->orWhereRaw('LOWER(nama_divisi) = ?', ['all']);
             })
             ->orderBy('nama_divisi')
             ->get(['id_divisi', 'nama_divisi']);
@@ -65,7 +65,7 @@ class LaporanPekerjaanController extends Controller
         ]);
 
         $isAdmin = Auth::check() && Auth::user()->username === 'admin';
-        
+
         $bulanRaw = $request->get('bulan');
         $start = $end = null;
         if ($bulanRaw) {
@@ -86,13 +86,14 @@ class LaporanPekerjaanController extends Controller
             $divisisAllowed = MasterDivisi::query()
                 ->when($pegawaiLogin, function ($q2) use ($pegawaiLogin) {
                     $q2->where('id_divisi', $pegawaiLogin->id_divisi)
-                       ->orWhereRaw('LOWER(nama_divisi) = ?', ['all']);
+                        ->orWhereRaw('LOWER(nama_divisi) = ?', ['all']);
                 })
                 ->pluck('id_divisi')
                 ->all();
 
             if ($divisi && !in_array($divisi, $divisisAllowed)) {
                 $divisi = null;
+            }
         }
 
         $fileName = 'Laporan_Pekerjaan_' . now()->format('Ymd_His') . '.xlsx';
@@ -126,7 +127,7 @@ class LaporanPekerjaanController extends Controller
 
         $doc = $export->build();
         $fileName = 'Laporan_Pekerjaan_' . now()->format('Ymd_His') . '.docx';
-        
+
         $tempPath = storage_path('app/tmp_' . uniqid() . '.docx');
         $writer = \PhpOffice\PhpWord\IOFactory::createWriter($doc, 'Word2007');
         $writer->save($tempPath);
