@@ -26,4 +26,14 @@ class MasterPegawai extends Model
     {
         return $this->belongsTo(MasterDivisi::class, 'id_divisi', 'id_divisi');
     }
+
+    public function pekerjaan()
+    {
+        return $this->hasMany(TransPekerjaan::class, 'pegawai_id');
+    }
+    
+    public function pekerjaans()
+    {
+        return $this->belongsToMany(TransPekerjaan::class, 'trans_pekerjaan_pegawai', 'pegawai_id', 'pekerjaan_id')->withTimestamps();
+    }
 }

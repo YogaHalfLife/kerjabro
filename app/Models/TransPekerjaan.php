@@ -23,6 +23,11 @@ class TransPekerjaan extends Model
         return $this->belongsTo(MasterPegawai::class, 'pegawai_id');
     }
 
+    public function pegawais()
+    {
+        return $this->belongsToMany(MasterPegawai::class, 'trans_pekerjaan_pegawai', 'pekerjaan_id', 'pegawai_id')->withTimestamps();
+    }
+
     public function divisi()
     {
         return $this->belongsTo(MasterDivisi::class, 'id_divisi', 'id_divisi');

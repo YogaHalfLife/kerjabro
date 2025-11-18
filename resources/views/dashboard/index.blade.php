@@ -151,9 +151,10 @@
                                             <h6 class="mb-1 text-dark text-sm text-truncate" style="max-width: 100%;">
                                                 {{ $item->judul_pekerjaan }}
                                             </h6>
-                                            <span class="text-xs text-truncate" style="max-width: 100%;">
-                                                {{ optional($item->pegawai)->nama_pegawai }} ·
-                                                {{ optional($item->divisi)->nama_divisi }} · {{ $item->bulan }}
+                                            <span class="text-xs">
+                                                @php $nama = $item->pegawais->pluck('nama_pegawai')->implode(', '); @endphp
+                                                {{ $nama ?: '—' }} · {{ optional($item->divisi)->nama_divisi }} ·
+                                                {{ $item->bulan }}
                                             </span>
                                         </div>
                                     </div>

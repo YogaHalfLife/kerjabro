@@ -55,30 +55,100 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-3">
-                                <label class="form-label text-sm">Pegawai</label>
+                           @php
+                                // $pegawais   : koleksi MasterPegawai [id, nama_pegawai, id_divisi]
+                                // $pegawaiLogin: MasterPegawai|null (untuk non-admin)
+                                $isAdmin = auth()->check() && auth()->user()->username === 'admin';
+                            @endphp
 
-                                @if ($isAdmin)
-                                <select name="pegawai_id"
-                                    class="form-select @error('pegawai_id') is-invalid @enderror" required>
-                                    <option value="">Pilih Pegawai</option>
-                                    @foreach ($pegawais as $p)
-                                    <option value="{{ $p->id }}"
-                                        {{ old('pegawai_id') == $p->id ? 'selected' : '' }}>
-                                        {{ $p->nama_pegawai }}
-                                    </option>
+                            <div class="col-md-6">
+                                <label class="form-label text-sm d-flex align-items-center justify-content-between">
+                                    <span>Pegawai</span>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="btnAddPegawai">
+                                        <i class="ni ni-fat-add me-1"></i> Tambah Pegawai
+                                    </button>
+                                </label>
+
+                                <div id="pegawaiRepeater" class="d-flex flex-column gap-2">
+                                    {{-- Item pertama (default) --}}
+                                    <div class="pegawai-item d-flex gap-2 align-items-center">
+                                        @if ($isAdmin)
+                                            <select name="pegawai_id[]"
+                                                    class="form-select flex-grow-1 @error('pegawai_id') is-invalid @enderror @error('pegawai_id.*') is-invalid @enderror"
+                                                    required>
+                                                <option value="">Pilih Pegawai</option>
+                                                @foreach ($pegawais as $p)
+                                                    <option value="{{ $p->id }}"
+                                                        {{ collect(old('pegawai_id', []))->contains($p->id) ? 'selected' : '' }}>
+                                                        {{ $p->nama_pegawai }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            {{-- Non-admin: item pertama fixed dirinya sendiri --}}
+                                            <input type="text" class="form-control flex-grow-1" value="{{ $pegawaiLogin?->nama_pegawai ?? '—' }}" disabled>
+                                            @if ($pegawaiLogin)
+                                                <input type="hidden" name="pegawai_id[]" value="{{ $pegawaiLogin->id }}">
+                                            @endif
+                                        @endif
+
+                                        {{-- tombol hapus disembunyikan untuk baris pertama non-admin --}}
+                                        <button type="button" class="btn btn-sm btn-outline-danger btnRemovePegawai"
+                                                @if(!$isAdmin) style="display:none" @endif>
+                                            <i class="ni ni-fat-remove"></i>
+                                        </button>
+                                    </div>
+
+                                    {{-- Jika ada old input (validasi gagal), render sisanya --}}
+                                    @php
+                                        $oldIds = collect(old('pegawai_id', []));
+                                        // untuk admin: old sudah ter-cover di item pertama; untuk non-admin: item pertama = dirinya, sisanya render
+                                        if(!$isAdmin && $pegawaiLogin){
+                                            $oldIds = $oldIds->reject(fn($id) => (int)$id === (int)$pegawaiLogin->id);
+                                        } else {
+                                            // admin: buang 1 (baris pertama)
+                                            if($oldIds->count() > 0) $oldIds = $oldIds->slice(1);
+                                        }
+                                    @endphp
+
+                                    @foreach ($oldIds as $oid)
+                                        <div class="pegawai-item d-flex gap-2 align-items-center">
+                                            <select name="pegawai_id[]" class="form-select flex-grow-1" required>
+                                                <option value="">Pilih Pegawai</option>
+                                                @foreach ($pegawais as $p)
+                                                    <option value="{{ $p->id }}" {{ (int)$p->id === (int)$oid ? 'selected' : '' }}>
+                                                        {{ $p->nama_pegawai }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <button type="button" class="btn btn-sm btn-outline-danger btnRemovePegawai">
+                                                <i class="ni ni-fat-remove"></i>
+                                            </button>
+                                        </div>
                                     @endforeach
-                                </select>
-                                @error('pegawai_id')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                                @else
-                                <input type="text" class="form-control"
-                                    value="{{ $pegawaiLogin ? $pegawaiLogin->nama_pegawai : '—' }}" disabled>
-                                @if ($pegawaiLogin)
-                                <input type="hidden" name="pegawai_id" value="{{ $pegawaiLogin->id }}">
-                                @endif
-                                @endif
+                                </div>
+
+                                @error('pegawai_id')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                @error('pegawai_id.*')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+
+                                {{-- Template tersembunyi untuk item baru --}}
+                                <template id="tplPegawaiItem">
+                                    <div class="pegawai-item d-flex gap-2 align-items-center">
+                                        <select name="pegawai_id[]" class="form-select flex-grow-1" required>
+                                            <option value="">Pilih Pegawai</option>
+                                            @foreach ($pegawais as $p)
+                                                <option value="{{ $p->id }}">{{ $p->nama_pegawai }}</option>
+                                            @endforeach
+                                        </select>
+                                        <button type="button" class="btn btn-sm btn-outline-danger btnRemovePegawai">
+                                            <i class="ni ni-fat-remove"></i>
+                                        </button>
+                                    </div>
+                                </template>
+
+                                <small class="text-xs text-secondary d-block mt-1">
+                                    Klik <strong>Tambah Pegawai</strong> untuk menambahkan combobox baru. Sistem akan mencegah pilihan duplikat.
+                                </small>
                             </div>
 
                             <div class="col-md-3">
@@ -298,8 +368,16 @@
                                     </td>
 
                                     {{-- Pegawai --}}
-                                    <td>
-                                        <p class="text-sm mb-0">{{ optional($row->pegawai)->nama_pegawai }}</p>
+                                    <td style="max-width:260px;">
+                                        @if($row->pegawais->count())
+                                            <div class="d-flex flex-wrap gap-1">
+                                            @foreach($row->pegawais as $pg)
+                                                <span class="badge bg-gradient-secondary">{{ $pg->nama_pegawai }}</span>
+                                            @endforeach
+                                            </div>
+                                        @else
+                                            <span class="text-secondary">—</span>
+                                        @endif
                                     </td>
 
                                     {{-- Divisi --}}
@@ -632,5 +710,65 @@
         const modal = new bootstrap.Modal(document.getElementById('detailPekerjaanModal'));
         modal.show();
     });
+</script>
+<script>
+(function () {
+    const repeater = document.getElementById('pegawaiRepeater');
+    const btnAdd   = document.getElementById('btnAddPegawai');
+    const tpl      = document.getElementById('tplPegawaiItem');
+
+    if (!repeater || !btnAdd || !tpl) return;
+
+    // Kumpulkan semua <select> aktif
+    function selects() {
+        return Array.from(repeater.querySelectorAll('select[name="pegawai_id[]"]'));
+    }
+
+    // Ambil set id yang sudah dipilih
+    function chosenIds() {
+        return new Set(selects().map(s => s.value).filter(v => v));
+    }
+
+    // Nonaktifkan option yang sudah dipilih di select lain (anti-duplikat)
+    function refreshOptions() {
+        const chosen = chosenIds();
+        selects().forEach(sel => {
+            const myVal = sel.value;
+            Array.from(sel.options).forEach(opt => {
+                if (!opt.value) { opt.disabled = false; return; }
+                // boleh pilih nilai yang saat ini sudah terpilih di dirinya sendiri
+                opt.disabled = chosen.has(opt.value) && opt.value !== myVal;
+            });
+        });
+    }
+
+    // Tambah item baru
+    btnAdd.addEventListener('click', function (e) {
+        e.preventDefault();
+        const node = tpl.content.firstElementChild.cloneNode(true);
+        repeater.appendChild(node);
+        refreshOptions();
+    });
+
+    // Delegasi: hapus item + refresh
+    repeater.addEventListener('click', function (e) {
+        const btn = e.target.closest('.btnRemovePegawai');
+        if (!btn) return;
+        const item = btn.closest('.pegawai-item');
+        if (!item) return;
+        item.remove();
+        refreshOptions();
+    });
+
+    // Delegasi: on change select → refresh anti-duplikat
+    repeater.addEventListener('change', function (e) {
+        if (e.target && e.target.matches('select[name="pegawai_id[]"]')) {
+            refreshOptions();
+        }
+    });
+
+    // Initial
+    refreshOptions();
+})();
 </script>
 @endpush

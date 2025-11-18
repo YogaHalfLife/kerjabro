@@ -59,17 +59,32 @@ class TransPekerjaanController extends Controller
             if (!in_array($divisi, $allowed)) $divisi = null;
         }
 
-        $data = \App\Models\TransPekerjaan::with(['pegawai', 'divisi', 'fotos'])
-            ->when(!$isAdmin && $pegawaiLogin, fn($s) => $s->where('pegawai_id', $pegawaiLogin->id))
+        $data = \App\Models\TransPekerjaan::with([
+            'pegawais:id,nama_pegawai,id_divisi', // ❗ many-to-many
+            'divisi:id_divisi,nama_divisi',
+            'fotos' => fn($q) => $q->orderBy('sort'),
+        ])
+            // Non-admin: hanya pekerjaan yang mencantumkan dia sebagai pegawai
+            ->when(
+                !$isAdmin && $pegawaiLogin,
+                fn($s) =>
+                $s->whereHas('pegawais', fn($p) => $p->where('master_pegawai.id', $pegawaiLogin->id))
+            )
+            // Search: judul/detail atau nama pegawai
             ->when($q, function ($s) use ($q) {
                 $s->where(function ($w) use ($q) {
                     $w->where('judul_pekerjaan', 'like', "%{$q}%")
                         ->orWhere('detail_pekerjaan', 'like', "%{$q}%")
-                        ->orWhereHas('pegawai', fn($p) => $p->where('nama_pegawai', 'like', "%{$q}%"));
+                        ->orWhereHas('pegawais', fn($p) => $p->where('nama_pegawai', 'like', "%{$q}%"));
                 });
             })
-            // --- ini yang penting: filter bulan pakai rentang tanggal ---
-            ->when($start && $end, fn($s) => $s->whereBetween('bulan', [$start->toDateString(), $end->toDateString()]))
+            // Filter bulan: rentang tanggal (kolom 'bulan' bertipe DATE)
+            ->when(
+                $start && $end,
+                fn($s) =>
+                $s->whereBetween('bulan', [$start->toDateString(), $end->toDateString()])
+            )
+            // Filter divisi: pakai kolom id_divisi di pekerjaan (bukan di pegawai)
             ->when($divisi, fn($s) => $s->where('id_divisi', $divisi))
             ->latest('created_at')
             ->paginate(10)
@@ -91,8 +106,6 @@ class TransPekerjaanController extends Controller
         ));
     }
 
-
-
     private function ensureCanAccess(TransPekerjaan $pekerjaan): void
     {
         if ($this->isAdmin()) {
@@ -107,74 +120,90 @@ class TransPekerjaanController extends Controller
 
     public function store(Request $request)
     {
-        $isAdmin = Auth::user() && Auth::user()->username === 'admin';
+        $isAdmin = $this->isAdmin();
 
+        // --- Validasi ---
         $rules = [
-            'judul_pekerjaan' => ['required', 'string', 'max:200'],
+            'judul_pekerjaan'  => ['required', 'string', 'max:200'],
             'detail_pekerjaan' => ['required', 'string', 'max:2000'],
-            'bulan' => ['required', 'date', 'before_or_equal:today'],
+            'bulan'            => ['required', 'date', 'before_or_equal:today'], // <= hari ini
+            // banyak pegawai (untuk admin & non-admin)
+            'pegawai_id'       => ['required', 'array', 'min:1'],
+            'pegawai_id.*'     => ['integer', 'exists:master_pegawai,id'],
+
             'foto_sebelum.*'   => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'foto_sesudah.*'   => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ];
         if ($isAdmin) {
-            $rules['pegawai_id'] = ['required', 'exists:master_pegawai,id'];
-            $rules['id_divisi']  = ['required', 'exists:master_divisi,id_divisi'];
+            $rules['id_divisi'] = ['required', 'exists:master_divisi,id_divisi'];
         }
 
         $validated = $request->validate($rules);
 
+        // --- Tentukan divisi final ---
         if ($isAdmin) {
-            $pegawaiId = (int) $validated['pegawai_id'];
-            $divisiId  = (int) $validated['id_divisi'];
+            $divisiId = (int) $validated['id_divisi'];
         } else {
-            $pegawaiLogin = MasterPegawai::where('kode_pegawai', Auth::user()->username)->first()
-                ?? (isset(Auth::user()->pegawai_id) ? MasterPegawai::find(Auth::user()->pegawai_id) : null);
-
-            if (!$pegawaiLogin) {
+            $loginPegawai = $this->getLoginPegawai();
+            if (!$loginPegawai) {
                 return back()->with('error', 'Akun login belum terhubung ke data pegawai.')->withInput();
             }
-            $pegawaiId = $pegawaiLogin->id;
-            $divisiId  = $pegawaiLogin->id_divisi;
+            $divisiId = $loginPegawai->id_divisi;
         }
 
-        DB::transaction(function () use ($request, $validated, $pegawaiId, $divisiId) {
+        // --- Normalisasi array file (kalau single akan jadi array juga) ---
+        $filesSebelum = $request->file('foto_sebelum', []);
+        if ($filesSebelum instanceof \Illuminate\Http\UploadedFile) $filesSebelum = [$filesSebelum];
+
+        $filesSesudah = $request->file('foto_sesudah', []);
+        if ($filesSesudah instanceof \Illuminate\Http\UploadedFile) $filesSesudah = [$filesSesudah];
+
+        // --- Simpan transaksi atomik ---
+        DB::transaction(function () use ($validated, $divisiId, $filesSebelum, $filesSesudah) {
+            // 1) Buat 1 baris pekerjaan
             $pekerjaan = TransPekerjaan::create([
                 'judul_pekerjaan'  => $validated['judul_pekerjaan'],
                 'detail_pekerjaan' => $validated['detail_pekerjaan'],
-                'pegawai_id'       => $pegawaiId,
+                'bulan'            => $validated['bulan'],    // tipe date (Y-m-d)
                 'id_divisi'        => $divisiId,
-                'bulan'            => $validated['bulan'],
             ]);
 
-            foreach (['sebelum' => 'foto_sebelum', 'sesudah' => 'foto_sesudah'] as $kategori => $field) {
-                $files = $request->file($field, []);
-                if ($files instanceof \Illuminate\Http\UploadedFile) {
-                    $files = [$files];
-                } elseif (!is_array($files)) {
-                    $files = [];
-                }
+            // 2) Relasi banyak pegawai (pivot) – unik & tersortir
+            $pegawaiIds = array_values(array_unique(array_map('intval', $validated['pegawai_id'])));
+            $pekerjaan->pegawais()->sync($pegawaiIds);
 
-                logger()->info('Upload trans_pekerjaan', [
+            // 3) Upload foto "sebelum"
+            $i = 0;
+            foreach ($filesSebelum as $f) {
+                if (!$f || !$f->isValid()) continue;
+                $path = $f->store('trans_pekerjaan', 'public');
+                TransPekerjaanFoto::create([
                     'pekerjaan_id' => $pekerjaan->id,
-                    'field' => $field,
-                    'count' => count($files),
+                    'kategori'     => 'sebelum',
+                    'path'         => $path,
+                    'sort'         => $i++,
                 ]);
+            }
 
-                $i = 0;
-                foreach ($files as $file) {
-                    if (!$file || !$file->isValid()) continue;
-                    $path = $file->store('trans_pekerjaan', 'public');
-                    \App\Models\TransPekerjaanFoto::create([
-                        'pekerjaan_id' => $pekerjaan->id,
-                        'kategori'     => $kategori,
-                        'path'         => $path,
-                        'sort'         => $i++,
-                    ]);
-                }
+            // 4) Upload foto "sesudah"
+            $i = 0;
+            foreach ($filesSesudah as $f) {
+                if (!$f || !$f->isValid()) continue;
+                $path = $f->store('trans_pekerjaan', 'public');
+                TransPekerjaanFoto::create([
+                    'pekerjaan_id' => $pekerjaan->id,
+                    'kategori'     => 'sesudah',
+                    'path'         => $path,
+                    'sort'         => $i++,
+                ]);
             }
         });
-        return back()->with('success', 'Transaksi pekerjaan berhasil ditambahkan.');
+
+        return redirect()
+            ->route('trans.pekerjaan.index')
+            ->with('success', 'Transaksi pekerjaan berhasil ditambahkan.');
     }
+
 
     public function daftar(Request $request)
     {
@@ -232,7 +261,7 @@ class TransPekerjaanController extends Controller
             $divisiLogin  = $pegawaiLogin ? MasterDivisi::find($pegawaiLogin->id_divisi) : null;
         }
 
-        $pekerjaan->load(['fotosSebelum', 'fotosSesudah']);
+        $pekerjaan->load(['pegawais', 'fotosSebelum', 'fotosSesudah']);
 
         return view('trans.pekerjaan.edit', compact(
             'pekerjaan',
@@ -252,64 +281,53 @@ class TransPekerjaanController extends Controller
         $rules = [
             'judul_pekerjaan'  => ['required', 'string', 'max:200'],
             'detail_pekerjaan' => ['required', 'string', 'max:2000'],
-            'bulan' => ['required', 'date', 'before_or_equal:today'],
+            'bulan'            => ['required', 'date'],
+            'pegawai_id'       => ['required', 'array', 'min:1'],
+            'pegawai_id.*'     => ['integer', 'exists:master_pegawai,id'],
             'foto_sebelum.*'   => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'foto_sesudah.*'   => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ];
-        if ($isAdmin) {
-            $rules['pegawai_id'] = ['required', 'exists:master_pegawai,id'];
-            $rules['id_divisi']  = ['required', 'exists:master_divisi,id_divisi'];
-        }
-
+        if ($this->isAdmin()) $rules['id_divisi'] = ['required', 'exists:master_divisi,id_divisi'];
         $validated = $request->validate($rules);
 
         // Tentukan pegawai/divisi final
-        if ($isAdmin) {
-            $pegawaiId = (int) $validated['pegawai_id'];
-            $divisiId  = (int) $validated['id_divisi'];
-        } else {
-            $pegawaiLogin = $this->getLoginPegawai();
-            if (!$pegawaiLogin) {
-                return back()->with('error', 'Akun login belum terhubung ke data pegawai.')->withInput();
-            }
-            $pegawaiId = $pegawaiLogin->id;
-            $divisiId  = $pegawaiLogin->id_divisi;
+        if ($this->isAdmin()) $divisiId = (int)$validated['id_divisi'];
+        else {
+            $login = $this->getLoginPegawai();
+            if (!$login) return back()->with('error', 'Akun login belum terhubung pegawai.')->withInput();
+            $divisiId = $login->id_divisi;
         }
 
-        DB::transaction(function () use ($request, $pekerjaan, $validated, $pegawaiId, $divisiId) {
-            // update data pokok
+        DB::transaction(function () use ($request, $pekerjaan, $validated, $divisiId) {
             $pekerjaan->update([
                 'judul_pekerjaan'  => $validated['judul_pekerjaan'],
                 'detail_pekerjaan' => $validated['detail_pekerjaan'],
                 'bulan'            => $validated['bulan'],
-                'pegawai_id'       => $pegawaiId,
                 'id_divisi'        => $divisiId,
             ]);
 
-            // tambahkan foto baru (kalau ada)
-            foreach (['sebelum' => 'foto_sebelum', 'sesudah' => 'foto_sesudah'] as $kategori => $field) {
-                if ($request->hasFile($field)) {
-                    $start = TransPekerjaanFoto::where('pekerjaan_id', $pekerjaan->id)
-                        ->where('kategori', $kategori)->max('sort');
-                    $i = is_null($start) ? 0 : $start + 1;
+            $ids = array_values(array_unique(array_map('intval', $validated['pegawai_id'])));
+            $pekerjaan->pegawais()->sync($ids);
 
+            foreach (['sebelum' => 'foto_sebelum', 'sesudah' => 'foto_sesudah'] as $kat => $field) {
+                if ($request->hasFile($field)) {
+                    $start = TransPekerjaanFoto::where('pekerjaan_id', $pekerjaan->id)->where('kategori', $kat)->max('sort');
+                    $i = is_null($start) ? 0 : $start + 1;
                     foreach ($request->file($field) as $file) {
                         if (!$file) continue;
                         $path = $file->store('trans_pekerjaan', 'public');
                         TransPekerjaanFoto::create([
                             'pekerjaan_id' => $pekerjaan->id,
-                            'kategori'     => $kategori,
-                            'path'         => $path,
-                            'sort'         => $i++,
+                            'kategori'    => $kat,
+                            'path'        => $path,
+                            'sort'        => $i++,
                         ]);
                     }
                 }
             }
         });
 
-        return redirect()
-            ->route('trans.pekerjaan.index')
-            ->with('success', 'Transaksi pekerjaan berhasil diperbarui.');
+        return redirect()->route('trans.pekerjaan.index')->with('success', 'Transaksi pekerjaan berhasil diperbarui.');
     }
 
     public function destroy(TransPekerjaan $pekerjaan)
