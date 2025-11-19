@@ -55,9 +55,7 @@
                                 @enderror
                             </div>
 
-                           @php
-                                // $pegawais   : koleksi MasterPegawai [id, nama_pegawai, id_divisi]
-                                // $pegawaiLogin: MasterPegawai|null (untuk non-admin)
+                            @php
                                 $isAdmin = auth()->check() && auth()->user()->username === 'admin';
                             @endphp
 
@@ -70,7 +68,6 @@
                                 </label>
 
                                 <div id="pegawaiRepeater" class="d-flex flex-column gap-2">
-                                    {{-- Item pertama (default) --}}
                                     <div class="pegawai-item d-flex gap-2 align-items-center">
                                         @if ($isAdmin)
                                             <select name="pegawai_id[]"
@@ -85,28 +82,24 @@
                                                 @endforeach
                                             </select>
                                         @else
-                                            {{-- Non-admin: item pertama fixed dirinya sendiri --}}
                                             <input type="text" class="form-control flex-grow-1" value="{{ $pegawaiLogin?->nama_pegawai ?? '—' }}" disabled>
                                             @if ($pegawaiLogin)
                                                 <input type="hidden" name="pegawai_id[]" value="{{ $pegawaiLogin->id }}">
                                             @endif
                                         @endif
 
-                                        {{-- tombol hapus disembunyikan untuk baris pertama non-admin --}}
                                         <button type="button" class="btn btn-sm btn-outline-danger btnRemovePegawai"
                                                 @if(!$isAdmin) style="display:none" @endif>
                                             <i class="ni ni-fat-remove"></i>
                                         </button>
                                     </div>
 
-                                    {{-- Jika ada old input (validasi gagal), render sisanya --}}
                                     @php
                                         $oldIds = collect(old('pegawai_id', []));
-                                        // untuk admin: old sudah ter-cover di item pertama; untuk non-admin: item pertama = dirinya, sisanya render
+                                        
                                         if(!$isAdmin && $pegawaiLogin){
                                             $oldIds = $oldIds->reject(fn($id) => (int)$id === (int)$pegawaiLogin->id);
                                         } else {
-                                            // admin: buang 1 (baris pertama)
                                             if($oldIds->count() > 0) $oldIds = $oldIds->slice(1);
                                         }
                                     @endphp
@@ -130,8 +123,7 @@
 
                                 @error('pegawai_id')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                                 @error('pegawai_id.*')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-
-                                {{-- Template tersembunyi untuk item baru --}}
+                                
                                 <template id="tplPegawaiItem">
                                     <div class="pegawai-item d-flex gap-2 align-items-center">
                                         <select name="pegawai_id[]" class="form-select flex-grow-1" required>
@@ -184,7 +176,7 @@
                                     type="date"
                                     name="bulan"
                                     value="{{ old('bulan', now()->toDateString()) }}"
-                                    max="{{ now()->toDateString() }}" {{-- tidak boleh lebih dari hari ini --}}
+                                    max="{{ now()->toDateString() }}"
                                     class="form-control @error('bulan') is-invalid @enderror"
                                     required>
                                 @error('bulan')
@@ -338,28 +330,23 @@
                                 ->map(fn($f) => asset('storage/' . $f->path));
                                 @endphp
                                 <tr>
-                                    {{-- No --}}
                                     <td>
                                         <h6 class="mb-0 text-sm">{{ $no }}</h6>
                                     </td>
-
-                                    {{-- Judul --}}
+                                    
                                     <td style="max-width: 260px;">
                                         <div class="d-block text-truncate" style="max-width: 260px;">
                                             <h6 class="mb-0 text-sm text-dark">{{ $row->judul_pekerjaan }}</h6>
                                         </div>
                                         <small class="text-xs text-secondary">ID: {{ $row->id }}</small>
                                     </td>
-
-                                    {{-- Detail (truncate 2 lines) --}}
+                                    
                                     <td style="max-width:360px;">
-                                        {{-- ringkas 2 baris + tooltip hover --}}
                                         <div class="text-sm lh-sm clamp-2" data-bs-toggle="tooltip"
                                             data-bs-placement="top" title="{{ trim($row->detail_pekerjaan) }}">
                                             {{ $row->detail_pekerjaan }}
                                         </div>
 
-                                        {{-- tombol buka modal untuk baca penuh --}}
                                         <button type="button"
                                             class="btn btn-link p-0 text-xs mt-1 detail-pekerjaan-view"
                                             data-detail="{{ e($row->detail_pekerjaan) }}">
@@ -367,7 +354,6 @@
                                         </button>
                                     </td>
 
-                                    {{-- Pegawai --}}
                                     <td style="max-width:260px;">
                                         @if($row->pegawais->count())
                                             <div class="d-flex flex-wrap gap-1">
@@ -379,13 +365,29 @@
                                             <span class="text-secondary">—</span>
                                         @endif
                                     </td>
+                                
+                                    <td style="max-width:260px;">
+                                        @php
+                                            $divisiList = $row->divisis;
+                                            
+                                            if (!$divisiList->count() && $row->divisi) {
+                                                $divisiList = collect([$row->divisi]);
+                                            }
+                                        @endphp
 
-                                    {{-- Divisi --}}
-                                    <td>
-                                        <p class="text-sm mb-0">{{ optional($row->divisi)->nama_divisi }}</p>
+                                        @if ($divisiList->count())
+                                            <div class="d-flex flex-wrap gap-1">
+                                                @foreach ($divisiList as $dv)
+                                                    <span class="badge bg-gradient-info text-xs">
+                                                        {{ $dv->nama_divisi }}
+                                                    </span>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <span class="text-secondary">—</span>
+                                        @endif
                                     </td>
-
-                                    {{-- Bulan --}}
+                                    
                                     <td class="text-center">
                                         <span class="text-xs text-secondary">{{ $row->bulan }}</span>
                                     </td>
@@ -407,8 +409,7 @@
                                             <span class="badge bg-success ms-1">{{ $listSesudah->count() }}</span>
                                         </button>
                                     </td>
-
-                                    {{-- Aksi --}}
+                                    
                                     <td class="align-middle text-end pe-4">
                                         <a href="{{ route('trans.pekerjaan.edit', $row->id) }}"
                                             class="text-secondary font-weight-bold text-xs me-3">Edit</a>
@@ -638,17 +639,17 @@
         const container = document.getElementById('fotosContainer');
         const titleEl = document.getElementById('fotosModalLabel');
         function layoutFor(count) {
-            const thumbW = 160; // lebar thumbnail
-            const gap = 12; // gap grid
-            const pad = 64; // padding + border modal approx
-            const margin = 48; // jarak aman dari kiri/kanan viewport
+            const thumbW = 160;
+            const gap = 12;
+            const pad = 64;
+            const margin = 48;
             const cols = Math.max(1, Math.min(count, 4));
             container.style.gridTemplateColumns = `repeat(${cols}, ${thumbW}px)`;
             const contentWidth = cols * thumbW + (cols - 1) * gap;
             const vw = window.innerWidth;
             const maxAllow = vw - margin;
-            const minW = 420; // min modal width
-            const maxW = Math.min(980, maxAllow); // cap maksimal
+            const minW = 420;
+            const maxW = Math.min(980, maxAllow);
             const target = Math.max(minW, Math.min(contentWidth + pad, maxW));
 
             dialogEl.style.maxWidth = target + 'px';
@@ -712,63 +713,55 @@
     });
 </script>
 <script>
-(function () {
-    const repeater = document.getElementById('pegawaiRepeater');
-    const btnAdd   = document.getElementById('btnAddPegawai');
-    const tpl      = document.getElementById('tplPegawaiItem');
+    (function () {
+        const repeater = document.getElementById('pegawaiRepeater');
+        const btnAdd   = document.getElementById('btnAddPegawai');
+        const tpl      = document.getElementById('tplPegawaiItem');
 
-    if (!repeater || !btnAdd || !tpl) return;
-
-    // Kumpulkan semua <select> aktif
-    function selects() {
-        return Array.from(repeater.querySelectorAll('select[name="pegawai_id[]"]'));
-    }
-
-    // Ambil set id yang sudah dipilih
-    function chosenIds() {
-        return new Set(selects().map(s => s.value).filter(v => v));
-    }
-
-    // Nonaktifkan option yang sudah dipilih di select lain (anti-duplikat)
-    function refreshOptions() {
-        const chosen = chosenIds();
-        selects().forEach(sel => {
-            const myVal = sel.value;
-            Array.from(sel.options).forEach(opt => {
-                if (!opt.value) { opt.disabled = false; return; }
-                // boleh pilih nilai yang saat ini sudah terpilih di dirinya sendiri
-                opt.disabled = chosen.has(opt.value) && opt.value !== myVal;
-            });
-        });
-    }
-
-    // Tambah item baru
-    btnAdd.addEventListener('click', function (e) {
-        e.preventDefault();
-        const node = tpl.content.firstElementChild.cloneNode(true);
-        repeater.appendChild(node);
-        refreshOptions();
-    });
-
-    // Delegasi: hapus item + refresh
-    repeater.addEventListener('click', function (e) {
-        const btn = e.target.closest('.btnRemovePegawai');
-        if (!btn) return;
-        const item = btn.closest('.pegawai-item');
-        if (!item) return;
-        item.remove();
-        refreshOptions();
-    });
-
-    // Delegasi: on change select → refresh anti-duplikat
-    repeater.addEventListener('change', function (e) {
-        if (e.target && e.target.matches('select[name="pegawai_id[]"]')) {
-            refreshOptions();
+        if (!repeater || !btnAdd || !tpl) return;
+        
+        function selects() {
+            return Array.from(repeater.querySelectorAll('select[name="pegawai_id[]"]'));
         }
-    });
-
-    // Initial
-    refreshOptions();
-})();
+        
+        function chosenIds() {
+            return new Set(selects().map(s => s.value).filter(v => v));
+        }
+        
+        function refreshOptions() {
+            const chosen = chosenIds();
+            selects().forEach(sel => {
+                const myVal = sel.value;
+                Array.from(sel.options).forEach(opt => {
+                    if (!opt.value) { opt.disabled = false; return; }
+                    opt.disabled = chosen.has(opt.value) && opt.value !== myVal;
+                });
+            });
+        }
+        
+        btnAdd.addEventListener('click', function (e) {
+            e.preventDefault();
+            const node = tpl.content.firstElementChild.cloneNode(true);
+            repeater.appendChild(node);
+            refreshOptions();
+        });
+        
+        repeater.addEventListener('click', function (e) {
+            const btn = e.target.closest('.btnRemovePegawai');
+            if (!btn) return;
+            const item = btn.closest('.pegawai-item');
+            if (!item) return;
+            item.remove();
+            refreshOptions();
+        });
+        
+        repeater.addEventListener('change', function (e) {
+            if (e.target && e.target.matches('select[name="pegawai_id[]"]')) {
+                refreshOptions();
+            }
+        });
+        
+        refreshOptions();
+    })();
 </script>
 @endpush

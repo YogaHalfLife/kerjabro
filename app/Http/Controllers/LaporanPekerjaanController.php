@@ -52,7 +52,8 @@ class LaporanPekerjaanController extends Controller
             'bulan',
             'divisi',
             'divisis',
-            'isAdmin'
+            'isAdmin',
+            'divisiLogin',
         ));
     }
 

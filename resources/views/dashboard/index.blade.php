@@ -4,8 +4,7 @@
     @include('layouts.navbars.auth.topnav', ['title' => 'Dashboard'])
 
     <div class="container-fluid py-4">
-
-        {{-- KPI cards --}}
+        
         <div class="row">
             <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
                 <div class="card">
@@ -94,8 +93,7 @@
                 </div>
             </div>
         </div>
-
-        {{-- Chart + Recent --}}
+        
         <div class="row mt-4">
             <div class="col-lg-7 mb-lg-0 mb-4">
                 <div class="card z-index-2 h-100">
@@ -131,7 +129,6 @@
 
                                 <li
                                     class="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
-                                    {{-- Kiri: tumpukan gambar + teks (boleh menyusut) --}}
                                     <div class="d-flex align-items-center flex-grow-1 min-w-0">
                                         <div class="me-3 thumb-stack">
                                             @foreach ($allThumbs->take(3) as $k => $p)
@@ -152,14 +149,24 @@
                                                 {{ $item->judul_pekerjaan }}
                                             </h6>
                                             <span class="text-xs">
-                                                @php $nama = $item->pegawais->pluck('nama_pegawai')->implode(', '); @endphp
-                                                {{ $nama ?: '—' }} · {{ optional($item->divisi)->nama_divisi }} ·
-                                                {{ $item->bulan }}
+                                                @php
+                                                    $nama = $item->pegawais->pluck('nama_pegawai')->implode(', ');
+
+                                                    $divisiList = $item->divisis;
+
+                                                    if (!$divisiList->count() && $item->divisi) {
+                                                        $divisiList = collect([$item->divisi]);
+                                                    }
+
+                                                    $divisiNama = $divisiList->pluck('nama_divisi')->implode(', ');
+                                                @endphp
+
+                                                {{ $nama ?: '—' }} · {{ $divisiNama ?: '—' }} · {{ $item->bulan }}
                                             </span>
+
                                         </div>
                                     </div>
 
-                                    {{-- Kanan: tombol (jangan menyusut → tidak mendorong konten) --}}
                                     <div class="d-flex align-items-center gap-2 flex-shrink-0 ms-2">
                                         <button type="button"
                                             class="btn btn-primary btn-link btn-icon-only btn-rounded btn-sm my-auto"
@@ -189,7 +196,6 @@
 
             </div>
 
-            {{-- Modal Preview Foto --}}
             <div class="modal fade" id="modalFotoDash" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered">
                     <div class="modal-content">
@@ -220,21 +226,17 @@
     </div>
 
     <style>
-        /* cegah x-scroll di card ini */
         .card-body.no-x-scroll {
             overflow-x: hidden;
         }
 
-        /* supaya teks bisa benar-benar ter-ellipsis di dalam flex */
         .min-w-0 {
             min-width: 0;
         }
 
-        /* tumpukan thumbnail lebih rapi */
         .thumb-stack {
             position: relative;
             width: 78px;
-            /* 3 foto * (36px - overlap 18px) + ruang badge */
             height: 36px;
         }
 
@@ -248,7 +250,6 @@
 @endsection
 
 @push('js')
-    {{-- gunakan path asset sesuai layout kamu --}}
     <script src="/assets/js/plugins/chartjs.min.js"></script>
     <script>
         (function() {

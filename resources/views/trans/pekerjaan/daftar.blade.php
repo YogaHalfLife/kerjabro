@@ -10,8 +10,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
-
-        {{-- Filter --}}
+        
         <div class="card shadow-sm mb-4">
             <div class="card-header pb-0">
                 <h6 class="mb-0">Filter</h6>
@@ -48,8 +47,7 @@
                 </form>
             </div>
         </div>
-
-        {{-- Tabel --}}
+        
         <div class="card mb-4">
             <div class="card-header pb-0 d-flex align-items-center justify-content-between">
                 <h6 class="mb-0">Semua Pekerjaan</h6>
@@ -85,7 +83,7 @@
                                             {{ method_exists($data, 'currentPage') ? ($data->currentPage() - 1) * $data->perPage() + $i + 1 : $i + 1 }}
                                         </h6>
                                     </td>
-                                    {{-- Judul (clamp 1 baris + tooltip) --}}
+                                    
                                     <td style="max-width:420px;">
                                         <div class="text-sm lh-sm clamp-1" data-bs-toggle="tooltip" data-bs-placement="top"
                                             title="{{ trim($row->judul_pekerjaan) }}">
@@ -93,8 +91,7 @@
                                         </div>
                                         <small class="text-xs text-secondary">ID: {{ $row->id }}</small>
                                     </td>
-
-                                    {{-- Detail (clamp 2 baris + tooltip + modal) --}}
+                                    
                                     <td style="max-width:420px;">
                                         <div class="text-sm lh-sm clamp-2" data-bs-toggle="tooltip" data-bs-placement="top"
                                             title="{{ trim($row->detail_pekerjaan) }}">
@@ -105,9 +102,43 @@
                                             Lihat selengkapnya
                                         </button>
                                     </td>
+                                    
+                                    <td style="max-width:260px;">
+                                        @if ($row->pegawais->count())
+                                            <div class="d-flex flex-wrap gap-1">
+                                                @foreach ($row->pegawais as $pg)
+                                                    <span class="badge bg-gradient-secondary text-xs">
+                                                        {{ $pg->nama_pegawai }}
+                                                    </span>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <span class="text-secondary">—</span>
+                                        @endif
+                                    </td>
+                                    
+                                    <td style="max-width:260px;">
+                                        @php
+                                            $divisiList = $row->divisis;
+                                            
+                                            if (!$divisiList->count() && $row->divisi) {
+                                                $divisiList = collect([$row->divisi]);
+                                            }
+                                        @endphp
 
-                                    <td>{{ optional($row->pegawai)->nama_pegawai }}</td>
-                                    <td>{{ optional($row->divisi)->nama_divisi }}</td>
+                                        @if ($divisiList->count())
+                                            <div class="d-flex flex-wrap gap-1">
+                                                @foreach ($divisiList as $dv)
+                                                    <span class="badge bg-gradient-info text-xs">
+                                                        {{ $dv->nama_divisi }}
+                                                    </span>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <span class="text-secondary">—</span>
+                                        @endif
+                                    </td>
+
                                     <td class="text-center">
                                         <span class="text-xs text-secondary">{{ $row->bulan }}</span>
                                     </td>
@@ -156,8 +187,7 @@
 
         @include('layouts.footers.auth.footer')
     </div>
-
-    {{-- Modal Foto --}}
+    
     <div class="modal fade" id="modalFoto" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
@@ -183,8 +213,7 @@
             </div>
         </div>
     </div>
-
-    {{-- Modal Detail Pekerjaan --}}
+    
     <div class="modal fade" id="detailPekerjaanModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">

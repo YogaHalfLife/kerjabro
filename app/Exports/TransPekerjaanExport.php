@@ -6,6 +6,7 @@ use App\Models\MasterPegawai;
 use App\Models\TransPekerjaan;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -20,21 +21,21 @@ use PhpOffice\PhpSpreadsheet\Shared\Drawing as SharedDrawing;
 class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping, WithDrawings, WithEvents
 {
     protected ?string $q;
-    protected ?string $startDate; // "YYYY-MM-DD" (awal bulan)
-    protected ?string $endDate;   // "YYYY-MM-DD" (akhir bulan)
+    protected ?string $startDate;
+    protected ?string $endDate;
     protected ?string $divisi;
     protected ?Authenticatable $user;
 
     /** @var \Illuminate\Support\Collection<\App\Models\TransPekerjaan> */
     protected $rows;
-    protected int $thumbW = 110;  // lebar thumb
-    protected int $thumbH = 110;  // tinggi thumb
-    protected int $gapX   = 8;    // jarak antar thumb (horizontal)
-    protected int $padCol = 22;   // padding kolom
-    protected array $photoMap = []; // ['F3' => [['path'=>..., 'offsetX'=>...], ...], ... ]
+    protected int $thumbW = 110;
+    protected int $thumbH = 110;
+    protected int $gapX   = 8;
+    protected int $padCol = 22;
+    protected array $photoMap = [];
     protected string $colSebelum = 'F';
     protected string $colSesudah = 'G';
-    protected int $startRow = 2; // baris data pertama (1 = header)
+    protected int $startRow = 2;
 
     public function __construct(
         ?string $q = null,
@@ -56,31 +57,58 @@ class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping,
         $isAdmin = $user && $user->username === 'admin';
 
         $pegawaiLogin = null;
-        if (!$isAdmin) {
+        if (!$isAdmin && $user) {
             $pegawaiLogin = MasterPegawai::where('kode_pegawai', $user->username)->first()
                 ?? (isset($user->pegawai_id) ? MasterPegawai::find($user->pegawai_id) : null);
         }
 
-        $this->rows = TransPekerjaan::with(['pegawai', 'divisi', 'fotos'])
-            ->when(!$isAdmin && $pegawaiLogin, fn($s) => $s->where('pegawai_id', $pegawaiLogin->id))
-            ->when($this->q, function ($s) {
-                $q = $this->q;
-                $s->where(function ($w) use ($q) {
-                    $w->where('judul_pekerjaan', 'like', "%{$q}%")
-                        ->orWhere('detail_pekerjaan', 'like', "%{$q}%")
-                        ->orWhereHas('pegawai', fn($p) => $p->where('nama_pegawai', 'like', "%{$q}%"));
-                });
-            })
-            ->when(
-                $this->startDate && $this->endDate,
-                fn($s) =>
-                $s->whereBetween('bulan', [$this->startDate, $this->endDate])
-            )
-            ->when($this->divisi, fn($s) => $s->where('id_divisi', $this->divisi))
+        $query = TransPekerjaan::with([
+            'pegawais:id,nama_pegawai,id_divisi',
+            'divisi:id_divisi,nama_divisi',
+            'divisis:id_divisi,nama_divisi',
+            'fotos',
+        ]);
+        
+        if (!$isAdmin && $pegawaiLogin) {
+            $query->whereHas('pegawais', function ($q) use ($pegawaiLogin) {
+                $q->where('master_pegawai.id', $pegawaiLogin->id);
+            });
+        }
+        
+        if ($this->q) {
+            $q = $this->q;
+            $query->where(function ($w) use ($q) {
+                $w->where('judul_pekerjaan', 'like', "%{$q}%")
+                    ->orWhere('detail_pekerjaan', 'like', "%{$q}%")
+                    ->orWhereHas('pegawais', function ($p) use ($q) {
+                        $p->where('nama_pegawai', 'like', "%{$q}%");
+                    });
+            });
+        }
+        
+        if ($this->startDate && $this->endDate) {
+            $query->whereBetween('bulan', [$this->startDate, $this->endDate]);
+        }
+        
+        if ($this->divisi) {
+            $divisiId = $this->divisi;
+            $query->where(function ($w) use ($divisiId) {
+                $w->where('id_divisi', $divisiId)
+                    ->orWhereHas('pegawais', function ($p) use ($divisiId) {
+                        $p->where('master_pegawai.id_divisi', $divisiId);
+                    });
+            });
+        }
+
+        $this->rows = $query
             ->get()
             ->sortBy(function ($r) {
-                $nama = optional($r->pegawai)->nama_pegawai ?? 'ZZZ';
-                return mb_strtolower($nama) . '|' . $r->id;
+                $firstNama = $r->pegawais
+                    ->pluck('nama_pegawai')
+                    ->sort()
+                    ->first() ?? 'ZZZ';
+
+                return mb_strtolower($firstNama) . '|' . $r->id;
             })
             ->values();
         $this->photoMap = [];
@@ -135,18 +163,26 @@ class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping,
 
     public function map($row): array
     {
+        $pegawaiNama = $row->pegawais
+            ? $row->pegawais->pluck('nama_pegawai')->implode(', ')
+            : '';
+        $divisiList = $row->divisis;
+        if (!$divisiList->count() && $row->divisi) {
+            $divisiList = collect([$row->divisi]);
+        }
+        $divisiNama = $divisiList->pluck('nama_divisi')->implode(', ');
+
         return [
             $row->judul_pekerjaan,
             $row->detail_pekerjaan,
-            optional($row->pegawai)?->nama_pegawai,
-            optional($row->divisi)?->nama_divisi,
-            \Illuminate\Support\Str::of($row->bulan)->substr(0, 7),
-            '', // gambar via WithDrawings
-            '', // gambar via WithDrawings
+            $pegawaiNama,
+            $divisiNama,
+            Str::of($row->bulan)->substr(0, 7),
+            '',
+            '',
         ];
     }
 
-    /** Sisipkan semua gambar */
     public function drawings(): array
     {
         $out = [];
@@ -171,6 +207,7 @@ class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping,
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
+
                 $pxToWidth = function (int $px) {
                     return method_exists(SharedDrawing::class, 'pixelsToColumnWidth')
                         ? SharedDrawing::pixelsToColumnWidth($px)
@@ -181,34 +218,48 @@ class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping,
                         ? SharedDrawing::pixelsToPoints($px)
                         : $px * 0.75;
                 };
+
                 foreach (range('A', 'E') as $col) {
                     $sheet->getColumnDimension($col)->setAutoSize(true);
                 }
+                
                 $maxSeb = 0;
                 $maxSes = 0;
                 foreach ($this->rows as $row) {
                     $maxSeb = max($maxSeb, $row->fotos->where('kategori', 'sebelum')->count());
                     $maxSes = max($maxSes, $row->fotos->where('kategori', 'sesudah')->count());
                 }
+
                 $needPx = function (int $n) {
-                    if ($n <= 0) return 80; // minimal agar label terlihat
+                    if ($n <= 0) return 80;
                     return $n * $this->thumbW
                         + max(0, $n - 1) * $this->gapX
                         + $this->padCol;
                 };
-
+                
                 $sheet->getColumnDimension($this->colSebelum)->setAutoSize(false);
                 $sheet->getColumnDimension($this->colSesudah)->setAutoSize(false);
                 $sheet->getColumnDimension($this->colSebelum)->setWidth($pxToWidth($needPx($maxSeb)));
                 $sheet->getColumnDimension($this->colSesudah)->setWidth($pxToWidth($needPx($maxSes)));
+
                 foreach ($this->rows as $i => $row) {
                     $excelRow = $this->startRow + $i;
                     $hasFoto  = $row->fotos->count() > 0;
                     $sheet->getRowDimension($excelRow)
                         ->setRowHeight($hasFoto ? (int) round($pxToPoint($this->thumbH + 12)) : -1);
                 }
+
                 $sheet->setShowSummaryBelow(false);
-                $getNama = fn($r) => mb_strtolower(optional($r->pegawai)->nama_pegawai ?? '');
+
+                $getNama = function ($r) {
+                    return mb_strtolower(
+                        $r->pegawais
+                            ->pluck('nama_pegawai')
+                            ->sort()
+                            ->first() ?? ''
+                    );
+                };
+
                 $n = count($this->rows);
                 if ($n > 0) {
                     $groupStart = 0;
@@ -228,8 +279,12 @@ class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping,
                         }
                     }
                 }
+                
                 $sheet->getStyle('A1:G1')->getFont()->setBold(true);
-                $sheet->getStyle('B2:B' . ($this->startRow + max(0, count($this->rows))))->getAlignment()->setWrapText(true);
+                
+                $sheet->getStyle('B2:B' . ($this->startRow + max(0, count($this->rows))))
+                    ->getAlignment()
+                    ->setWrapText(true);
             },
         ];
     }

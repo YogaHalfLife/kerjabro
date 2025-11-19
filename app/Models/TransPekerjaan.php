@@ -9,8 +9,7 @@ class TransPekerjaan extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'trans_pekerjaan'; // penting kalau tabel kamu tidak plural default
-
+    protected $table = 'trans_pekerjaan';
     protected $fillable = [
         'judul_pekerjaan',
         'detail_pekerjaan',
@@ -25,13 +24,21 @@ class TransPekerjaan extends Model
 
     public function pegawais()
     {
-        return $this->belongsToMany(MasterPegawai::class, 'trans_pekerjaan_pegawai', 'pekerjaan_id', 'pegawai_id')->withTimestamps();
+        return $this->belongsToMany(MasterPegawai::class, 'trans_pekerjaan_pegawai', 'pekerjaan_id', 'pegawai_id')
+            ->withPivot('id_divisi');
     }
 
     public function divisi()
     {
         return $this->belongsTo(MasterDivisi::class, 'id_divisi', 'id_divisi');
     }
+
+    public function divisis()
+    {
+        return $this->belongsToMany(MasterDivisi::class, 'trans_pekerjaan_pegawai', 'pekerjaan_id', 'id_divisi')
+            ->distinct();
+    }
+
     public function fotos()
     {
         return $this->hasMany(TransPekerjaanFoto::class, 'pekerjaan_id')

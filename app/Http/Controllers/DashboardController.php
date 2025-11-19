@@ -18,7 +18,7 @@ class DashboardController extends Controller
 
         $totalDivisi  = MasterDivisi::count();
         $totalPegawai = MasterPegawai::count();
-        
+
         $startMonth = Carbon::now()->startOfMonth();
         $endMonth   = Carbon::now()->endOfMonth();
 
@@ -26,20 +26,30 @@ class DashboardController extends Controller
             ->whereBetween('bulan', [$startMonth->toDateString(), $endMonth->toDateString()]);
 
         $totalPekerjaanBulanIni = (clone $qBase)->count();
-        
+
         $totalPekerjaanSaya = (function () use ($isAdmin, $user, $qBase) {
             if ($isAdmin) {
                 return (clone $qBase)->count();
             }
+
             $peg = MasterPegawai::where('kode_pegawai', $user->username)->first()
                 ?? (isset($user->pegawai_id) ? MasterPegawai::find($user->pegawai_id) : null);
 
-            return $peg ? (clone $qBase)->where('pegawai_id', $peg->id)->count() : 0;
+            if (!$peg) {
+                return 0;
+            }
+
+            return (clone $qBase)
+                ->whereHas('pegawais', function ($q) use ($peg) {
+                    $q->where('master_pegawai.id', $peg->id);
+                })
+                ->count();
         })();
-        
+
+
         $start = Carbon::now()->startOfMonth()->subMonths(11);
         $end   = Carbon::now()->endOfMonth();
-        
+
         $rows = TransPekerjaan::select(
             DB::raw("DATE_FORMAT(bulan, '%Y-%m') as ym"),
             DB::raw('COUNT(*) as total')
@@ -55,11 +65,16 @@ class DashboardController extends Controller
         for ($i = 0; $i < 12; $i++) {
             $m   = (clone $start)->addMonths($i);
             $ym  = $m->format('Y-m');
-            $labels[] = $m->translatedFormat('M Y'); // contoh: Okt 2025
+            $labels[] = $m->translatedFormat('M Y');
             $values[] = (int) ($rows[$ym]->total ?? 0);
         }
-        
-        $recent = TransPekerjaan::with(['pegawai', 'divisi', 'fotos' => fn($q) => $q->orderBy('sort')])
+
+        $recent = TransPekerjaan::with([
+            'pegawais:id,nama_pegawai,id_divisi',
+            'divisi:id_divisi,nama_divisi',
+            'divisis:id_divisi,nama_divisi',
+            'fotos' => fn($q) => $q->orderBy('sort')
+        ])
             ->latest('created_at')
             ->take(5)
             ->get();

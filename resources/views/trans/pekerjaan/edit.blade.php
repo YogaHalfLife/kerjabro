@@ -51,52 +51,85 @@
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label text-sm d-flex align-items-center justify-content-between">
+                                    <span>Pegawai</span>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="btnAddPegawai">
+                                        <i class="ni ni-fat-add me-1"></i> Tambah Pegawai
+                                    </button>
+                                </label>
 
-                            <div class="col-md-3">
-                                <label class="form-label text-sm">Pegawai</label>
-                                @if ($isAdmin)
-                                <select name="pegawai_id"
-                                    class="form-select @error('pegawai_id') is-invalid @enderror" required>
-                                    @foreach ($pegawais as $p)
-                                    <option value="{{ $p->id }}"
-                                        {{ old('pegawai_id', $pekerjaan->pegawai_id) == $p->id ? 'selected' : '' }}>
-                                        {{ $p->nama_pegawai }}
-                                    </option>
+                                <div id="pegawaiRepeater" class="d-flex flex-column gap-2">
+                                    @php
+                                        $selectedIds = old('pegawai_id', $pekerjaan->pegawais->pluck('id')->all());
+                                        if (empty($selectedIds)) {
+                                            $selectedIds = [null];
+                                        }
+                                    @endphp
+
+                                    @foreach ($selectedIds as $pid)
+                                        <div class="pegawai-item d-flex gap-2 align-items-center">
+                                            <select name="pegawai_id[]"
+                                                class="form-select flex-grow-1 @error('pegawai_id') is-invalid @enderror @error('pegawai_id.*') is-invalid @enderror"
+                                                required>
+                                                <option value="">Pilih Pegawai</option>
+                                                @foreach ($pegawais as $p)
+                                                    <option value="{{ $p->id }}" {{ (int) $p->id === (int) $pid ? 'selected' : '' }}>
+                                                        {{ $p->nama_pegawai }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <button type="button" class="btn btn-sm btn-outline-danger btnRemovePegawai">
+                                                <i class="ni ni-fat-remove"></i>
+                                            </button>
+                                        </div>
                                     @endforeach
-                                </select>
-                                @error('pegawai_id')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                                @else
-                                <input type="text" class="form-control"
-                                    value="{{ $pegawaiLogin ? $pegawaiLogin->nama_pegawai : '—' }}" disabled>
-                                @if ($pegawaiLogin)
-                                <input type="hidden" name="pegawai_id" value="{{ $pegawaiLogin->id }}">
-                                @endif
-                                @endif
-                            </div>
+                                </div>
 
+                                @error('pegawai_id')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                @error('pegawai_id.*')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                <template id="tplPegawaiItem">
+                                    <div class="pegawai-item d-flex gap-2 align-items-center">
+                                        <select name="pegawai_id[]" class="form-select flex-grow-1" required>
+                                            <option value="">Pilih Pegawai</option>
+                                            @foreach ($pegawais as $p)
+                                                <option value="{{ $p->id }}">{{ $p->nama_pegawai }}</option>
+                                            @endforeach
+                                        </select>
+                                        <button type="button" class="btn btn-sm btn-outline-danger btnRemovePegawai">
+                                            <i class="ni ni-fat-remove"></i>
+                                        </button>
+                                    </div>
+                                </template>
+
+                                <small class="text-xs text-secondary d-block mt-1">
+                                    Klik <strong>Tambah Pegawai</strong> untuk menambahkan combobox baru. Sistem akan mencegah pilihan duplikat.
+                                </small>
+                            </div>
+                            
                             <div class="col-md-3">
                                 <label class="form-label text-sm">Divisi</label>
                                 @if ($isAdmin)
-                                <select name="id_divisi"
-                                    class="form-select @error('id_divisi') is-invalid @enderror" required>
-                                    @foreach ($divisis as $d)
-                                    <option value="{{ $d->id_divisi }}"
-                                        {{ old('id_divisi', $pekerjaan->id_divisi) == $d->id_divisi ? 'selected' : '' }}>
-                                        {{ $d->nama_divisi }}
-                                    </option>
-                                    @endforeach
-                                </select>
-                                @error('id_divisi')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
+                                    <select name="id_divisi"
+                                        class="form-select @error('id_divisi') is-invalid @enderror" required>
+                                        <option value="">Pilih Divisi</option>
+                                        @foreach ($divisis as $d)
+                                            <option value="{{ $d->id_divisi }}"
+                                                {{ old('id_divisi', $pekerjaan->id_divisi) == $d->id_divisi ? 'selected' : '' }}>
+                                                {{ $d->nama_divisi }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('id_divisi')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
                                 @else
-                                <input type="text" class="form-control"
-                                    value="{{ $divisiLogin ? $divisiLogin->nama_divisi : '—' }}" disabled>
-                                @if ($divisiLogin)
-                                <input type="hidden" name="id_divisi" value="{{ $divisiLogin->id_divisi }}">
-                                @endif
+                                    <input type="text" class="form-control"
+                                        value="{{ $divisiLogin ? $divisiLogin->nama_divisi : '—' }}" disabled>
+                                    @if ($divisiLogin)
+                                        <input type="hidden" name="id_divisi" value="{{ $divisiLogin->id_divisi }}">
+                                    @endif
                                 @endif
                             </div>
 
@@ -287,6 +320,63 @@
                 previewThumbs(zone, files);
             });
         });
+    })();
+</script>
+<script>
+    (function () {
+        const repeater = document.getElementById('pegawaiRepeater');
+        const btnAdd   = document.getElementById('btnAddPegawai');
+        const tpl      = document.getElementById('tplPegawaiItem');
+
+        if (!repeater || !tpl) return;
+
+        function selects() {
+            return Array.from(repeater.querySelectorAll('select[name="pegawai_id[]"]'));
+        }
+
+        function chosenIds() {
+            return new Set(selects().map(s => s.value).filter(v => v));
+        }
+
+        function refreshOptions() {
+            const chosen = chosenIds();
+            selects().forEach(sel => {
+                const myVal = sel.value;
+                Array.from(sel.options).forEach(opt => {
+                    if (!opt.value) {
+                        opt.disabled = false;
+                        return;
+                    }
+                    opt.disabled = chosen.has(opt.value) && opt.value !== myVal;
+                });
+            });
+        }
+
+        if (btnAdd) {
+            btnAdd.addEventListener('click', function (e) {
+                e.preventDefault();
+                const node = tpl.content.firstElementChild.cloneNode(true);
+                repeater.appendChild(node);
+                refreshOptions();
+            });
+        }
+
+        repeater.addEventListener('click', function (e) {
+            const btn = e.target.closest('.btnRemovePegawai');
+            if (!btn) return;
+            const item = btn.closest('.pegawai-item');
+            if (!item) return;
+            item.remove();
+            refreshOptions();
+        });
+
+        repeater.addEventListener('change', function (e) {
+            if (e.target && e.target.matches('select[name="pegawai_id[]"]')) {
+                refreshOptions();
+            }
+        });
+
+        refreshOptions();
     })();
 </script>
 @endpush
