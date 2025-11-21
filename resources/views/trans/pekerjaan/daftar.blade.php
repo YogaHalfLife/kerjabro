@@ -54,7 +54,6 @@
             </div>
             <div class="card-body px-0 pt-0 pb-2">
                 <div class="table-responsive p-0">
-<<<<<<< HEAD
                     <table id="table-pekerjaan-riwayat" class="table align-items-center mb-0">
                         <thead>
                             <tr>
@@ -76,24 +75,6 @@
                                 <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                                     Foto
                                 </th>
-=======
-                    <table class="table align-items-center mb-0">
-                        <thead>
-                            <tr>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">#</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Judul
-                                </th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Detail
-                                </th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Pegawai
-                                </th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Divisi
-                                </th>
-                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                    Tanggal</th>
-                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                    Foto</th>
->>>>>>> 2a21b73f38bfed8ceefd0a213e3d435d49607660
                                 @if ($isAdmin)
                                     <th class="text-secondary opacity-7"></th>
                                 @endif
@@ -107,23 +88,16 @@
                                             {{ method_exists($data, 'currentPage') ? ($data->currentPage() - 1) * $data->perPage() + $i + 1 : $i + 1 }}
                                         </h6>
                                     </td>
-<<<<<<< HEAD
 
                                     <td class="col-judul-riwayat">
                                         <div class="text-sm lh-sm clamp-2"
                                             data-bs-toggle="tooltip"
                                             data-bs-placement="top"
-=======
-                                    
-                                    <td style="max-width:420px;">
-                                        <div class="text-sm lh-sm clamp-1" data-bs-toggle="tooltip" data-bs-placement="top"
->>>>>>> 2a21b73f38bfed8ceefd0a213e3d435d49607660
                                             title="{{ trim($row->judul_pekerjaan) }}">
                                             {{ $row->judul_pekerjaan }}
                                         </div>
                                         <small class="text-xs text-secondary">ID: {{ $row->id }}</small>
                                     </td>
-<<<<<<< HEAD
 
                                     <td class="col-detail-riwayat">
                                         <div class="text-sm lh-sm clamp-2"
@@ -139,20 +113,6 @@
                                         </button>
                                     </td>
 
-=======
-                                    
-                                    <td style="max-width:420px;">
-                                        <div class="text-sm lh-sm clamp-2" data-bs-toggle="tooltip" data-bs-placement="top"
-                                            title="{{ trim($row->detail_pekerjaan) }}">
-                                            {{ $row->detail_pekerjaan }}
-                                        </div>
-                                        <button type="button" class="btn btn-link p-0 text-xs mt-1 detail-pekerjaan-view"
-                                            data-detail="{{ e($row->detail_pekerjaan) }}">
-                                            Lihat selengkapnya
-                                        </button>
-                                    </td>
-                                    
->>>>>>> 2a21b73f38bfed8ceefd0a213e3d435d49607660
                                     <td style="max-width:260px;">
                                         @if ($row->pegawais->count())
                                             <div class="d-flex flex-wrap gap-1">
@@ -166,19 +126,11 @@
                                             <span class="text-secondary">—</span>
                                         @endif
                                     </td>
-<<<<<<< HEAD
 
                                     <td style="max-width:260px;">
                                         @php
                                             $divisiList = $row->divisis;
 
-=======
-                                    
-                                    <td style="max-width:260px;">
-                                        @php
-                                            $divisiList = $row->divisis;
-                                            
->>>>>>> 2a21b73f38bfed8ceefd0a213e3d435d49607660
                                             if (!$divisiList->count() && $row->divisi) {
                                                 $divisiList = collect([$row->divisi]);
                                             }
@@ -202,15 +154,9 @@
                                     </td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-sm btn-outline-secondary"
-<<<<<<< HEAD
                                                 data-bs-toggle="modal" data-bs-target="#modalFoto"
                                                 data-sebelum='@json($row->fotos->where('kategori', 'sebelum')->pluck('path')->values())'
                                                 data-sesudah='@json($row->fotos->where('kategori', 'sesudah')->pluck('path')->values())'>
-=======
-                                            data-bs-toggle="modal" data-bs-target="#modalFoto"
-                                            data-sebelum='@json($row->fotos->where('kategori', 'sebelum')->pluck('path')->values())'
-                                            data-sesudah='@json($row->fotos->where('kategori', 'sesudah')->pluck('path')->values())'>
->>>>>>> 2a21b73f38bfed8ceefd0a213e3d435d49607660
                                             <i class="ni ni-watch-time me-1"></i>
                                             Lihat
                                         </button>

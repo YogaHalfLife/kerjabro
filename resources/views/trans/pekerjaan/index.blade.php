@@ -284,23 +284,14 @@
 
                 <div class="card-body px-0 pt-0 pb-2">
                     <div class="table-responsive p-0">
-<<<<<<< HEAD
                         <table class="table align-items-center mb-0 resizable-table">
-=======
-                        <table class="table align-items-center mb-0">
->>>>>>> 2a21b73f38bfed8ceefd0a213e3d435d49607660
                             <thead>
                                 <tr>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">#
                                     </th>
                                     <th
-<<<<<<< HEAD
                                         class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 col-judul">
                                         Judul </th>
-=======
-                                        class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                        Judul</th>
->>>>>>> 2a21b73f38bfed8ceefd0a213e3d435d49607660
                                     <th
                                         class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                         Detail</th>
@@ -774,7 +765,6 @@
         refreshOptions();
     })();
 </script>
-<<<<<<< HEAD
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const table = document.querySelector('.resizable-table');
@@ -833,6 +823,4 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
-=======
->>>>>>> 2a21b73f38bfed8ceefd0a213e3d435d49607660
 @endpush
