@@ -57,7 +57,87 @@
     .sidenav .nav-link {
         transition: background-color .2s ease, color .2s ease, box-shadow .2s ease;
     }
+
+    .resizable-table {
+        table-layout: fixed; /* supaya lebar kolom lebih konsisten saat diubah */
+        width: 100%;
+    }
+
+    .resizable-table th {
+        position: relative;
+        user-select: none; /* hindari teks terseleksi saat drag */
+        -webkit-user-select: none;
+        -moz-user-select: none;
+    }
+
+    .resizable-table th .resizer {
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 6px;                 /* lebar area drag */
+        height: 100%;
+        cursor: col-resize;
+        z-index: 2;
+    }
+
+    /* Opsional: kasih garis tipis di sisi kanan sebagai indikator handle */
+    .resizable-table th .resizer::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 15%;
+        width: 1px;
+        height: 70%;
+        background: rgba(0,0,0,.15);
+    }
+    .clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;      /* maksimal 2 baris */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    #table-pekerjaan-riwayat .col-judul-riwayat,
+    #table-pekerjaan-riwayat .col-detail-riwayat {
+        white-space: normal;    /* boleh turun baris, dipotong oleh clamp-2 */
+    }
+
+    /* Tabel riwayat bisa di-resize kolomnya */
+    #table-pekerjaan-riwayat {
+        table-layout: fixed;   /* lebar kolom stabil dan bisa diatur */
+        width: 100%;
+    }
+
+    #table-pekerjaan-riwayat th {
+        position: relative;
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+    }
+
+    /* Handle kecil di sisi kanan header untuk drag */
+    #table-pekerjaan-riwayat th .resizer {
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 6px;           /* area klik/drag */
+        height: 100%;
+        cursor: col-resize;
+        z-index: 2;
+    }
+
+    /* Garis tipis sebagai indikator */
+    #table-pekerjaan-riwayat th .resizer::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 15%;
+        width: 1px;
+        height: 70%;
+        background: rgba(0,0,0,.15);
+    }
 </style>
+
 
 
 <body class="{{ $class ?? '' }}">

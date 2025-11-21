@@ -284,14 +284,14 @@
 
                 <div class="card-body px-0 pt-0 pb-2">
                     <div class="table-responsive p-0">
-                        <table class="table align-items-center mb-0">
+                        <table class="table align-items-center mb-0 resizable-table">
                             <thead>
                                 <tr>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">#
                                     </th>
                                     <th
-                                        class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                        Judul</th>
+                                        class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 col-judul">
+                                        Judul </th>
                                     <th
                                         class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                         Detail</th>
@@ -334,9 +334,10 @@
                                         <h6 class="mb-0 text-sm">{{ $no }}</h6>
                                     </td>
                                     
-                                    <td style="max-width: 260px;">
-                                        <div class="d-block text-truncate" style="max-width: 260px;">
-                                            <h6 class="mb-0 text-sm text-dark">{{ $row->judul_pekerjaan }}</h6>
+                                    <td class="col-judul">
+                                        <div class="text-sm text-dark clamp-2"
+                                            title="{{ $row->judul_pekerjaan }}">
+                                            <b>{{ $row->judul_pekerjaan }}</b>
                                         </div>
                                         <small class="text-xs text-secondary">ID: {{ $row->id }}</small>
                                     </td>
@@ -763,5 +764,63 @@
         
         refreshOptions();
     })();
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const table = document.querySelector('.resizable-table');
+    if (!table) return;
+
+    const ths = table.querySelectorAll('thead th');
+
+    ths.forEach((th, index) => {
+        // Jangan tambahkan resizer di kolom aksi terakhir kalau tidak mau di-resize
+        // if (index === ths.length - 1) return;
+
+        const resizer = document.createElement('div');
+        resizer.classList.add('resizer');
+        th.appendChild(resizer);
+
+        let startX, startWidth;
+
+        resizer.addEventListener('mousedown', function (e) {
+            e.preventDefault();
+
+            startX = e.pageX;
+            startWidth = th.offsetWidth;
+
+            const onMouseMove = function (eMove) {
+                const delta = eMove.pageX - startX;
+                let newWidth = startWidth + delta;
+
+                const minWidth = 60; // minimal lebar kolom
+                if (newWidth < minWidth) newWidth = minWidth;
+
+                // Set lebar TH
+                th.style.width = newWidth + 'px';
+                th.style.minWidth = newWidth + 'px';
+                th.style.maxWidth = newWidth + 'px';
+
+                // Set lebar semua TD pada kolom yang sama
+                const columnIndex = Array.prototype.indexOf.call(th.parentNode.children, th);
+                table.querySelectorAll('tbody tr').forEach(function (tr) {
+                    const td = tr.children[columnIndex];
+                    if (td) {
+                        td.style.width = newWidth + 'px';
+                        td.style.minWidth = newWidth + 'px';
+                        td.style.maxWidth = newWidth + 'px';
+                    }
+                });
+            };
+
+            const onMouseUp = function () {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            };
+
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+    });
+});
 </script>
 @endpush

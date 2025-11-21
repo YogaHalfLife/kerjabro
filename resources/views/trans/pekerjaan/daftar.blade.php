@@ -54,22 +54,27 @@
             </div>
             <div class="card-body px-0 pt-0 pb-2">
                 <div class="table-responsive p-0">
-                    <table class="table align-items-center mb-0">
+                    <table id="table-pekerjaan-riwayat" class="table align-items-center mb-0">
                         <thead>
                             <tr>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">#</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Judul
+
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 col-judul-riwayat">
+                                    Judul
                                 </th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Detail
+
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2 col-detail-riwayat">
+                                    Detail
                                 </th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Pegawai
-                                </th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Divisi
+
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Pegawai</th>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Divisi</th>
+                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                    Tanggal
                                 </th>
                                 <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                    Tanggal</th>
-                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                    Foto</th>
+                                    Foto
+                                </th>
                                 @if ($isAdmin)
                                     <th class="text-secondary opacity-7"></th>
                                 @endif
@@ -83,26 +88,31 @@
                                             {{ method_exists($data, 'currentPage') ? ($data->currentPage() - 1) * $data->perPage() + $i + 1 : $i + 1 }}
                                         </h6>
                                     </td>
-                                    
-                                    <td style="max-width:420px;">
-                                        <div class="text-sm lh-sm clamp-1" data-bs-toggle="tooltip" data-bs-placement="top"
+
+                                    <td class="col-judul-riwayat">
+                                        <div class="text-sm lh-sm clamp-2"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
                                             title="{{ trim($row->judul_pekerjaan) }}">
                                             {{ $row->judul_pekerjaan }}
                                         </div>
                                         <small class="text-xs text-secondary">ID: {{ $row->id }}</small>
                                     </td>
-                                    
-                                    <td style="max-width:420px;">
-                                        <div class="text-sm lh-sm clamp-2" data-bs-toggle="tooltip" data-bs-placement="top"
+
+                                    <td class="col-detail-riwayat">
+                                        <div class="text-sm lh-sm clamp-2"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
                                             title="{{ trim($row->detail_pekerjaan) }}">
                                             {{ $row->detail_pekerjaan }}
                                         </div>
-                                        <button type="button" class="btn btn-link p-0 text-xs mt-1 detail-pekerjaan-view"
-                                            data-detail="{{ e($row->detail_pekerjaan) }}">
+                                        <button type="button"
+                                                class="btn btn-link p-0 text-xs mt-1 detail-pekerjaan-view"
+                                                data-detail="{{ e($row->detail_pekerjaan) }}">
                                             Lihat selengkapnya
                                         </button>
                                     </td>
-                                    
+
                                     <td style="max-width:260px;">
                                         @if ($row->pegawais->count())
                                             <div class="d-flex flex-wrap gap-1">
@@ -116,11 +126,11 @@
                                             <span class="text-secondary">—</span>
                                         @endif
                                     </td>
-                                    
+
                                     <td style="max-width:260px;">
                                         @php
                                             $divisiList = $row->divisis;
-                                            
+
                                             if (!$divisiList->count() && $row->divisi) {
                                                 $divisiList = collect([$row->divisi]);
                                             }
@@ -144,9 +154,9 @@
                                     </td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-sm btn-outline-secondary"
-                                            data-bs-toggle="modal" data-bs-target="#modalFoto"
-                                            data-sebelum='@json($row->fotos->where('kategori', 'sebelum')->pluck('path')->values())'
-                                            data-sesudah='@json($row->fotos->where('kategori', 'sesudah')->pluck('path')->values())'>
+                                                data-bs-toggle="modal" data-bs-target="#modalFoto"
+                                                data-sebelum='@json($row->fotos->where('kategori', 'sebelum')->pluck('path')->values())'
+                                                data-sesudah='@json($row->fotos->where('kategori', 'sesudah')->pluck('path')->values())'>
                                             <i class="ni ni-watch-time me-1"></i>
                                             Lihat
                                         </button>
@@ -298,6 +308,64 @@
             document.getElementById('detailPekerjaanContent').textContent = detail;
             const modal = new bootstrap.Modal(document.getElementById('detailPekerjaanModal'));
             modal.show();
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const table = document.getElementById('table-pekerjaan-riwayat');
+            if (!table) return;
+
+            const ths = table.querySelectorAll('thead th');
+
+            ths.forEach((th, index) => {
+                // Kalau mau skip kolom terakhir (misal kolom aksi), bisa un-comment ini:
+                // if (index === ths.length - 1) return;
+
+                const resizer = document.createElement('div');
+                resizer.classList.add('resizer');
+                th.appendChild(resizer);
+
+                let startX, startWidth;
+
+                resizer.addEventListener('mousedown', function (e) {
+                    e.preventDefault();
+
+                    startX = e.pageX;
+                    startWidth = th.offsetWidth;
+
+                    const onMouseMove = function (eMove) {
+                        const delta = eMove.pageX - startX;
+                        let newWidth = startWidth + delta;
+
+                        const minWidth = 60; // lebar minimum kolom
+                        if (newWidth < minWidth) newWidth = minWidth;
+
+                        // Set lebar TH
+                        th.style.width = newWidth + 'px';
+                        th.style.minWidth = newWidth + 'px';
+                        th.style.maxWidth = newWidth + 'px';
+
+                        // Set lebar semua TD di kolom yang sama
+                        const columnIndex = Array.prototype.indexOf.call(th.parentNode.children, th);
+                        table.querySelectorAll('tbody tr').forEach(function (tr) {
+                            const td = tr.children[columnIndex];
+                            if (td) {
+                                td.style.width = newWidth + 'px';
+                                td.style.minWidth = newWidth + 'px';
+                                td.style.maxWidth = newWidth + 'px';
+                            }
+                        });
+                    };
+
+                    const onMouseUp = function () {
+                        document.removeEventListener('mousemove', onMouseMove);
+                        document.removeEventListener('mouseup', onMouseUp);
+                    };
+
+                    document.addEventListener('mousemove', onMouseMove);
+                    document.addEventListener('mouseup', onMouseUp);
+                });
+            });
         });
     </script>
 @endpush
