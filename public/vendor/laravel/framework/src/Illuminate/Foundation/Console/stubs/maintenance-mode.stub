@@ -1,0 +1,58 @@
+<?php
+if (! file_exists($down = __DIR__.'/down')) {
+    return;
+}
+$data = json_decode(file_get_contents($down), true);
+if (! isset($data['template'])) {
+    return;
+}
+if (isset($data['except'])) {
+    $uri = parse_url($_SERVER['REQUEST_URI'])['path'];
+
+    $uri = rawurldecode($uri !== '/' ? trim($uri, '/') : $uri);
+
+    foreach ((array) $data['except'] as $except) {
+        $except = $except !== '/' ? trim($except, '/') : $except;
+
+        if ($except == $uri) {
+            return;
+        }
+
+        $except = preg_quote($except, '#');
+
+        $except = str_replace('\*', '.*', $except);
+
+        if (preg_match('#^'.$except.'\z#u', $uri) === 1) {
+            return;
+        }
+    }
+}
+if (isset($data['secret']) && $_SERVER['REQUEST_URI'] === '/'.$data['secret']) {
+    return;
+}
+if (isset($_COOKIE['laravel_maintenance']) && isset($data['secret'])) {
+    $payload = json_decode(base64_decode($_COOKIE['laravel_maintenance']), true);
+
+    if (is_array($payload) &&
+        is_numeric($payload['expires_at'] ?? null) &&
+        isset($payload['mac']) &&
+        hash_equals(hash_hmac('sha256', $payload['expires_at'], $data['secret']), $payload['mac']) &&
+        (int) $payload['expires_at'] >= time()) {
+        return;
+    }
+}
+if (isset($data['redirect']) && $_SERVER['REQUEST_URI'] !== $data['redirect']) {
+    http_response_code(302);
+    header('Location: '.$data['redirect']);
+
+    exit;
+}
+http_response_code($data['status'] ?? 503);
+
+if (isset($data['retry'])) {
+    header('Retry-After: '.$data['retry']);
+}
+
+echo $data['template'];
+
+exit;
