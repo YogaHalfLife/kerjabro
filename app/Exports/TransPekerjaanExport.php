@@ -68,13 +68,13 @@ class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping,
             'divisis:id_divisi,nama_divisi',
             'fotos',
         ]);
-        
+
         if (!$isAdmin && $pegawaiLogin) {
             $query->whereHas('pegawais', function ($q) use ($pegawaiLogin) {
                 $q->where('master_pegawai.id', $pegawaiLogin->id);
             });
         }
-        
+
         if ($this->q) {
             $q = $this->q;
             $query->where(function ($w) use ($q) {
@@ -85,11 +85,11 @@ class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping,
                     });
             });
         }
-        
+
         if ($this->startDate && $this->endDate) {
             $query->whereBetween('bulan', [$this->startDate, $this->endDate]);
         }
-        
+
         if ($this->divisi) {
             $divisiId = $this->divisi;
             $query->where(function ($w) use ($divisiId) {
@@ -155,7 +155,7 @@ class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping,
             'Detail Pekerjaan',
             'Pegawai',
             'Divisi',
-            'Bulan',
+            'Tanggal',
             'Foto Sebelum',
             'Foto Sesudah',
         ];
@@ -177,7 +177,7 @@ class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping,
             $row->detail_pekerjaan,
             $pegawaiNama,
             $divisiNama,
-            Str::of($row->bulan)->substr(0, 7),
+            Str::of($row->bulan)->substr(0, 10),
             '',
             '',
         ];
@@ -218,11 +218,20 @@ class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping,
                         ? SharedDrawing::pixelsToPoints($px)
                         : $px * 0.75;
                 };
-
-                foreach (range('A', 'E') as $col) {
+                
+                $sheet->getColumnDimension('A')->setAutoSize(false);
+                $sheet->getColumnDimension('A')->setWidth(30);
+                
+                $sheet->getColumnDimension('B')->setAutoSize(false);
+                $sheet->getColumnDimension('B')->setWidth(40);
+                
+                $sheet->getColumnDimension('C')->setAutoSize(false);
+                $sheet->getColumnDimension('C')->setWidth(40);
+                
+                foreach (['D', 'E'] as $col) {
                     $sheet->getColumnDimension($col)->setAutoSize(true);
                 }
-                
+
                 $maxSeb = 0;
                 $maxSes = 0;
                 foreach ($this->rows as $row) {
@@ -236,7 +245,7 @@ class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping,
                         + max(0, $n - 1) * $this->gapX
                         + $this->padCol;
                 };
-                
+
                 $sheet->getColumnDimension($this->colSebelum)->setAutoSize(false);
                 $sheet->getColumnDimension($this->colSesudah)->setAutoSize(false);
                 $sheet->getColumnDimension($this->colSebelum)->setWidth($pxToWidth($needPx($maxSeb)));
@@ -282,9 +291,13 @@ class TransPekerjaanExport implements FromCollection, WithHeadings, WithMapping,
                 
                 $sheet->getStyle('A1:G1')->getFont()->setBold(true);
                 
-                $sheet->getStyle('B2:B' . ($this->startRow + max(0, count($this->rows))))
-                    ->getAlignment()
-                    ->setWrapText(true);
+                $lastRow = $this->startRow + max(0, count($this->rows)) - 1;
+                if ($lastRow >= $this->startRow) {
+                    
+                    $sheet->getStyle('A' . $this->startRow . ':B' . $lastRow)
+                        ->getAlignment()
+                        ->setWrapText(true);
+                }
             },
         ];
     }
