@@ -132,7 +132,12 @@ class LaporanPekerjaanController extends Controller
         $tempPath = storage_path('app/tmp_' . uniqid() . '.docx');
         $writer = \PhpOffice\PhpWord\IOFactory::createWriter($doc, 'Word2007');
         $writer->save($tempPath);
+        
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
 
-        return response()->download($tempPath, $fileName)->deleteFileAfterSend(true);
+        return response()->download($tempPath, $fileName)
+            ->deleteFileAfterSend(true);
     }
 }
