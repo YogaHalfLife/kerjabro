@@ -26782,6 +26782,27 @@ pre[class*=language-] {
   width: 11px;
 }
 
+#sidenav-main {
+  height: calc(100vh - 2rem);
+  overflow: hidden;
+}
+
+#sidenav-main #sidenav-collapse-main {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 1199.98px) {
+  #sidenav-main {
+    height: 100vh;
+  }
+  #sidenav-main #sidenav-collapse-main {
+    max-height: 100vh;
+  }
+}
+
 /* MS supports */
 @supports (-ms-overflow-style: none) {
   .ps {
